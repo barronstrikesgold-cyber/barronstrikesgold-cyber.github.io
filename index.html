@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-site="static-phone" data-live="main-20260909i">
+<html lang="en" data-site="static-phone" data-live="main-20260909j">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -8,7 +8,7 @@
     />
     <meta name="theme-color" content="#F2F2F7" />
     <title>Reseller</title>
-    <link rel="stylesheet" href="styles.css?v=20260909i" />
+    <link rel="stylesheet" href="styles.css?v=20260909j" />
   </head>
   <body>
     <div class="phone">
@@ -40,6 +40,9 @@
           </button>
           <button class="cat" type="button" data-store="bestbuy">
             Best Buy <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <button class="cat" type="button" data-store="dollartree">
+            Dollar Tree <span class="chev" aria-hidden="true">›</span>
           </button>
           <p class="group-title">Or browse</p>
           <button class="cat" type="button" data-open="cars">
@@ -73,8 +76,23 @@
   "target": "https://www.target.com/s?searchTerm=",
   "bestbuy": "https://www.bestbuy.com/site/searchpage.jsp?st=",
   "goodwill": "https://shopgoodwill.com/categories/search?q=",
+  "dollartree": "https://www.dollartree.com/searchresults?Ntt=",
+  "dollartreeJson": "https://www.dollartree.com/ccstoreui/v1/search?Ntt=",
   "google": "https://www.google.com/search?q=",
   "shopping": "https://www.google.com/search?tbm=shop&q="
+}
+    </script>
+    <script type="application/json" id="price-lines-json">
+{
+  "retail": "Retail",
+  "resell": "Recommended resell",
+  "dollarTreeBase": "$1.25 as of 2026",
+  "f40": { "retail": "About $1", "resell": "$122", "date": "August 2026" },
+  "civic": { "retail": "About $1", "resell": "$61", "date": "August 2026" },
+  "lotus": { "retail": "About $1", "resell": "$33", "date": "August 2026" },
+  "impala": { "retail": "About $1", "resell": "$45", "date": "July 2026" },
+  "mustang": { "retail": "About $1", "resell": "$53", "date": "May 2026" },
+  "toppsS1": { "retail": "Often $24.99", "resell": "$13.20 to $16.80", "date": "September 7, 2026" }
 }
     </script>
     <script type="application/json" id="checked-json">
@@ -216,7 +234,7 @@
   }
 ]
     </script>
-    <script src="cash.js?v=20260909i"></script>
-    <script src="app.js?v=20260909i"></script>
+    <script src="cash.js?v=20260909j"></script>
+    <script src="app.js?v=20260909j"></script>
   </body>
 </html>

@@ -30,7 +30,13 @@ assert(
   "ShopGoodwill categories search in HTML"
 );
 assert(app.includes('placeholder="Search this store"'), "store header search placeholder");
-assert(!/in stock/i.test(app), "app does not invent In stock");
+assert(html.includes("Dollar Tree"), "Dollar Tree in HTML");
+assert(html.includes("Retail"), "Retail label in HTML");
+assert(html.includes("Recommended resell"), "Recommended resell label in HTML");
+assert(
+  html.includes("dollartree.com/searchresults"),
+  "confirmed Dollar Tree search in HTML"
+);
 
 assert(leftoverCash(null, 0) === null, "unknown cash without sold");
 assert(Math.round(leftoverCash(122, 0)) === 106, "122 after 13% is about 106");

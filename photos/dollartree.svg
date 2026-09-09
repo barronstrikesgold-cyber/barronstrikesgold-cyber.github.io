@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240" role="img" aria-label="Dollar Tree look-for mark">
+  <rect width="400" height="240" fill="#f2f2f7"/>
+  <rect x="40" y="48" width="320" height="144" rx="12" fill="#fff"/>
+  <text x="200" y="128" text-anchor="middle" font-family="system-ui,sans-serif" font-size="28" font-weight="700" fill="#1c1c1e">Dollar Tree</text>
+  <text x="200" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" fill="#8e8e93">Look for. Not a stock list.</text>
+</svg>

@@ -22,6 +22,13 @@ assert(
 assert(firstScreen.includes("Where are you?"), "store prompt on first screen");
 assert(firstScreen.includes("Or browse"), "browse prompt on first screen");
 assert(firstScreen.includes("Walmart"), "Walmart on first screen");
+assert(firstScreen.includes("Dollar Tree"), "Dollar Tree on first screen");
+assert(html.includes("Retail"), "Retail line in HTML");
+assert(html.includes("Recommended resell"), "Recommended resell line in HTML");
+assert(
+  html.includes("dollartree.com/searchresults"),
+  "Dollar Tree search URL in HTML"
+);
 
 ["Hunt", "Stores", "Dates", "Profit", "Bought"].forEach((name) => {
   assert(

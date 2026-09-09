@@ -780,6 +780,98 @@
         sizing: CLOTHES_SIZE,
       },
     ],
+    dollartree: [
+      {
+        id: "dt-food-party",
+        name: "Name-brand food or party",
+        photo: "/photos/dollartree.svg",
+        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
+        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
+        shelfNum: 1.25,
+        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
+        listPrice: "No settled sale",
+        checkedPrice: "No settled sale",
+        source: "No settled sale fetched",
+        date: "No sale date",
+        checkedNote: "Do not invent a sold. Scan the shelf checker.",
+        sentiment: "unknown",
+        digest:
+          "Worth a look only if a name-brand food or party item can resell. No settled sale stored. Fitness Pass until a scan shows $1.25 or a penny and a stored sold beats it after fees.",
+        fitness: "Pass",
+      },
+      {
+        id: "dt-seasonal",
+        name: "Seasonal before the holiday",
+        photo: "/photos/dollartree.svg",
+        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
+        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
+        shelfNum: 1.25,
+        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
+        listPrice: "No settled sale",
+        checkedPrice: "No settled sale",
+        source: "No settled sale fetched",
+        date: "No sale date",
+        checkedNote: "Do not invent a sold.",
+        sentiment: "unknown",
+        digest:
+          "Seasonal only before the holiday. No settled sale stored. Skip after the date. Fitness Pass until a $1.25 or penny scan and a stored sold beats fees.",
+        fitness: "Pass",
+      },
+      {
+        id: "dt-books",
+        name: "Books",
+        photo: "/photos/dollartree.svg",
+        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
+        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
+        shelfNum: 1.25,
+        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
+        listPrice: "No settled sale",
+        checkedPrice: "No settled sale",
+        source: "No settled sale fetched",
+        date: "No sale date",
+        checkedNote: "Do not invent a sold.",
+        sentiment: "unknown",
+        digest:
+          "Books can be worth a look. No settled sale stored for a generic Dollar Tree book. Fitness Pass until a scan and a stored sold beat $1.25 after fees.",
+        fitness: "Pass",
+      },
+      {
+        id: "dt-craft",
+        name: "Craft tools",
+        photo: "/photos/dollartree.svg",
+        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
+        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
+        shelfNum: 1.25,
+        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
+        listPrice: "No settled sale",
+        checkedPrice: "No settled sale",
+        source: "No settled sale fetched",
+        date: "No sale date",
+        checkedNote: "Do not invent a sold.",
+        sentiment: "unknown",
+        digest:
+          "Craft tools only if they can resell. No settled sale stored. Skip random housewares with no sold. Fitness Pass until a $1.25 or penny scan and a stored sold beats fees.",
+        fitness: "Pass",
+      },
+      {
+        id: "dt-mistag",
+        name: "Mis-tagged name brand",
+        photo: "/photos/dollartree.svg",
+        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
+        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
+        shelfNum: 1.25,
+        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
+        listPrice: "No settled sale",
+        checkedPrice: "No settled sale",
+        source: "No settled sale fetched",
+        date: "No sale date",
+        checkedNote: "Do not invent a sold. Confirm the tag on the checker.",
+        sentiment: "unknown",
+        digest:
+          "A mis-tagged name brand is worth a look. No settled sale stored. Fitness Pass until a scan shows $1.25 or a penny and a stored sold beats it after fees.",
+        fitness: "Pass",
+      },
+    ],
   };
 
   var TITLES = {
@@ -830,6 +922,13 @@
       ids: ["iphone", "ipad", "macbook", "airpods", "watch", "switch"],
       search: "https://www.bestbuy.com/site/searchpage.jsp?st=",
     },
+    dollartree: {
+      name: "Dollar Tree",
+      look: "Look here: base shelf is $1.25 as of 2026. A red dot means the item is priced above $1.25, not a discount. Scan the checker in the store. Do not treat sticker color as a sale. Worth a look only if it can resell: name-brand food or party, seasonal before the holiday, books, craft tools, a mis-tagged name brand. Skip random housewares with no sold. No settled sale stored for a generic Dollar Tree item. Fitness Watch only after a scan shows $1.25 or a penny and a stored sold beats it after fees. Otherwise Pass.",
+      cats: ["dollartree"],
+      ids: null,
+      search: "https://www.dollartree.com/searchresults?Ntt=",
+    },
   };
 
   var CHECK = {
@@ -837,6 +936,8 @@
     target: "https://www.target.com/s?searchTerm=",
     bestbuy: "https://www.bestbuy.com/site/searchpage.jsp?st=",
     goodwill: "https://shopgoodwill.com/categories/search?q=",
+    dollartree: "https://www.dollartree.com/searchresults?Ntt=",
+    dollartreeJson: "https://www.dollartree.com/ccstoreui/v1/search?Ntt=",
     google: "https://www.google.com/search?q=",
     shopping: "https://www.google.com/search?tbm=shop&q=",
   };
@@ -942,6 +1043,20 @@
   }
 
   function fitnessFor(item) {
+    if (item._cat === "dollartree") {
+      var sold = storedSold(item);
+      var shelf = storedShelf(item);
+      var net = C.leftoverCash(sold, shipping());
+      if (
+        sold != null &&
+        net != null &&
+        (shelf === 1.25 || shelf === 0.01) &&
+        net > shelf
+      ) {
+        return "Watch";
+      }
+      return "Pass";
+    }
     return C.itemFitness({
       fitness: item.fitness,
       rule: item.rule,
@@ -996,6 +1111,9 @@
       escapeHtml(checkHref(CHECK.bestbuy, query)) +
       '" target="_blank" rel="noopener noreferrer">Best Buy</a>' +
       '<a href="' +
+      escapeHtml(checkHref(CHECK.dollartree, query)) +
+      '" target="_blank" rel="noopener noreferrer">Check Dollar Tree</a>' +
+      '<a href="' +
       escapeHtml(checkHref(CHECK.goodwill, query)) +
       '" target="_blank" rel="noopener noreferrer">ShopGoodwill</a>' +
       '<a href="' +
@@ -1011,22 +1129,129 @@
     );
   }
 
-  function leftoverLine(item, shelfVal) {
+  function retailText(item) {
+    if (item.retailLabel) return item.retailLabel;
+    if (item.id === "etb") return "Printed $49.99";
+    if (item.id === "topps-s1") return "Often $24.99";
+    if (item._cat === "cars" && item.shelfNum === 1) return "About $1";
+    if (item._cat === "dollartree") {
+      return "$1.25 as of 2026 unless a red dot or scan says otherwise";
+    }
+    if (item.shelfNum != null && /printed|about \$/i.test(item.shelf || "")) {
+      return item.shelf;
+    }
+    return "Retail unknown";
+  }
+
+  function retailNum(item) {
+    var typed = shelfMap()[item.id];
+    if (typed != null && typed !== "") {
+      var n = Number(typed);
+      if (Number.isFinite(n)) return n;
+    }
+    if (item.id === "etb") return 49.99;
+    if (item.id === "topps-s1") return 24.99;
+    if (item._cat === "cars" && item.shelfNum === 1) return 1;
+    if (item._cat === "dollartree") return 1.25;
+    if (item.shelfNum != null && /printed|about \$/i.test(item.shelf || "")) {
+      return item.shelfNum;
+    }
+    return null;
+  }
+
+  function resellText(item) {
+    if (item.id === "topps-s1") {
+      return "$13.20 to $16.80, September 7, 2026. Do not list above that.";
+    }
+    if (item.soldNum != null) {
+      return (
+        item.listPrice +
+        (item.date && item.date !== "No sale date" ? ", " + item.date : "")
+      );
+    }
+    return "none";
+  }
+
+  function leftoverListed(item) {
     var sold = storedSold(item);
+    var retail = retailNum(item);
     var ship = shipping();
     var net = C.leftoverCash(sold, ship);
     if (net == null) return "Unknown";
-    var extra = "";
-    if (shelfVal != null && Number.isFinite(Number(shelfVal))) {
-      extra =
-        net > Number(shelfVal) ? " · beats shelf" : " · does not beat shelf";
+    if (retail == null) {
+      return (
+        "$" +
+        net.toFixed(2) +
+        " after about 13% fees and shipping. Retail unknown."
+      );
     }
     return (
       "$" +
       net.toFixed(2) +
       " after about 13% fees and shipping" +
-      extra
+      (net > retail ? " · beats retail" : " · does not beat retail")
     );
+  }
+
+  function priceLinesHtml(item) {
+    return (
+      '<section class="price-lines"><p><span class="kicker">Retail</span> ' +
+      escapeHtml(retailText(item)) +
+      "</p><p><span class=\"kicker\">Recommended resell</span> " +
+      escapeHtml(resellText(item)) +
+      "</p><p class=\"result\" id=\"left-out\">" +
+      escapeHtml(leftoverListed(item)) +
+      "</p></section>"
+    );
+  }
+
+  function pullControlsHtml(query) {
+    return (
+      '<div class="actions"><button type="button" data-pull-prices="' +
+      escapeHtml(query) +
+      '">Pull prices</button></div>' +
+      '<p class="secondary" id="pull-status"></p>'
+    );
+  }
+
+  function parseDollarTreePrice(data) {
+    try {
+      var rec = data.resultsList.records[0];
+      var inner = rec.records && rec.records[0] ? rec.records[0] : rec;
+      var attrs = inner.attributes || {};
+      var raw = attrs["sku.activePrice"] || attrs["sku.listPrice"];
+      var n = raw && raw[0] != null ? Number(raw[0]) : NaN;
+      if (Number.isFinite(n)) return n;
+    } catch (err) {}
+    return null;
+  }
+
+  function pullLivePrices(query, statusEl) {
+    if (!statusEl) return;
+    statusEl.textContent = "Trying their site…";
+    var jsonBase =
+      CHECK.dollartreeJson ||
+      "https://www.dollartree.com/ccstoreui/v1/search?Ntt=";
+    var url = checkHref(jsonBase, query);
+    fetch(url, { mode: "cors", credentials: "omit" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("blocked");
+        var type = res.headers.get("content-type") || "";
+        if (type.indexOf("json") === -1) throw new Error("no-json");
+        return res.json();
+      })
+      .then(function (data) {
+        var price = parseDollarTreePrice(data);
+        if (price == null) {
+          statusEl.textContent = "Could not read their site from here";
+          return;
+        }
+        statusEl.textContent =
+          "Pulled from Dollar Tree search JSON: $" + price.toFixed(2);
+      })
+      .catch(function () {
+        statusEl.textContent = "Could not read their site from here";
+      });
   }
 
   function escapeHtml(text) {
@@ -1113,8 +1338,8 @@
 
   function renderHunt(query) {
     setTabs("hunt");
-    lastList = { type: "home" };
     var q = (query || "").trim();
+    lastList = { type: q ? "search" : "home", q: q };
     if (q) {
       var hits = sortStrongFirst(
         allItems().filter(function (item) {
@@ -1129,6 +1354,7 @@
         '<label class="search"><span>Search</span><input id="hunt-search" type="search" value="' +
         escapeHtml(q) +
         '" autocomplete="off"></label>' +
+        pullControlsHtml(q) +
         (hits.length
           ? hits.map(rowHtml).join("")
           : '<div class="look"><p class="fitness is-pass">Pass</p><p>If it is not on this list, leave it.</p></div>') +
@@ -1155,6 +1381,7 @@
       '<button class="cat" type="button" data-store="target">Target <span class="chev">›</span></button>' +
       '<button class="cat" type="button" data-store="goodwill">Goodwill <span class="chev">›</span></button>' +
       '<button class="cat" type="button" data-store="bestbuy">Best Buy <span class="chev">›</span></button>' +
+      '<button class="cat" type="button" data-store="dollartree">Dollar Tree <span class="chev">›</span></button>' +
       "</main>";
   }
 
@@ -1274,13 +1501,7 @@
       '">Fitness: ' +
       escapeHtml(fit) +
       "</p>" +
-      "<p>" +
-      escapeHtml(item.listPrice) +
-      " · " +
-      escapeHtml(item.source) +
-      " · " +
-      escapeHtml(item.date) +
-      "</p>" +
+      priceLinesHtml(item) +
       (item.checkedNote
         ? '<p class="secondary">' + escapeHtml(item.checkedNote) + "</p>"
         : "") +
@@ -1297,9 +1518,7 @@
       '<label class="field"><span>Type shelf</span><input id="shelf-in" type="number" inputmode="decimal" step="0.01" value="' +
       (shelf != null ? escapeHtml(String(shelf)) : "") +
       '"></label>' +
-      '<p class="result" id="left-out">' +
-      escapeHtml(leftoverLine(item, shelf)) +
-      "</p>" +
+      pullControlsHtml(item.name) +
       '<div class="actions">' +
       '<button type="button" data-mark="found">' +
       (mark === "found" ? "Found ✓" : "Found") +
@@ -1517,7 +1736,7 @@
       '"></label>' +
       '<label class="field"><span>Cost</span><input id="book-cost" type="number" inputmode="decimal" step="0.01"></label>' +
       '<label class="field"><span>Store</span><select id="book-store">' +
-      '<option>Walmart</option><option>Target</option><option>Goodwill</option><option>Best Buy</option>' +
+      '<option>Walmart</option><option>Target</option><option>Goodwill</option><option>Best Buy</option><option>Dollar Tree</option>' +
       "</select></label>" +
       '<label class="field"><span>Date</span><input id="book-date" type="date"></label>' +
       '<label class="field"><span>Size</span><input id="book-size" type="text" autocomplete="off" value="' +
@@ -1557,6 +1776,7 @@
     if (lastList.type === "store") renderStore(lastList.id, lastList.from);
     else if (lastList.type === "cat") renderList(lastList.id);
     else if (lastList.type === "dates") renderDates();
+    else if (lastList.type === "search") renderHunt(lastList.q);
     else if (lastList.type === "stores") renderStoresHub();
     else renderHunt();
   }
@@ -1605,7 +1825,7 @@
       else shelves[item.id] = val;
       writeJson(SHELF_KEY, shelves);
       var out = document.getElementById("left-out");
-      if (out) out.textContent = leftoverLine(item, val);
+      if (out) out.textContent = leftoverListed(item);
     }
   });
 
@@ -1682,6 +1902,14 @@
     if (event.target.closest("#visit-done")) {
       writeJson(VISIT_KEY, []);
       renderHunt();
+      return;
+    }
+    var pullBtn = event.target.closest("[data-pull-prices]");
+    if (pullBtn) {
+      pullLivePrices(
+        pullBtn.getAttribute("data-pull-prices") || "",
+        document.getElementById("pull-status")
+      );
       return;
     }
     if (event.target.closest("[data-no-buy]")) {
