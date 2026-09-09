@@ -784,6 +784,14 @@
     streetwear: "Streetwear",
   };
 
+  var TODAY = "2026-09-09";
+  var DATES = [];
+  try {
+    DATES = JSON.parse(document.getElementById("dates-json").textContent);
+  } catch (err) {
+    DATES = [];
+  }
+
   var screen = document.getElementById("screen");
   var tabButtons = document.querySelectorAll(".tabbar [data-tab]");
   var homeHTML = screen.innerHTML;
@@ -900,6 +908,122 @@
       "</span>" +
       "</button>"
     );
+  }
+
+  function dateStatus(iso) {
+    return iso < TODAY ? "Out" : "Upcoming";
+  }
+
+  function renderDates() {
+    setTabs("dates");
+    var rows = DATES.slice().sort(function (a, b) {
+      return a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0;
+    });
+    var html = "";
+    var last = "";
+    rows.forEach(function (item) {
+      var status = dateStatus(item.iso);
+      if (item.dateLabel !== last) {
+        html +=
+          '<p class="group-title">' +
+          escapeHtml(item.dateLabel) +
+          " · " +
+          status +
+          "</p>";
+        last = item.dateLabel;
+      }
+      html +=
+        '<button class="row" type="button" data-date="' +
+        escapeHtml(item.id) +
+        '">' +
+        '<span class="row-copy"><span class="date-kicker">' +
+        escapeHtml(item.dateLabel) +
+        "</span><strong>" +
+        escapeHtml(item.name) +
+        '</strong><span class="price-line">' +
+        escapeHtml(item.category) +
+        "</span></span>" +
+        '<span class="chev" aria-hidden="true">›</span>' +
+        "</button>";
+    });
+    screen.innerHTML =
+      '<header class="header"><h1>Dates</h1></header><main class="list">' +
+      html +
+      "</main>";
+  }
+
+  function findDate(id) {
+    return DATES.filter(function (item) {
+      return item.id === id;
+    })[0];
+  }
+
+  function renderDateDetail(id) {
+    var item = findDate(id);
+    if (!item) return;
+    setTabs("dates");
+    var status = dateStatus(item.iso);
+    var buy = item.buyUrl
+      ? '<a class="buy-link" href="' +
+        escapeHtml(item.buyUrl) +
+        '" target="_blank" rel="noopener noreferrer">' +
+        escapeHtml(item.buyLabel || "Buy") +
+        "</a>"
+      : '<p class="no-buy">No buy link yet</p>';
+    screen.innerHTML =
+      '<header class="header">' +
+      '<button class="back" type="button" data-go="dates">‹ Dates</button>' +
+      "</header>" +
+      (item.photo
+        ? '<div class="hero"><img src="' +
+          escapeHtml(item.photo) +
+          '" alt="' +
+          escapeHtml(item.name) +
+          '"></div>'
+        : "") +
+      '<div class="copy">' +
+      "<h2>" +
+      escapeHtml(item.name) +
+      "</h2>" +
+      (item.photoNote
+        ? '<p class="photo-note">' + escapeHtml(item.photoNote) + "</p>"
+        : "") +
+      "<p>" +
+      escapeHtml(item.dateLabel) +
+      " · " +
+      status +
+      "</p>" +
+      "<p>Category: " +
+      escapeHtml(item.category) +
+      "</p>" +
+      "<p>Format: " +
+      escapeHtml(item.format) +
+      "</p>" +
+      '<section class="checked">' +
+      '<p class="kicker">Checked</p>' +
+      "<p>Printed or shelf: " +
+      escapeHtml(item.printed) +
+      "</p>" +
+      "<p>" +
+      escapeHtml(item.sold) +
+      "</p>" +
+      "</section>" +
+      "<p>Sentiment: " +
+      escapeHtml(item.sentiment) +
+      "</p>" +
+      '<p class="digest">' +
+      escapeHtml(item.digest) +
+      "</p>" +
+      (item.sizing
+        ? '<p class="sizing">' + escapeHtml(item.sizing) + "</p>"
+        : "") +
+      '<p class="fitness' +
+      fitnessClass(item.fitness) +
+      '">' +
+      escapeHtml(item.fitness) +
+      "</p>" +
+      buy +
+      "</div>";
   }
 
   function renderHome() {
@@ -1115,9 +1239,16 @@
       renderReview(itemBtn.getAttribute("data-item"));
       return;
     }
+    var dateBtn = event.target.closest("[data-date]");
+    if (dateBtn) {
+      renderDateDetail(dateBtn.getAttribute("data-date"));
+      return;
+    }
     var go = event.target.closest("[data-go]");
     if (go) {
-      if (go.getAttribute("data-go") === "home") renderHome();
+      var dest = go.getAttribute("data-go");
+      if (dest === "home") renderHome();
+      else if (dest === "dates") renderDates();
       else renderList(lastList);
       return;
     }
@@ -1125,6 +1256,7 @@
     if (tab) {
       var name = tab.getAttribute("data-tab");
       if (name === "finds") renderHome();
+      if (name === "dates") renderDates();
       if (name === "cash") renderCash();
       if (name === "books") renderBooks();
       return;

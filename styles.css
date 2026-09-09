@@ -365,7 +365,7 @@ input {
   min-height: calc(49px + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   background: #f9f9f9eb;
   border-top: 1px solid rgba(60, 60, 67, 0.12);
 }
@@ -382,6 +382,30 @@ input {
 .tabbar button.is-on {
   color: #000;
   font-weight: 700;
+}
+
+.date-kicker {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8e8e93;
+}
+
+.buy-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 12px;
+  background: #e10600;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.no-buy {
+  color: #6c6c70;
 }
 
 .hidden {
