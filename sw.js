@@ -1,4 +1,4 @@
-const CACHE = "reseller-hunt-v3";
+const CACHE = "reseller-hunt-v4";
 const scope = self.registration.scope;
 const PRECACHE = ["", "lists/", "cash/", "books/", "releases/"].map(
   (path) => new URL(path, scope).href

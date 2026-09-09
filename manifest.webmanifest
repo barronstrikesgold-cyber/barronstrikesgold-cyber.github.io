@@ -1,12 +1,18 @@
 {
   "name": "Reseller Hunt",
   "short_name": "Hunt",
-  "description": "Aisle-speed buy/pass. Cash left after fees and ship. Checks stay on this phone.",
+  "description": "Aisle buy/pass. Cash left after fees and ship. Checks stay on this phone.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0c0d10",
-  "theme_color": "#0c0d10",
+  "background_color": "#F2F2F7",
+  "theme_color": "#F2F2F7",
   "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon.svg",
       "sizes": "any",
