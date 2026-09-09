@@ -40,6 +40,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No site changes"
           else
-            git commit -m "Publish Reseller Hunt"
+            git commit -m "Publish Reseller Hunt iOS UI"
             git push
           fi
