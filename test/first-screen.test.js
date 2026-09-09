@@ -47,6 +47,12 @@ assert(
 );
 assert(html.includes("walmart.com/search"), "walmart.com/search in HTML");
 assert(html.includes("google.com/search"), "google.com/search in HTML");
+assert(
+  html.includes("shopgoodwill.com/categories/search"),
+  "ShopGoodwill search URL in HTML"
+);
+assert(!/in stock/i.test(html), "HTML does not say In stock");
+assert(!/in stock/i.test(firstScreen), "first screen does not say In stock");
 assert(html.includes("$122"), "$122 in HTML");
 assert(html.includes("September 16"), "September 16 in HTML");
 

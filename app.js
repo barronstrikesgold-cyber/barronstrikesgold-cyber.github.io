@@ -821,7 +821,7 @@
       look: "Look here: sneakers with a size tag (Jordan, Dunk SB, clean New Balance), streetwear with tags (Supreme, Bape), tech that powers on. Skip crushed shoes, no-tag clothes, printers.",
       cats: ["sneakers", "streetwear", "tech"],
       ids: null,
-      search: "https://shopgoodwill.com/search?searchTerm=",
+      search: "https://shopgoodwill.com/categories/search?q=",
     },
     bestbuy: {
       name: "Best Buy",
@@ -836,7 +836,7 @@
     walmart: "https://www.walmart.com/search?q=",
     target: "https://www.target.com/s?searchTerm=",
     bestbuy: "https://www.bestbuy.com/site/searchpage.jsp?st=",
-    goodwill: "https://shopgoodwill.com/search?searchTerm=",
+    goodwill: "https://shopgoodwill.com/categories/search?q=",
     google: "https://www.google.com/search?q=",
     shopping: "https://www.google.com/search?tbm=shop&q=",
   };
@@ -985,7 +985,7 @@
 
   function checkLinksHtml(query) {
     return (
-      '<p class="kicker">Check</p><div class="check">' +
+      '<section class="check-block"><p class="kicker">Check</p><div class="check">' +
       '<a href="' +
       escapeHtml(checkHref(CHECK.walmart, query)) +
       '" target="_blank" rel="noopener noreferrer">Walmart</a>' +
@@ -999,12 +999,15 @@
       escapeHtml(checkHref(CHECK.goodwill, query)) +
       '" target="_blank" rel="noopener noreferrer">ShopGoodwill</a>' +
       '<a href="' +
+      escapeHtml(checkHref(CHECK.google, query + " Goodwill")) +
+      '" target="_blank" rel="noopener noreferrer">Google · Goodwill</a>' +
+      '<a href="' +
       escapeHtml(checkHref(CHECK.google, query)) +
       '" target="_blank" rel="noopener noreferrer">Google</a>' +
       '<a href="' +
       escapeHtml(checkHref(CHECK.shopping, query)) +
       '" target="_blank" rel="noopener noreferrer">Google Shopping</a>' +
-      "</div>"
+      '</div><p class="secondary">Local Goodwill pegs are usually not online.</p></section>'
     );
   }
 
@@ -1168,19 +1171,15 @@
       '">‹ Back</button>' +
       "<h1>" +
       escapeHtml(store.name) +
-      "</h1></header>" +
+      "</h1>" +
+      '<form class="search store-head-search" data-store-search="' +
+      escapeHtml(id) +
+      '"><input id="store-q" type="search" placeholder="Search this store" enterkeyhint="search" autocomplete="off"></form>' +
+      "</header>" +
       '<main class="list">' +
       '<div class="look"><p>' +
       escapeHtml(store.look) +
       "</p></div>" +
-      '<label class="search"><span>Search this store</span><input id="store-q" type="search" placeholder="Opens ' +
-      escapeHtml(store.name) +
-      '" autocomplete="off"></label>' +
-      '<button class="store-search" type="button" data-store-search="' +
-      escapeHtml(id) +
-      '">Open ' +
-      escapeHtml(store.name) +
-      " search</button>" +
       items.map(rowHtml).join("") +
       "</main>";
   }
@@ -1369,7 +1368,7 @@
         '" target="_blank" rel="noopener noreferrer">' +
         escapeHtml(item.buyLabel || "Buy") +
         "</a>"
-      : '<p class="no-buy">No buy link yet</p>' + checkLinksHtml(item.name);
+      : '<p class="no-buy">No buy link yet. Use Check.</p>';
     screen.innerHTML =
       '<header class="header">' +
       '<button class="back" type="button" data-go="dates">‹ Dates</button>' +
@@ -1416,7 +1415,7 @@
       '">Fitness: ' +
       escapeHtml(item.fitness) +
       "</p>" +
-      (item.buyUrl ? checkLinksHtml(item.name) : "") +
+      checkLinksHtml(item.name) +
       buy +
       "</div>";
   }
@@ -1610,12 +1609,16 @@
     }
   });
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key !== "Enter") return;
-    if (event.target && event.target.id === "store-q") {
-      var storeBtn = document.querySelector("[data-store-search]");
-      if (storeBtn) storeBtn.click();
-    }
+  document.addEventListener("submit", function (event) {
+    var form = event.target.closest("[data-store-search]");
+    if (!form) return;
+    event.preventDefault();
+    var sid = form.getAttribute("data-store-search");
+    var store = STORES[sid];
+    if (!store) return;
+    var q = document.getElementById("store-q");
+    var query = q ? q.value : "";
+    window.open(checkHref(store.search, query), "_blank", "noopener,noreferrer");
   });
 
   document.addEventListener("click", function (event) {
@@ -1632,7 +1635,7 @@
       return;
     }
     var storeSearch = event.target.closest("[data-store-search]");
-    if (storeSearch) {
+    if (storeSearch && storeSearch.tagName !== "FORM") {
       var sid = storeSearch.getAttribute("data-store-search");
       var store = STORES[sid];
       var q = document.getElementById("store-q");

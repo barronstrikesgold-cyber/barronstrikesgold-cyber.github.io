@@ -25,6 +25,12 @@ assert(app.includes("No settled sale"), "car data has No settled sale");
 assert(app.includes("HW Price Guide"), "review source is named");
 assert(html.includes("walmart.com/search"), "Walmart check search in HTML");
 assert(html.includes("google.com/search"), "Google check search in HTML");
+assert(
+  html.includes("shopgoodwill.com/categories/search"),
+  "ShopGoodwill categories search in HTML"
+);
+assert(app.includes('placeholder="Search this store"'), "store header search placeholder");
+assert(!/in stock/i.test(app), "app does not invent In stock");
 
 assert(leftoverCash(null, 0) === null, "unknown cash without sold");
 assert(Math.round(leftoverCash(122, 0)) === 106, "122 after 13% is about 106");
