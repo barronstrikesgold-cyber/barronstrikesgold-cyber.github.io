@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-site="static-phone" data-live="main-20260909f">
+<html lang="en" data-site="static-phone" data-live="main-20260909h">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -8,7 +8,7 @@
     />
     <meta name="theme-color" content="#F2F2F7" />
     <title>Reseller</title>
-    <link rel="stylesheet" href="styles.css?v=20260909f" />
+    <link rel="stylesheet" href="styles.css?v=20260909h" />
   </head>
   <body>
     <div class="phone">
@@ -18,6 +18,30 @@
           <p class="rule">If it is not on this list, leave it.</p>
         </header>
         <main class="cats">
+          <label class="search">
+            <span>Search</span>
+            <input
+              id="hunt-search"
+              type="search"
+              enterkeyhint="search"
+              placeholder="Type a name"
+              autocomplete="off"
+            />
+          </label>
+          <p class="group-title">Where are you?</p>
+          <button class="cat" type="button" data-store="walmart">
+            Walmart <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <button class="cat" type="button" data-store="target">
+            Target <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <button class="cat" type="button" data-store="goodwill">
+            Goodwill <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <button class="cat" type="button" data-store="bestbuy">
+            Best Buy <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <p class="group-title">Or browse</p>
           <button class="cat" type="button" data-open="cars">
             Cars <span class="chev" aria-hidden="true">›</span>
           </button>
@@ -36,12 +60,26 @@
         </main>
       </div>
       <nav class="tabbar" aria-label="Tabs">
-        <button type="button" data-tab="finds" class="is-on">Finds</button>
+        <button type="button" data-tab="hunt" class="is-on">Hunt</button>
+        <button type="button" data-tab="stores">Stores</button>
         <button type="button" data-tab="dates">Dates</button>
-        <button type="button" data-tab="cash">Cash</button>
-        <button type="button" data-tab="books">Books</button>
+        <button type="button" data-tab="profit">Profit</button>
+        <button type="button" data-tab="bought">Bought</button>
       </nav>
     </div>
+    <script type="application/json" id="check-json">
+{
+  "walmart": "https://www.walmart.com/search?q=",
+  "target": "https://www.target.com/s?searchTerm=",
+  "bestbuy": "https://www.bestbuy.com/site/searchpage.jsp?st=",
+  "goodwill": "https://shopgoodwill.com/search?searchTerm=",
+  "google": "https://www.google.com/search?q=",
+  "shopping": "https://www.google.com/search?tbm=shop&q="
+}
+    </script>
+    <script type="application/json" id="checked-json">
+{"f40":"$122","civic":"$61","lotus":"$33","impala":"$45","mustang":"$53","source":"HW Price Guide"}
+    </script>
     <script type="application/json" id="dates-json">
 [
   {
@@ -178,7 +216,7 @@
   }
 ]
     </script>
-    <script src="cash.js?v=20260909f"></script>
-    <script src="app.js?v=20260909f"></script>
+    <script src="cash.js?v=20260909h"></script>
+    <script src="app.js?v=20260909h"></script>
   </body>
 </html>

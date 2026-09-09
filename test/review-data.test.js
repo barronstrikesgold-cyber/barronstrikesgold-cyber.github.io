@@ -23,7 +23,8 @@ assert(app.includes("$122"), "car data has $122");
 assert(app.includes("August 2026"), "car data has August 2026");
 assert(app.includes("No settled sale"), "car data has No settled sale");
 assert(app.includes("HW Price Guide"), "review source is named");
-assert(app.includes("Checked"), "price block is labeled Checked");
+assert(html.includes("walmart.com/search"), "Walmart check search in HTML");
+assert(html.includes("google.com/search"), "Google check search in HTML");
 
 assert(leftoverCash(null, 0) === null, "unknown cash without sold");
 assert(Math.round(leftoverCash(122, 0)) === 106, "122 after 13% is about 106");

@@ -79,6 +79,9 @@
           "30th Celebration Elite Trainer Box. No settled sale yet. Watch only at printed $49.99; anything else on the shelf is a Pass.",
         fitness: "Watch",
         worth: true,
+        buyUrl:
+          "https://www.target.com/p/pok-233-mon-trading-card-game-30th-celebration-elite-trainer-box/-/A-1010892076",
+        buyLabel: "Buy at Target",
       },
       {
         id: "f40",
@@ -233,6 +236,9 @@
           "2026 Topps Football blaster, out August 21, 2026. No settled sale. At printed retail this is a Pass until a stored sold beats the shelf after fees.",
         fitness: "Pass",
         worth: true,
+        buyUrl:
+          "https://www.target.com/p/2026-topps-nfl-flagship-football-trading-card-value-box/-/A-1012944733",
+        buyLabel: "Buy at Target",
       },
       {
         id: "fifa",
@@ -784,6 +790,66 @@
     streetwear: "Streetwear",
   };
 
+  Object.keys(CATALOG).forEach(function (key) {
+    CATALOG[key].forEach(function (item) {
+      item._cat = key;
+    });
+  });
+
+  var SHOE_SIZES = ["8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"];
+  var CLOTHES_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+  var FAST_SHOES = { 10: 1, 11: 1 };
+  var FAST_CLOTHES = { M: 1, L: 1, XL: 1 };
+
+  var STORES = {
+    walmart: {
+      name: "Walmart",
+      look: "Look here: sports hangers and blasters, Pokémon box on Sept 16 only at $49.99, Hot Wheels peg about $1, electronics that power on. Skip printers and locked phones.",
+      cats: ["cars", "sports", "tech"],
+      ids: null,
+      search: "https://www.walmart.com/search?q=",
+    },
+    target: {
+      name: "Target",
+      look: "Look here: sports hangers and blasters, Hot Wheels peg, streetwear with tags, Pokémon if printed $49.99.",
+      cats: ["cars", "sports", "streetwear"],
+      ids: null,
+      search: "https://www.target.com/s?searchTerm=",
+    },
+    goodwill: {
+      name: "Goodwill",
+      look: "Look here: sneakers with a size tag (Jordan, Dunk SB, clean New Balance), streetwear with tags (Supreme, Bape), tech that powers on. Skip crushed shoes, no-tag clothes, printers.",
+      cats: ["sneakers", "streetwear", "tech"],
+      ids: null,
+      search: "https://shopgoodwill.com/search?searchTerm=",
+    },
+    bestbuy: {
+      name: "Best Buy",
+      look: "Look here: open-box or clearance Apple and a Switch only if it powers on and is not iCloud locked. No invented open-box price. Fitness Watch until a stored sold exists.",
+      cats: null,
+      ids: ["iphone", "ipad", "macbook", "airpods", "watch", "switch"],
+      search: "https://www.bestbuy.com/site/searchpage.jsp?st=",
+    },
+  };
+
+  var CHECK = {
+    walmart: "https://www.walmart.com/search?q=",
+    target: "https://www.target.com/s?searchTerm=",
+    bestbuy: "https://www.bestbuy.com/site/searchpage.jsp?st=",
+    goodwill: "https://shopgoodwill.com/search?searchTerm=",
+    google: "https://www.google.com/search?q=",
+    shopping: "https://www.google.com/search?tbm=shop&q=",
+  };
+  try {
+    var checkNode = document.getElementById("check-json");
+    if (checkNode) CHECK = JSON.parse(checkNode.textContent);
+  } catch (err) {}
+
+  var MARKS_KEY = "reseller-marks";
+  var VISIT_KEY = "reseller-visit";
+  var SIZE_KEY = "reseller-sizes";
+  var BOUGHT_KEY = "reseller-bought";
+
   var TODAY = "2026-09-09";
   var DATES = [];
   try {
@@ -795,7 +861,8 @@
   var screen = document.getElementById("screen");
   var tabButtons = document.querySelectorAll(".tabbar [data-tab]");
   var homeHTML = screen.innerHTML;
-  var lastList = "cars";
+  var lastList = { type: "home" };
+  var lastReviewId = null;
 
   function readJson(key, fallback) {
     try {
@@ -818,14 +885,37 @@
     return readJson(SHELF_KEY, {});
   }
 
+  function sizeMap() {
+    return readJson(SIZE_KEY, {});
+  }
+
+  function marksMap() {
+    return readJson(MARKS_KEY, {});
+  }
+
+  function visitIds() {
+    return readJson(VISIT_KEY, []);
+  }
+
   function shipping() {
     var n = Number(localStorage.getItem(SHIP_KEY));
     return Number.isFinite(n) ? n : 0;
   }
 
+  function boughtList() {
+    var next = readJson(BOUGHT_KEY, null);
+    if (next) return next;
+    return readJson(BOOKS_KEY, []);
+  }
+
   function allItems() {
     return Object.keys(CATALOG).reduce(function (list, key) {
-      return list.concat(CATALOG[key]);
+      return list.concat(
+        CATALOG[key].map(function (item) {
+          item._cat = key;
+          return item;
+        })
+      );
     }, []);
   }
 
@@ -847,6 +937,10 @@
     return item.shelfNum != null ? item.shelfNum : null;
   }
 
+  function storedSize(item) {
+    return sizeMap()[item.id] || "";
+  }
+
   function fitnessFor(item) {
     return C.itemFitness({
       fitness: item.fitness,
@@ -857,13 +951,79 @@
     });
   }
 
-  function cashLine(item) {
-    if (item.cashText) {
-      return "Leftover cash: " + item.cashText;
+  function fitRank(name) {
+    if (name === "Strong") return 0;
+    if (name === "Watch") return 1;
+    return 2;
+  }
+
+  function sortStrongFirst(items) {
+    return items.slice().sort(function (a, b) {
+      var d = fitRank(fitnessFor(a)) - fitRank(fitnessFor(b));
+      if (d) return d;
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
+  }
+
+  function itemKind(item) {
+    if (item._cat === "sneakers") return "shoe";
+    if (item._cat === "streetwear") return "clothes";
+    return "";
+  }
+
+  function sentimentLabel(raw) {
+    var t = String(raw || "").toLowerCase();
+    if (t === "up" || t.indexOf("up") === 0) return "up";
+    if (t.indexOf("down") !== -1) return "down";
+    if (t.indexOf("flat") !== -1) return "flat";
+    return "unknown";
+  }
+
+  function checkHref(base, query) {
+    return base + encodeURIComponent(query || "");
+  }
+
+  function checkLinksHtml(query) {
+    return (
+      '<p class="kicker">Check</p><div class="check">' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.walmart, query)) +
+      '" target="_blank" rel="noopener noreferrer">Walmart</a>' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.target, query)) +
+      '" target="_blank" rel="noopener noreferrer">Target</a>' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.bestbuy, query)) +
+      '" target="_blank" rel="noopener noreferrer">Best Buy</a>' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.goodwill, query)) +
+      '" target="_blank" rel="noopener noreferrer">ShopGoodwill</a>' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.google, query)) +
+      '" target="_blank" rel="noopener noreferrer">Google</a>' +
+      '<a href="' +
+      escapeHtml(checkHref(CHECK.shopping, query)) +
+      '" target="_blank" rel="noopener noreferrer">Google Shopping</a>' +
+      "</div>"
+    );
+  }
+
+  function leftoverLine(item, shelfVal) {
+    var sold = storedSold(item);
+    var ship = shipping();
+    var net = C.leftoverCash(sold, ship);
+    if (net == null) return "Unknown";
+    var extra = "";
+    if (shelfVal != null && Number.isFinite(Number(shelfVal))) {
+      extra =
+        net > Number(shelfVal) ? " · beats shelf" : " · does not beat shelf";
     }
-    var net = C.leftoverCash(storedSold(item), shipping());
-    if (net == null) return "Unknown cash";
-    return "Leftover cash: $" + net.toFixed(2) + " after about 13% fees, before extra shipping";
+    return (
+      "$" +
+      net.toFixed(2) +
+      " after about 13% fees and shipping" +
+      extra
+    );
   }
 
   function escapeHtml(text) {
@@ -886,8 +1046,24 @@
     return " is-watch";
   }
 
+  function storeItems(id) {
+    var store = STORES[id];
+    if (!store) return [];
+    if (store.ids) {
+      return store.ids
+        .map(findItem)
+        .filter(Boolean);
+    }
+    var list = [];
+    (store.cats || []).forEach(function (cat) {
+      list = list.concat(CATALOG[cat] || []);
+    });
+    return list;
+  }
+
   function rowHtml(item) {
     var fit = fitnessFor(item);
+    var mark = marksMap()[item.id];
     return (
       '<button class="row" type="button" data-item="' +
       escapeHtml(item.id) +
@@ -897,10 +1073,11 @@
       '" alt="">' +
       '<span class="row-copy"><strong>' +
       escapeHtml(item.name) +
-      "</strong><span class=" +
-      '"price-line">' +
+      "</strong><span class=\"price-line\">" +
       escapeHtml(item.listPrice) +
-      "</span></span>" +
+      "</span>" +
+      (mark === "found" ? '<span class="found-mark">Found</span>' : "") +
+      "</span>" +
       '<span class="verdict' +
       fitnessClass(fit) +
       '">' +
@@ -914,8 +1091,231 @@
     return iso < TODAY ? "Out" : "Upcoming";
   }
 
+  function visitBlock() {
+    var ids = visitIds();
+    if (!ids.length) return "";
+    var names = ids
+      .map(findItem)
+      .filter(Boolean)
+      .map(function (item) {
+        return escapeHtml(item.name);
+      });
+    if (!names.length) return "";
+    return (
+      '<div class="visit"><strong>This visit</strong><p>' +
+      names.join(", ") +
+      '</p><button class="save" type="button" id="visit-done">Done</button></div>'
+    );
+  }
+
+  function renderHunt(query) {
+    setTabs("hunt");
+    lastList = { type: "home" };
+    var q = (query || "").trim();
+    if (q) {
+      var hits = sortStrongFirst(
+        allItems().filter(function (item) {
+          return item.name.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+        })
+      );
+      screen.innerHTML =
+        '<header class="header">' +
+        '<button class="back" type="button" data-go="home">‹ Reseller</button>' +
+        "<h1>Hunt</h1></header>" +
+        '<main class="list">' +
+        '<label class="search"><span>Search</span><input id="hunt-search" type="search" value="' +
+        escapeHtml(q) +
+        '" autocomplete="off"></label>' +
+        (hits.length
+          ? hits.map(rowHtml).join("")
+          : '<div class="look"><p class="fitness is-pass">Pass</p><p>If it is not on this list, leave it.</p></div>') +
+        "</main>";
+      var input = document.getElementById("hunt-search");
+      if (input) {
+        input.focus();
+        input.setSelectionRange(q.length, q.length);
+      }
+      return;
+    }
+    screen.innerHTML = homeHTML + visitBlock();
+    var hunt = document.getElementById("hunt-search");
+    if (hunt) hunt.value = "";
+  }
+
+  function renderStoresHub() {
+    setTabs("stores");
+    lastList = { type: "stores" };
+    screen.innerHTML =
+      '<header class="header"><h1>Stores</h1></header>' +
+      '<main class="cats">' +
+      '<button class="cat" type="button" data-store="walmart">Walmart <span class="chev">›</span></button>' +
+      '<button class="cat" type="button" data-store="target">Target <span class="chev">›</span></button>' +
+      '<button class="cat" type="button" data-store="goodwill">Goodwill <span class="chev">›</span></button>' +
+      '<button class="cat" type="button" data-store="bestbuy">Best Buy <span class="chev">›</span></button>' +
+      "</main>";
+  }
+
+  function renderStore(id, from) {
+    var store = STORES[id];
+    if (!store) return;
+    setTabs(from === "stores" ? "stores" : "hunt");
+    lastList = { type: "store", id: id, from: from || "home" };
+    var items = sortStrongFirst(storeItems(id));
+    screen.innerHTML =
+      '<header class="header">' +
+      '<button class="back" type="button" data-go="' +
+      (from === "stores" ? "stores" : "home") +
+      '">‹ Back</button>' +
+      "<h1>" +
+      escapeHtml(store.name) +
+      "</h1></header>" +
+      '<main class="list">' +
+      '<div class="look"><p>' +
+      escapeHtml(store.look) +
+      "</p></div>" +
+      '<label class="search"><span>Search this store</span><input id="store-q" type="search" placeholder="Opens ' +
+      escapeHtml(store.name) +
+      '" autocomplete="off"></label>' +
+      '<button class="store-search" type="button" data-store-search="' +
+      escapeHtml(id) +
+      '">Open ' +
+      escapeHtml(store.name) +
+      " search</button>" +
+      items.map(rowHtml).join("") +
+      "</main>";
+  }
+
+  function renderList(cat) {
+    setTabs("hunt");
+    lastList = { type: "cat", id: cat };
+    var items = sortStrongFirst(CATALOG[cat] || []);
+    screen.innerHTML =
+      '<header class="header">' +
+      '<button class="back" type="button" data-go="home">‹ Reseller</button>' +
+      "<h1>" +
+      escapeHtml(TITLES[cat] || cat) +
+      "</h1></header>" +
+      '<main class="list">' +
+      items.map(rowHtml).join("") +
+      "</main>";
+  }
+
+  function sizeChips(item) {
+    var kind = itemKind(item);
+    if (!kind) return "";
+    var sizes = kind === "shoe" ? SHOE_SIZES : CLOTHES_SIZES;
+    var fast = kind === "shoe" ? FAST_SHOES : FAST_CLOTHES;
+    var current = storedSize(item);
+    var label =
+      kind === "shoe"
+        ? "US size. Men’s 8 to 12 fastest, 10 and 11 strongest. No size tag is a pass."
+        : "Letter size. M, L, and XL fastest. No size tag is a pass.";
+    return (
+      '<p class="sizing">' +
+      escapeHtml(item.sizing || label) +
+      '</p><div class="chips">' +
+      sizes
+        .map(function (size) {
+          return (
+            '<button class="chip' +
+            (current === size ? " is-on" : "") +
+            (fast[size] ? " is-fast" : "") +
+            '" type="button" data-size="' +
+            escapeHtml(size) +
+            '">' +
+            escapeHtml(size) +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function buyBar(item) {
+    var buy = item.buyUrl
+      ? '<a class="buy" href="' +
+        escapeHtml(item.buyUrl) +
+        '" target="_blank" rel="noopener noreferrer">' +
+        escapeHtml(item.buyLabel || "Buy") +
+        "</a>"
+      : '<button class="buy" type="button" data-no-buy="1">No buy link yet</button>';
+    return (
+      '<div class="sticky"><button class="pass" type="button" data-go="back">Pass</button>' +
+      buy +
+      "</div>"
+    );
+  }
+
+  function renderReview(id) {
+    var item = findItem(id);
+    if (!item) return;
+    lastReviewId = id;
+    var fit = fitnessFor(item);
+    var shelf = storedShelf(item);
+    var mark = marksMap()[id];
+    screen.innerHTML =
+      '<header class="header">' +
+      '<button class="back" type="button" data-go="back">‹ Back</button>' +
+      "</header>" +
+      '<div class="hero"><img src="' +
+      escapeHtml(item.photo) +
+      '" alt="' +
+      escapeHtml(item.name) +
+      '"></div>' +
+      '<div class="copy">' +
+      "<h2>" +
+      escapeHtml(item.name) +
+      "</h2>" +
+      (item.photoNote
+        ? '<p class="photo-note">' + escapeHtml(item.photoNote) + "</p>"
+        : "") +
+      '<p class="fitness' +
+      fitnessClass(fit) +
+      '">Fitness: ' +
+      escapeHtml(fit) +
+      "</p>" +
+      "<p>" +
+      escapeHtml(item.listPrice) +
+      " · " +
+      escapeHtml(item.source) +
+      " · " +
+      escapeHtml(item.date) +
+      "</p>" +
+      (item.checkedNote
+        ? '<p class="secondary">' + escapeHtml(item.checkedNote) + "</p>"
+        : "") +
+      "<p>Sentiment: " +
+      escapeHtml(sentimentLabel(item.sentiment)) +
+      "</p>" +
+      '<p class="digest">' +
+      escapeHtml(item.digest) +
+      "</p>" +
+      sizeChips(item) +
+      "<p>Look for: " +
+      escapeHtml(item.shelf) +
+      "</p>" +
+      '<label class="field"><span>Type shelf</span><input id="shelf-in" type="number" inputmode="decimal" step="0.01" value="' +
+      (shelf != null ? escapeHtml(String(shelf)) : "") +
+      '"></label>' +
+      '<p class="result" id="left-out">' +
+      escapeHtml(leftoverLine(item, shelf)) +
+      "</p>" +
+      '<div class="actions">' +
+      '<button type="button" data-mark="found">' +
+      (mark === "found" ? "Found ✓" : "Found") +
+      "</button>" +
+      '<button type="button" data-mark="left">Left it</button>' +
+      '<button type="button" id="copy-notes">Copy notes</button>' +
+      "</div>" +
+      checkLinksHtml(item.name) +
+      "</div>" +
+      buyBar(item);
+  }
+
   function renderDates() {
     setTabs("dates");
+    lastList = { type: "dates" };
     var rows = DATES.slice().sort(function (a, b) {
       return a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0;
     });
@@ -969,7 +1369,7 @@
         '" target="_blank" rel="noopener noreferrer">' +
         escapeHtml(item.buyLabel || "Buy") +
         "</a>"
-      : '<p class="no-buy">No buy link yet</p>';
+      : '<p class="no-buy">No buy link yet</p>' + checkLinksHtml(item.name);
     screen.innerHTML =
       '<header class="header">' +
       '<button class="back" type="button" data-go="dates">‹ Dates</button>' +
@@ -999,112 +1399,25 @@
       "<p>Format: " +
       escapeHtml(item.format) +
       "</p>" +
-      '<section class="checked">' +
-      '<p class="kicker">Checked</p>' +
       "<p>Printed or shelf: " +
       escapeHtml(item.printed) +
       "</p>" +
       "<p>" +
       escapeHtml(item.sold) +
       "</p>" +
-      "</section>" +
       "<p>Sentiment: " +
-      escapeHtml(item.sentiment) +
+      escapeHtml(sentimentLabel(item.sentiment)) +
       "</p>" +
       '<p class="digest">' +
       escapeHtml(item.digest) +
       "</p>" +
-      (item.sizing
-        ? '<p class="sizing">' + escapeHtml(item.sizing) + "</p>"
-        : "") +
       '<p class="fitness' +
       fitnessClass(item.fitness) +
-      '">' +
+      '">Fitness: ' +
       escapeHtml(item.fitness) +
       "</p>" +
+      (item.buyUrl ? checkLinksHtml(item.name) : "") +
       buy +
-      "</div>";
-  }
-
-  function renderHome() {
-    setTabs("finds");
-    screen.innerHTML = homeHTML;
-  }
-
-  function renderList(cat) {
-    var items = CATALOG[cat] || [];
-    var look = items.filter(function (item) {
-      return item.worth;
-    });
-    var rest = items.filter(function (item) {
-      return !item.worth;
-    });
-    screen.innerHTML =
-      '<header class="header">' +
-      '<button class="back" type="button" data-go="home">‹ Reseller</button>' +
-      "<h1>" +
-      escapeHtml(TITLES[cat]) +
-      "</h1>" +
-      "</header>" +
-      '<main class="list">' +
-      (look.length
-        ? '<p class="group-title">Worth a look</p>' + look.map(rowHtml).join("")
-        : "") +
-      (rest.length
-        ? '<p class="group-title">On the list</p>' + rest.map(rowHtml).join("")
-        : "") +
-      "</main>";
-  }
-
-  function renderReview(id) {
-    var item = findItem(id);
-    if (!item) return;
-    var fit = fitnessFor(item);
-    screen.innerHTML =
-      '<header class="header">' +
-      '<button class="back" type="button" data-go="back">‹ Back</button>' +
-      "</header>" +
-      '<div class="hero"><img src="' +
-      escapeHtml(item.photo) +
-      '" alt="' +
-      escapeHtml(item.name) +
-      '"></div>' +
-      '<div class="copy">' +
-      "<h2>" +
-      escapeHtml(item.name) +
-      "</h2>" +
-      (item.photoNote ? "<p class=\"photo-note\">" + escapeHtml(item.photoNote) + "</p>" : "") +
-      '<section class="checked">' +
-      '<p class="kicker">Checked</p>' +
-      '<p class="price">' +
-      escapeHtml(item.checkedPrice) +
-      "</p>" +
-      "<p>" +
-      escapeHtml(item.source) +
-      "</p>" +
-      "<p>" +
-      escapeHtml(item.date) +
-      "</p>" +
-      (item.checkedNote ? "<p>" + escapeHtml(item.checkedNote) + "</p>" : "") +
-      "</section>" +
-      "<p>Sentiment: " +
-      escapeHtml(item.sentiment) +
-      "</p>" +
-      '<p class="digest">' +
-      escapeHtml(item.digest) +
-      "</p>" +
-      '<p class="meta">Shelf: ' +
-      escapeHtml(item.shelf) +
-      "</p>" +
-      '<p class="fitness' +
-      fitnessClass(fit) +
-      '">' +
-      escapeHtml(fit) +
-      "</p>" +
-      "<p>" +
-      escapeHtml(cashLine(item)) +
-      "</p>" +
-      (item.sizing ? '<p class="sizing">' + escapeHtml(item.sizing) + "</p>" : "") +
       "</div>";
   }
 
@@ -1112,13 +1425,13 @@
     return "$" + n.toFixed(2);
   }
 
-  function renderCash() {
-    setTabs("cash");
+  function renderProfit() {
+    setTabs("profit");
     var items = allItems();
     screen.innerHTML =
-      '<header class="header"><h1>Cash</h1></header>' +
+      '<header class="header"><h1>Profit</h1></header>' +
       '<main class="panel">' +
-      '<p class="note">Shelf vs stored sold, minus about 13% fees and shipping. Not a live ticker.</p>' +
+      '<p class="note">Shelf versus stored sold, about 13% fees, editable shipping, leftover cash. Not a live ticker.</p>' +
       '<label class="field"><span>Item</span><select id="cash-item">' +
       items
         .map(function (item) {
@@ -1143,7 +1456,7 @@
     var soldEl = document.getElementById("cash-sold");
     var shipEl = document.getElementById("cash-ship");
     var outEl = document.getElementById("cash-out");
-    itemEl.value = items[0] ? items[0].id : "";
+    itemEl.value = lastReviewId || (items[0] ? items[0].id : "");
     shipEl.value = String(shipping());
 
     function fillItem() {
@@ -1174,7 +1487,7 @@
       }
       var net = C.leftoverCash(soldVal, shipVal);
       if (net == null) {
-        outEl.textContent = "Unknown cash";
+        outEl.textContent = "Unknown";
         return;
       }
       var extra =
@@ -1193,15 +1506,26 @@
     fillItem();
   }
 
-  function renderBooks() {
-    setTabs("books");
-    var books = readJson(BOOKS_KEY, []);
+  function renderBought() {
+    setTabs("bought");
+    var books = boughtList();
+    var item = lastReviewId ? findItem(lastReviewId) : null;
     screen.innerHTML =
-      '<header class="header"><h1>Books</h1></header>' +
+      '<header class="header"><h1>Bought</h1></header>' +
       '<main class="panel">' +
-      '<label class="field"><span>Name</span><input id="book-name" type="text" autocomplete="off"></label>' +
+      '<label class="field"><span>Name</span><input id="book-name" type="text" autocomplete="off" value="' +
+      (item ? escapeHtml(item.name) : "") +
+      '"></label>' +
       '<label class="field"><span>Cost</span><input id="book-cost" type="number" inputmode="decimal" step="0.01"></label>' +
+      '<label class="field"><span>Store</span><select id="book-store">' +
+      '<option>Walmart</option><option>Target</option><option>Goodwill</option><option>Best Buy</option>' +
+      "</select></label>" +
       '<label class="field"><span>Date</span><input id="book-date" type="date"></label>' +
+      '<label class="field"><span>Size</span><input id="book-size" type="text" autocomplete="off" value="' +
+      (item ? escapeHtml(storedSize(item)) : "") +
+      '"></label>' +
+      '<p class="note">Shoes need a US size. Clothes need a letter size. No size tag is a pass.</p>' +
+      '<p class="gate hidden" id="size-gate">Add a size before you mark shoes or clothes bought.</p>' +
       '<button class="save" type="button" id="book-save">Save</button>' +
       '<div id="book-list">' +
       (books.length
@@ -1213,25 +1537,107 @@
                 "</strong><br>" +
                 escapeHtml(String(book.cost)) +
                 " · " +
+                escapeHtml(book.store || "") +
+                " · " +
                 escapeHtml(book.date) +
+                (book.size ? " · " + escapeHtml(book.size) : "") +
                 '</p><button type="button" data-del="' +
                 escapeHtml(book.id) +
                 '">Delete</button></div>'
               );
             })
             .join("")
-        : '<p class="note">No checks yet.</p>') +
+        : '<p class="note">No buys yet.</p>') +
       "</div></main>";
     document.getElementById("book-date").value = new Date()
       .toISOString()
       .slice(0, 10);
   }
 
+  function goBack() {
+    if (lastList.type === "store") renderStore(lastList.id, lastList.from);
+    else if (lastList.type === "cat") renderList(lastList.id);
+    else if (lastList.type === "dates") renderDates();
+    else if (lastList.type === "stores") renderStoresHub();
+    else renderHunt();
+  }
+
+  function needsSize(name) {
+    var item = allItems().filter(function (row) {
+      return row.name === name;
+    })[0];
+    return item ? itemKind(item) : "";
+  }
+
+  function copyNotes(item) {
+    var size = storedSize(item);
+    var text = [
+      item.name,
+      size ? "Size: " + size : "",
+      "Last checked price: " + item.checkedPrice,
+      "Source: " + item.source,
+      "Date: " + item.date,
+      item.digest,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+      return;
+    }
+    var area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    document.body.removeChild(area);
+  }
+
+  document.addEventListener("input", function (event) {
+    if (event.target && event.target.id === "hunt-search") {
+      renderHunt(event.target.value);
+      return;
+    }
+    if (event.target && event.target.id === "shelf-in" && lastReviewId) {
+      var item = findItem(lastReviewId);
+      var val = event.target.value === "" ? null : Number(event.target.value);
+      var shelves = shelfMap();
+      if (val == null || !Number.isFinite(val)) delete shelves[item.id];
+      else shelves[item.id] = val;
+      writeJson(SHELF_KEY, shelves);
+      var out = document.getElementById("left-out");
+      if (out) out.textContent = leftoverLine(item, val);
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter") return;
+    if (event.target && event.target.id === "store-q") {
+      var storeBtn = document.querySelector("[data-store-search]");
+      if (storeBtn) storeBtn.click();
+    }
+  });
+
   document.addEventListener("click", function (event) {
     var open = event.target.closest("[data-open]");
     if (open) {
-      lastList = open.getAttribute("data-open");
-      renderList(lastList);
+      renderList(open.getAttribute("data-open"));
+      return;
+    }
+    var storeBtn = event.target.closest("[data-store]");
+    if (storeBtn) {
+      var from = document.querySelector(".tabbar [data-tab].is-on");
+      var tab = from ? from.getAttribute("data-tab") : "hunt";
+      renderStore(storeBtn.getAttribute("data-store"), tab === "stores" ? "stores" : "home");
+      return;
+    }
+    var storeSearch = event.target.closest("[data-store-search]");
+    if (storeSearch) {
+      var sid = storeSearch.getAttribute("data-store-search");
+      var store = STORES[sid];
+      var q = document.getElementById("store-q");
+      var query = q ? q.value : "";
+      window.open(checkHref(store.search, query), "_blank", "noopener,noreferrer");
       return;
     }
     var itemBtn = event.target.closest("[data-item]");
@@ -1244,21 +1650,57 @@
       renderDateDetail(dateBtn.getAttribute("data-date"));
       return;
     }
+    var sizeBtn = event.target.closest("[data-size]");
+    if (sizeBtn && lastReviewId) {
+      var sizes = sizeMap();
+      sizes[lastReviewId] = sizeBtn.getAttribute("data-size");
+      writeJson(SIZE_KEY, sizes);
+      renderReview(lastReviewId);
+      return;
+    }
+    var markBtn = event.target.closest("[data-mark]");
+    if (markBtn && lastReviewId) {
+      var marks = marksMap();
+      var kind = markBtn.getAttribute("data-mark");
+      marks[lastReviewId] = kind;
+      writeJson(MARKS_KEY, marks);
+      if (kind === "found") {
+        var visit = visitIds();
+        if (visit.indexOf(lastReviewId) === -1) visit.push(lastReviewId);
+        writeJson(VISIT_KEY, visit);
+      }
+      renderReview(lastReviewId);
+      return;
+    }
+    if (event.target.closest("#copy-notes") && lastReviewId) {
+      copyNotes(findItem(lastReviewId));
+      return;
+    }
+    if (event.target.closest("#visit-done")) {
+      writeJson(VISIT_KEY, []);
+      renderHunt();
+      return;
+    }
+    if (event.target.closest("[data-no-buy]")) {
+      return;
+    }
     var go = event.target.closest("[data-go]");
     if (go) {
       var dest = go.getAttribute("data-go");
-      if (dest === "home") renderHome();
+      if (dest === "home") renderHunt();
       else if (dest === "dates") renderDates();
-      else renderList(lastList);
+      else if (dest === "stores") renderStoresHub();
+      else goBack();
       return;
     }
     var tab = event.target.closest("[data-tab]");
     if (tab) {
       var name = tab.getAttribute("data-tab");
-      if (name === "finds") renderHome();
+      if (name === "hunt") renderHunt();
+      if (name === "stores") renderStoresHub();
       if (name === "dates") renderDates();
-      if (name === "cash") renderCash();
-      if (name === "books") renderBooks();
+      if (name === "profit") renderProfit();
+      if (name === "bought") renderBought();
       return;
     }
     var save = event.target.closest("#book-save");
@@ -1266,26 +1708,37 @@
       var nameEl = document.getElementById("book-name");
       var costEl = document.getElementById("book-cost");
       var dateEl = document.getElementById("book-date");
+      var storeEl = document.getElementById("book-store");
+      var sizeEl = document.getElementById("book-size");
       var name = (nameEl.value || "").trim();
       if (!name) return;
-      var books = readJson(BOOKS_KEY, []);
+      var kind = needsSize(name);
+      var size = (sizeEl.value || "").trim();
+      if (kind && !size) {
+        var gate = document.getElementById("size-gate");
+        if (gate) gate.classList.remove("hidden");
+        return;
+      }
+      var books = boughtList();
       books.unshift({
         id: String(Date.now()),
         name: name,
         cost: costEl.value || "0",
+        store: storeEl.value || "",
         date: dateEl.value || new Date().toISOString().slice(0, 10),
+        size: size,
       });
-      writeJson(BOOKS_KEY, books);
-      renderBooks();
+      writeJson(BOUGHT_KEY, books);
+      renderBought();
       return;
     }
     var del = event.target.closest("[data-del]");
     if (del) {
-      var books = readJson(BOOKS_KEY, []).filter(function (book) {
+      var books = boughtList().filter(function (book) {
         return book.id !== del.getAttribute("data-del");
       });
-      writeJson(BOOKS_KEY, books);
-      renderBooks();
+      writeJson(BOUGHT_KEY, books);
+      renderBought();
     }
   });
 

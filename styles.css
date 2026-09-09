@@ -29,7 +29,9 @@ img {
 }
 
 button,
-input {
+input,
+select,
+a {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +48,7 @@ input {
 }
 
 .header {
-  padding: 12px 20px 8px;
+  padding: 12px 16px 8px;
 }
 
 .header h1 {
@@ -88,7 +90,12 @@ input {
 
 .cat,
 .row,
-.card {
+.card,
+.search,
+.look,
+.visit,
+.actions a,
+.check a {
   width: 100%;
   background: #fff;
   border: 0;
@@ -110,6 +117,48 @@ input {
   color: #c7c7cc;
   font-size: 22px;
   font-weight: 400;
+}
+
+.search {
+  display: grid;
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.search span,
+.field span,
+.kicker {
+  color: #8e8e93;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.search input {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 17px;
+}
+
+.look,
+.visit {
+  padding: 12px 16px;
+}
+
+.look p,
+.visit p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+  color: #3a3a3c;
+}
+
+.visit strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 6px;
 }
 
 .row {
@@ -136,22 +185,27 @@ input {
 
 .row-copy strong {
   display: block;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
-.price-line {
+.price-line,
+.found-mark {
   display: block;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
-  color: #3a3a3c;
+  color: #8e8e93;
+}
+
+.found-mark {
+  color: #e10600;
 }
 
 .group-title {
   margin: 8px 4px 0;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -167,7 +221,7 @@ input {
 
 .verdict.is-strong,
 .fitness.is-strong {
-  color: #e10600;
+  color: #000;
 }
 
 .verdict.is-watch,
@@ -182,7 +236,7 @@ input {
 
 .hero {
   width: 100%;
-  max-height: 42vh;
+  max-height: 40vh;
   background: #fff;
   display: flex;
   align-items: center;
@@ -192,7 +246,7 @@ input {
 
 .hero img {
   width: 100%;
-  max-height: 42vh;
+  max-height: 40vh;
   object-fit: contain;
 }
 
@@ -216,44 +270,58 @@ input {
   overflow-wrap: anywhere;
 }
 
-.meta {
-  font-weight: 600;
-}
-
-.checked {
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px 14px;
-  display: grid;
-  gap: 4px;
-}
-
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #8e8e93;
-}
-
-.checked .price {
-  font-size: 22px;
-  font-weight: 700;
-}
-
+.secondary,
 .photo-note,
-.sizing {
-  color: #6c6c70;
+.sizing,
+.no-buy {
+  color: #8e8e93;
   font-size: 15px;
-}
-
-.digest {
-  font-size: 17px;
 }
 
 .fitness {
   font-size: 22px;
   font-weight: 700;
+}
+
+.actions,
+.chips,
+.check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions button,
+.chip,
+.save,
+.store-search {
+  min-height: 44px;
+  min-width: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 0 14px;
+}
+
+.chip.is-on {
+  background: #1c1c1e;
+  color: #fff;
+}
+
+.chip.is-fast {
+  font-weight: 800;
+}
+
+.check a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .sticky {
@@ -270,12 +338,17 @@ input {
   background: #f2f2f7f5;
 }
 
-.sticky button {
+.sticky button,
+.sticky a {
   min-height: 44px;
   border: 0;
   border-radius: 10px;
   font-size: 17px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .pass {
@@ -294,12 +367,6 @@ input {
   padding: 12px 16px;
   display: grid;
   gap: 6px;
-}
-
-.field span {
-  color: #8e8e93;
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .field input,
@@ -322,13 +389,8 @@ input {
 
 .save {
   width: 100%;
-  min-height: 44px;
-  border: 0;
-  border-radius: 12px;
   background: #1c1c1e;
   color: #fff;
-  font-size: 17px;
-  font-weight: 600;
 }
 
 .book {
@@ -345,6 +407,7 @@ input {
   margin: 0;
   min-width: 0;
   overflow-wrap: anywhere;
+  font-size: 17px;
 }
 
 .book button {
@@ -362,31 +425,32 @@ input {
   transform: translateX(-50%);
   width: 390px;
   max-width: 100%;
-  min-height: calc(49px + env(safe-area-inset-bottom));
+  min-height: calc(44px + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   background: #f9f9f9eb;
   border-top: 1px solid rgba(60, 60, 67, 0.12);
 }
 
 .tabbar button {
-  min-height: 49px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   color: #8e8e93;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
 }
 
 .tabbar button.is-on {
   color: #000;
-  font-weight: 700;
+  font-weight: 800;
+  background: #fff;
 }
 
 .date-kicker {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #8e8e93;
 }
@@ -404,10 +468,12 @@ input {
   text-decoration: none;
 }
 
-.no-buy {
-  color: #6c6c70;
-}
-
 .hidden {
   display: none;
+}
+
+.gate {
+  color: #e10600;
+  font-size: 15px;
+  font-weight: 600;
 }

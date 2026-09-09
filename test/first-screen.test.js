@@ -19,6 +19,16 @@ assert(
   firstScreen.includes("If it is not on this list, leave it."),
   "rule line on first screen"
 );
+assert(firstScreen.includes("Where are you?"), "store prompt on first screen");
+assert(firstScreen.includes("Or browse"), "browse prompt on first screen");
+assert(firstScreen.includes("Walmart"), "Walmart on first screen");
+
+["Hunt", "Stores", "Dates", "Profit", "Bought"].forEach((name) => {
+  assert(
+    new RegExp(">" + name + "<").test(firstScreen),
+    `tab labeled ${name}`
+  );
+});
 
 ["Cars", "Sports", "Sneakers", "Tech", "Streetwear"].forEach((name) => {
   assert(firstScreen.includes(name), `first screen has ${name}`);
@@ -26,7 +36,18 @@ assert(
 
 assert(!/Cuda/i.test(firstScreen), "Cuda is not in first-screen markup");
 assert(!/Aisle list/i.test(firstScreen), "Aisle list is not on first screen");
-assert(!/<h1[^>]*>\s*Finds\s*<\/h1>/i.test(firstScreen), "Finds is not the title");
 assert(!/_next/.test(html), "no Next.js assets");
+assert(
+  !/>Cash</.test(firstScreen),
+  "Cash is not a tab name"
+);
+assert(
+  !/>Books</.test(firstScreen),
+  "Books is not a tab name"
+);
+assert(html.includes("walmart.com/search"), "walmart.com/search in HTML");
+assert(html.includes("google.com/search"), "google.com/search in HTML");
+assert(html.includes("$122"), "$122 in HTML");
+assert(html.includes("September 16"), "September 16 in HTML");
 
 console.log("first-screen.test.js OK");
