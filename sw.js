@@ -1,6 +1,6 @@
-const CACHE = "reseller-v5";
+const CACHE = "reseller-v6";
 const scope = self.registration.scope;
-const PRECACHE = ["", "lists/", "cash/", "books/", "releases/"].map(
+const PRECACHE = ["", "scan/", "cash/", "books/", "lists/", "releases/"].map(
   (path) => new URL(path, scope).href
 );
 

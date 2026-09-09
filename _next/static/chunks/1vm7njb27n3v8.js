@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,13871,o=>{"use strict";var t=o.i(43476),i=o.i(71645),s=o.i(12026);o.s(["default",0,function(){return(0,i.useEffect)(()=>{"#books"!==window.location.hash&&(window.location.hash="books")},[]),(0,t.jsx)(s.PhoneApp,{})}])}]);
