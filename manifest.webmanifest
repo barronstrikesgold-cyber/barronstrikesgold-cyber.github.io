@@ -1,6 +1,6 @@
 {
-  "name": "Reseller Hunt",
-  "short_name": "Hunt",
+  "name": "Reseller",
+  "short_name": "Reseller",
   "description": "Aisle buy/pass. Cash left after fees and ship. Checks stay on this phone.",
   "start_url": ".",
   "display": "standalone",
