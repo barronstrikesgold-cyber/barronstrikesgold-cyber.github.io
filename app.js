@@ -716,7 +716,7 @@
     },
     goodwill: {
       name: "Goodwill",
-      look: "Look here: sneakers with a size tag (Jordan, Dunk SB, clean New Balance), streetwear with tags (Supreme, Bape), tech that powers on. Skip crushed shoes, no-tag clothes, printers.",
+      look: "Look here: sneakers with a size tag (Jordan, Dunk SB, clean New Balance), streetwear with tags (Supreme, Bape), tech that powers on. Skip crushed shoes, no-tag clothes, printers. Golf look-for: Scotty Cameron, Titleist, Ping, TaylorMade, Callaway, Mizuno, Odyssey. Those clubs are not tracked yet: no unique photo and no settled sale.",
       cats: ["sneakers", "streetwear", "tech"],
       ids: null,
       search: "https://shopgoodwill.com/categories/search?q=",
@@ -794,6 +794,9 @@
     });
   });
 
+  var GRADE_KEY = "reseller-grade";
+  var STOCK_KEY = "reseller-stock";
+  var HISTORY_KEY = "reseller-history";
   var MARKS_KEY = "reseller-marks";
   var VISIT_KEY = "reseller-visit";
   var SIZE_KEY = "reseller-sizes";
@@ -805,7 +808,19 @@
       "Not tracked yet: New Balance 991, 992, and 993. No unique product photo was fetched for those models.",
     streetwear:
       "Not tracked yet: Palace, Stussy, and Chrome Hearts. No unique product photo was fetched.",
+    golf:
+      "Not tracked yet: Scotty Cameron, Titleist, Ping, TaylorMade, Callaway, Mizuno, Odyssey. No unique product photo and no settled sale.",
   };
+
+  var GOLF_LOOK = [
+    "Scotty Cameron",
+    "Titleist",
+    "Ping",
+    "TaylorMade",
+    "Callaway",
+    "Mizuno",
+    "Odyssey",
+  ];
 
   var TODAY = "2026-09-09";
   var DATES = [];
@@ -918,6 +933,67 @@
 
   function storedSize(item) {
     return sizeMap()[item.id] || "";
+  }
+
+  function gradeMap() {
+    return readJson(GRADE_KEY, {});
+  }
+
+  function stockMap() {
+    return readJson(STOCK_KEY, {});
+  }
+
+  function historyMap() {
+    return readJson(HISTORY_KEY, {});
+  }
+
+  function gradesFor(item) {
+    if (item._cat === "sneakers") return ["Deadstock", "Light wear", "Beat"];
+    if (item._cat === "streetwear") return ["New with tag", "Used", "Stained"];
+    if (item._cat === "tech") return ["Powers on", "Locked", "Dead"];
+    return ["Sealed", "Card damage", "Loose"];
+  }
+
+  function baseSoldGrade(item) {
+    if (item._cat === "sneakers") return "Deadstock";
+    if (item._cat === "streetwear") return "New with tag";
+    if (item._cat === "tech") return "Powers on";
+    return "Sealed";
+  }
+
+  function storedGrade(item) {
+    return gradeMap()[item.id] || "";
+  }
+
+  function storedStock(item) {
+    return stockMap()[item.id] || null;
+  }
+
+  function itemStores(item) {
+    var names = [];
+    Object.keys(STORES).forEach(function (id) {
+      var rows = storeItems(id);
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].id === item.id) {
+          names.push(STORES[id].name);
+          break;
+        }
+      }
+    });
+    return names;
+  }
+
+  function searchHay(item) {
+    return [
+      item.name,
+      TITLES[item._cat] || "",
+      item._cat || "",
+      itemStores(item).join(" "),
+      storedGrade(item),
+      item.listPrice || "",
+    ]
+      .join(" ")
+      .toLowerCase();
   }
 
   function fitnessFor(item) {
@@ -1038,16 +1114,71 @@
   }
 
   function resellText(item) {
+    var grade = storedGrade(item);
+    var base = baseSoldGrade(item);
+    var note = "";
+    if (item.soldNum != null && grade && grade !== base) {
+      note =
+        " Base sold " +
+        item.listPrice +
+        ". No sold stored for this grade.";
+    }
     if (item.id === "topps-s1") {
-      return "$13.20 to $16.80, September 7, 2026. Do not list above that.";
+      return (
+        "$13.20 to $16.80, September 7, 2026. Do not list above that. (" +
+        base +
+        ", tracked average)" +
+        note
+      );
     }
     if (item.soldNum != null) {
       return (
         item.listPrice +
-        (item.date && item.date !== "No sale date" ? ", " + item.date : "")
+        (item.date && item.date !== "No sale date" ? ", " + item.date : "") +
+        " (" +
+        base +
+        ", tracked average)" +
+        note
       );
     }
     return "none";
+  }
+
+  function leftoverShort(item) {
+    var net = C.leftoverCash(storedSold(item), shipping());
+    return net == null ? "Unknown" : "$" + net.toFixed(2);
+  }
+
+  function historyLines(item) {
+    var list = (historyMap()[item.id] || []).slice(0, 5);
+    if (!list.length) {
+      list = [
+        {
+          time: item.date || "unknown",
+          source: item.source || "Stored",
+          retail: retailText(item),
+          sold:
+            item.soldNum != null ? item.listPrice : "No settled sale",
+        },
+      ];
+    }
+    return list;
+  }
+
+  function appendHistory(itemId, source) {
+    if (!itemId) return;
+    var item = findItem(itemId);
+    if (!item) return;
+    var hist = historyMap();
+    var list = hist[itemId] || [];
+    list.unshift({
+      time: new Date().toISOString(),
+      source: source,
+      retail: retailText(item),
+      sold: storedSold(item) != null ? item.listPrice : "No settled sale",
+    });
+    hist[itemId] = list.slice(0, 5);
+    writeJson(HISTORY_KEY, hist);
   }
 
   function leftoverListed(item) {
@@ -1130,13 +1261,16 @@
         var price = parseDollarTreePrice(data);
         if (price == null) {
           statusEl.textContent = "Could not read their site from here";
+          appendHistory(itemId, "Could not read their site from here");
           return;
         }
         statusEl.textContent =
           "Could not match a sold for this item. Last checked number kept.";
+        appendHistory(itemId, "Pull prices · no matching sold");
       })
       .catch(function () {
         statusEl.textContent = "Could not read their site from here";
+        appendHistory(itemId, "Could not read their site from here");
       });
   }
 
@@ -1178,6 +1312,8 @@
   function rowHtml(item) {
     var fit = fitnessFor(item);
     var mark = marksMap()[item.id];
+    var grade = storedGrade(item);
+    var stock = storedStock(item);
     return (
       '<button class="row" type="button" data-item="' +
       escapeHtml(item.id) +
@@ -1189,7 +1325,16 @@
       escapeHtml(item.name) +
       "</strong><span class=\"price-line\">" +
       escapeHtml(item.listPrice) +
+      " · leftover " +
+      escapeHtml(leftoverShort(item)) +
       "</span>" +
+      (grade ? '<span class="tracked">Grade: ' + escapeHtml(grade) + "</span>" : "") +
+      (stock
+        ? '<span class="tracked">' +
+          escapeHtml(stock.mark) +
+          (stock.store ? " · " + escapeHtml(stock.store) : "") +
+          "</span>"
+        : "") +
       (mark === "found" ? '<span class="found-mark">Found</span>' : "") +
       '<span class="tracked">' +
       escapeHtml(trackedLine(item)) +
@@ -1200,6 +1345,14 @@
       escapeHtml(fit) +
       "</span>" +
       "</button>"
+    );
+  }
+
+  function golfRowHtml(name) {
+    return (
+      '<div class="row look-row"><span class="row-copy"><strong>' +
+      escapeHtml(name) +
+      '</strong><span class="price-line">Not tracked yet</span></span></div>'
     );
   }
 
@@ -1231,9 +1384,12 @@
     if (q) {
       var hits = sortStrongFirst(
         allItems().filter(function (item) {
-          return item.name.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+          return searchHay(item).indexOf(q.toLowerCase()) !== -1;
         })
       );
+      var golfHits = GOLF_LOOK.filter(function (name) {
+        return ("golf goodwill " + name).toLowerCase().indexOf(q.toLowerCase()) !== -1;
+      });
       screen.innerHTML =
         '<header class="header">' +
         '<button class="back" type="button" data-go="home">‹ Reseller</button>' +
@@ -1244,10 +1400,17 @@
         '<main class="list">' +
         '<label class="search"><span>Search</span><input id="hunt-search" type="search" value="' +
         escapeHtml(q) +
-        '" autocomplete="off"></label>' +
+        '" placeholder="Search name, store, or grade" autocomplete="off"></label>' +
         pullControlsHtml(q) +
         (hits.length
           ? hits.map(rowHtml).join("")
+          : "") +
+        (golfHits.length
+          ? '<p class="group-title">Golf look-for</p>' +
+            golfHits.map(golfRowHtml).join("")
+          : "") +
+        (hits.length || golfHits.length
+          ? ""
           : '<div class="look"><p class="fitness is-pass">Pass</p><p>If it is not on this list, leave it.</p></div>') +
         "</main>";
       var input = document.getElementById("hunt-search");
@@ -1299,6 +1462,13 @@
       escapeHtml(store.look) +
       "</p></div>" +
       items.map(rowHtml).join("") +
+      (id === "goodwill"
+        ? '<p class="group-title">Golf look-for</p>' +
+          GOLF_LOOK.map(golfRowHtml).join("") +
+          '<p class="secondary">' +
+          escapeHtml(NOT_TRACKED.golf) +
+          "</p>"
+        : "") +
       "</main>";
   }
 
@@ -1349,6 +1519,113 @@
         })
         .join("") +
       "</div>"
+    );
+  }
+
+  function gradeHtml(item) {
+    var current = storedGrade(item);
+    return (
+      '<section class="tool-card"><p class="kicker">Grade</p><div class="chips">' +
+      gradesFor(item)
+        .map(function (grade) {
+          return (
+            '<button class="chip' +
+            (current === grade ? " is-on" : "") +
+            '" type="button" data-grade="' +
+            escapeHtml(grade) +
+            '">' +
+            escapeHtml(grade) +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div></section>"
+    );
+  }
+
+  function stockHtml(item) {
+    var current = storedStock(item);
+    var storeNow =
+      lastList.type === "store" && STORES[lastList.id]
+        ? STORES[lastList.id].name
+        : current && current.store
+          ? current.store
+          : "";
+    var marks = ["On shelf", "Not here", "Sold out"];
+    return (
+      '<section class="tool-card"><p class="kicker">Stock</p>' +
+      '<label class="field"><span>Store</span><select id="stock-store">' +
+      ["Walmart", "Target", "Goodwill", "Best Buy", "Dollar Tree"]
+        .map(function (name) {
+          return (
+            '<option' +
+            (storeNow === name ? " selected" : "") +
+            ">" +
+            name +
+            "</option>"
+          );
+        })
+        .join("") +
+      "</select></label><div class=\"chips\">" +
+      marks
+        .map(function (mark) {
+          return (
+            '<button class="chip' +
+            (current && current.mark === mark ? " is-on" : "") +
+            '" type="button" data-stock="' +
+            escapeHtml(mark) +
+            '">' +
+            escapeHtml(mark) +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      (current
+        ? '<p class="secondary">' +
+          escapeHtml(current.mark) +
+          " · " +
+          escapeHtml(current.store || "") +
+          " · " +
+          escapeHtml((current.time || "").slice(0, 16).replace("T", " ")) +
+          "</p>"
+        : '<p class="secondary">You mark what you see. No quantity is fetched.</p>') +
+      "</section>"
+    );
+  }
+
+  function historyHtml(item) {
+    return (
+      '<section class="tool-card"><p class="kicker">Price history</p>' +
+      historyLines(item)
+        .map(function (row) {
+          return (
+            "<p>" +
+            escapeHtml(String(row.time || "").slice(0, 16).replace("T", " ")) +
+            " · " +
+            escapeHtml(row.source) +
+            " · retail " +
+            escapeHtml(row.retail) +
+            " · sold " +
+            escapeHtml(row.sold) +
+            "</p>"
+          );
+        })
+        .join("") +
+      "</section>"
+    );
+  }
+
+  function buyLinkHtml(item) {
+    if (!item.buyUrl) {
+      return '<p class="no-buy">No purchase link yet</p>';
+    }
+    return (
+      '<a class="buy-link" href="' +
+      escapeHtml(item.buyUrl) +
+      '" target="_blank" rel="noopener noreferrer">' +
+      escapeHtml(item.buyLabel || "Buy") +
+      "</a>"
     );
   }
 
@@ -1404,30 +1681,22 @@
       escapeHtml(fit) +
       "</p>" +
       priceLinesHtml(item) +
-      (item.checkedNote
-        ? '<p class="secondary">' + escapeHtml(item.checkedNote) + "</p>"
-        : "") +
-      "<p>Sentiment: " +
+      '<p class="secondary">Sentiment: ' +
       escapeHtml(sentimentLabel(item.sentiment)) +
       "</p>" +
-      '<p class="digest">' +
-      escapeHtml(item.digest) +
-      "</p>" +
-      sizeChips(item) +
-      "<p>Look for: " +
-      escapeHtml(item.shelf) +
-      "</p>" +
-      '<label class="field"><span>Type shelf</span><input id="shelf-in" type="number" inputmode="decimal" step="0.01" value="' +
+      '<label class="field"><span>Type shelf / retail</span><input id="shelf-in" type="number" inputmode="decimal" step="0.01" value="' +
       (shelf != null ? escapeHtml(String(shelf)) : "") +
       '"></label>' +
+      '<label class="field"><span>Shipping</span><input id="ship-in" type="number" inputmode="decimal" step="0.01" value="' +
+      escapeHtml(String(shipping())) +
+      '"></label>' +
+      gradeHtml(item) +
+      stockHtml(item) +
+      historyHtml(item) +
+      buyLinkHtml(item) +
       pullControlsHtml(item.name) +
-      '<div class="actions">' +
-      '<button type="button" data-mark="found">' +
-      (mark === "found" ? "Found ✓" : "Found") +
-      "</button>" +
-      '<button type="button" data-mark="left">Left it</button>' +
-      '<button type="button" id="copy-notes">Copy notes</button>' +
-      "</div>" +
+      sizeChips(item) +
+      (item.digest ? '<p class="digest">' + escapeHtml(item.digest) + "</p>" : "") +
       checkLinksHtml(item.name) +
       "</div>" +
       buyBar(item);
@@ -1551,7 +1820,7 @@
     screen.innerHTML =
       '<header class="header"><h1>Profit</h1></header>' +
       '<main class="panel">' +
-      '<p class="note">Shelf versus stored sold, about 13% fees, editable shipping, leftover cash. Not a live ticker.</p>' +
+      '<p class="note">Retail typed or known, about 13% fees, editable shipping, leftover. Sentiment is from the stored trend only. Not a live ticker.</p>' +
       '<label class="field"><span>Item</span><select id="cash-item">' +
       items
         .map(function (item) {
@@ -1569,6 +1838,7 @@
       '<label class="field"><span>Stored sold</span><input id="cash-sold" type="number" inputmode="decimal" step="0.01" placeholder="Unknown"></label>' +
       '<label class="field"><span>Shipping</span><input id="cash-ship" type="number" inputmode="decimal" step="0.01"></label>' +
       '<p class="result" id="cash-out"></p>' +
+      '<p class="note" id="profit-fit"></p>' +
       "</main>";
 
     var itemEl = document.getElementById("cash-item");
@@ -1598,14 +1868,23 @@
       if (item) {
         var solds = soldMap();
         var shelves = shelfMap();
-        if (soldVal == null) delete solds[item.id];
-        else solds[item.id] = soldVal;
+        if (soldVal == null) {
+          /* keep stored / catalog sold */
+        } else solds[item.id] = soldVal;
         if (shelfVal == null) delete shelves[item.id];
         else shelves[item.id] = shelfVal;
         writeJson(SOLD_KEY, solds);
         writeJson(SHELF_KEY, shelves);
       }
       var net = C.leftoverCash(soldVal, shipVal);
+      var fitEl = document.getElementById("profit-fit");
+      if (item && fitEl) {
+        fitEl.textContent =
+          "Fitness: " +
+          fitnessFor(item) +
+          " · Sentiment: " +
+          sentimentLabel(item.sentiment);
+      }
       if (net == null) {
         outEl.textContent = "Unknown";
         return;
@@ -1729,6 +2008,15 @@
       var out = document.getElementById("left-out");
       if (out) out.textContent = leftoverListed(item);
     }
+    if (event.target && event.target.id === "ship-in") {
+      var shipVal = Number(event.target.value) || 0;
+      localStorage.setItem(SHIP_KEY, String(shipVal));
+      if (lastReviewId) {
+        var shipItem = findItem(lastReviewId);
+        var shipOut = document.getElementById("left-out");
+        if (shipOut) shipOut.textContent = leftoverListed(shipItem);
+      }
+    }
   });
 
   document.addEventListener("submit", function (event) {
@@ -1773,6 +2061,27 @@
     var dateBtn = event.target.closest("[data-date]");
     if (dateBtn) {
       renderDateDetail(dateBtn.getAttribute("data-date"));
+      return;
+    }
+    var gradeBtn = event.target.closest("[data-grade]");
+    if (gradeBtn && lastReviewId) {
+      var grades = gradeMap();
+      grades[lastReviewId] = gradeBtn.getAttribute("data-grade");
+      writeJson(GRADE_KEY, grades);
+      renderReview(lastReviewId);
+      return;
+    }
+    var stockBtn = event.target.closest("[data-stock]");
+    if (stockBtn && lastReviewId) {
+      var stocks = stockMap();
+      var storeEl = document.getElementById("stock-store");
+      stocks[lastReviewId] = {
+        mark: stockBtn.getAttribute("data-stock"),
+        store: storeEl ? storeEl.value : "",
+        time: new Date().toISOString(),
+      };
+      writeJson(STOCK_KEY, stocks);
+      renderReview(lastReviewId);
       return;
     }
     var sizeBtn = event.target.closest("[data-size]");

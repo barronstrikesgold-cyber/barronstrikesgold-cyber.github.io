@@ -60,7 +60,11 @@ assert(
 );
 assert(!/in stock/i.test(html), "HTML does not say In stock");
 assert(!/in stock/i.test(firstScreen), "first screen does not say In stock");
-assert(html.includes("$122"), "$122 in HTML");
+assert(html.includes("Grade"), "Grade in HTML");
+assert(html.includes("On shelf"), "On shelf stock mark in HTML");
+assert(html.includes("Price history"), "Price history in HTML");
+assert(firstScreen.includes("Search"), "Search on first screen");
+assert(html.includes('id="hunt-search"'), "search input in HTML");
 assert(html.includes("September 16"), "September 16 in HTML");
 
 console.log("first-screen.test.js OK");

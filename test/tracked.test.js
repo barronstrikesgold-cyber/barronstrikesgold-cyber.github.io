@@ -41,7 +41,11 @@ assert(html.includes("buy-json"), "purchase links are listed");
 assert(html.includes("https://"), "https purchase links in HTML");
 assert(first.includes("Dollar Tree"), "Dollar Tree store card remains");
 assert(!/Cuda/i.test(first), "no car dump on first screen");
-assert(app.includes("$122"), "F40 sold unchanged");
+assert(app.includes("Grade"), "Grade control in app");
+assert(app.includes("On shelf"), "On shelf stock in app");
+assert(app.includes("Price history"), "price history in app");
+assert(app.includes("GOLF_LOOK"), "golf look-for list in app");
+assert(!/id: "palace"/.test(app), "Palace still not tracked");
 assert(app.includes("$61"), "Civic sold unchanged");
 
 console.log("tracked.test.js OK");
