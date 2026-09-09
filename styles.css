@@ -141,6 +141,23 @@ input {
   overflow-wrap: anywhere;
 }
 
+.price-line {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a3c;
+}
+
+.group-title {
+  margin: 8px 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #8e8e93;
+}
+
 .verdict {
   flex: none;
   font-size: 15px;
@@ -148,8 +165,19 @@ input {
   color: #8e8e93;
 }
 
-.verdict.is-buy {
+.verdict.is-strong,
+.fitness.is-strong {
   color: #e10600;
+}
+
+.verdict.is-watch,
+.fitness.is-watch {
+  color: #000;
+}
+
+.verdict.is-pass,
+.fitness.is-pass {
+  color: #8e8e93;
 }
 
 .hero {
@@ -190,6 +218,42 @@ input {
 
 .meta {
   font-weight: 600;
+}
+
+.checked {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8e8e93;
+}
+
+.checked .price {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.photo-note,
+.sizing {
+  color: #6c6c70;
+  font-size: 15px;
+}
+
+.digest {
+  font-size: 17px;
+}
+
+.fitness {
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .sticky {

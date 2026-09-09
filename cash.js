@@ -16,12 +16,26 @@
     return n * (1 - rate) - ship;
   }
 
+  function leftoverCash(sold, shipping, feeRate) {
+    return cashLeft(sold, shipping, feeRate);
+  }
+
   function beatsShelfAfterFees(opts) {
     var net = cashLeft(opts.sold, opts.shipping);
     if (net === null) return false;
     var shelf = Number(opts.shelf);
     if (!Number.isFinite(shelf)) return false;
     return net > shelf;
+  }
+
+  function itemFitness(item) {
+    if (item && item.fitness) return item.fitness;
+    if (!item) return "Watch";
+    if (item.rule === "leave") return "Pass";
+    if (item.rule === "buy") return "Strong";
+    if (beatsShelfAfterFees(item)) return "Strong";
+    if (item.sold == null || item.sold === "") return "Watch";
+    return "Pass";
   }
 
   function itemVerdict(item) {
@@ -31,5 +45,12 @@
     return "Leave it";
   }
 
-  return { FEE: FEE, cashLeft: cashLeft, beatsShelfAfterFees: beatsShelfAfterFees, itemVerdict: itemVerdict };
+  return {
+    FEE: FEE,
+    cashLeft: cashLeft,
+    leftoverCash: leftoverCash,
+    beatsShelfAfterFees: beatsShelfAfterFees,
+    itemFitness: itemFitness,
+    itemVerdict: itemVerdict,
+  };
 });
