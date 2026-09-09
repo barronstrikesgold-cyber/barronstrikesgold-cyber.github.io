@@ -473,61 +473,10 @@
         sizing: SHOE_SIZE,
       },
       {
-        id: "nb-991",
-        name: "New Balance 991",
-        photo: "/photos/nb-990.jpg",
-        photoNote: "Stand-in 990-family photo. Not the exact 991 colorway.",
-        shelf: "Shelf varies by colorway",
-        listPrice: "By colorway. No single sold.",
-        checkedPrice: "By colorway. No single sold.",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "No single sold.",
-        sentiment: "unknown",
-        digest:
-          "New Balance 991. Watch if clean. Pass beaters.",
-        fitness: "Watch",
-        sizing: SHOE_SIZE,
-      },
-      {
-        id: "nb-992",
-        name: "New Balance 992",
-        photo: "/photos/nb-990.jpg",
-        photoNote: "Stand-in 990-family photo. Not the exact 992 colorway.",
-        shelf: "Shelf varies by colorway",
-        listPrice: "By colorway. No single sold.",
-        checkedPrice: "By colorway. No single sold.",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "No single sold.",
-        sentiment: "unknown",
-        digest:
-          "New Balance 992. Watch if clean. Pass beaters.",
-        fitness: "Watch",
-        sizing: SHOE_SIZE,
-      },
-      {
-        id: "nb-993",
-        name: "New Balance 993",
-        photo: "/photos/nb-990.jpg",
-        photoNote: "Stand-in 990-family photo. Not the exact 993 colorway.",
-        shelf: "Shelf varies by colorway",
-        listPrice: "By colorway. No single sold.",
-        checkedPrice: "By colorway. No single sold.",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "No single sold.",
-        sentiment: "unknown",
-        digest:
-          "New Balance 993. Watch if clean. Pass beaters.",
-        fitness: "Watch",
-        sizing: SHOE_SIZE,
-      },
-      {
         id: "nb-2002r",
         name: "New Balance 2002R",
-        photo: "/photos/nb-550.jpg",
-        photoNote: "Stand-in of this model family. Not the exact 2002R colorway.",
+        photo: "/photos/nb-2002r.jpg",
+        photoNote: "Photo of a New Balance 2002R. Not a specific store pair.",
         shelf: "Shelf varies by colorway",
         listPrice: "By colorway. No single sold.",
         checkedPrice: "By colorway. No single sold.",
@@ -712,57 +661,6 @@
         sizing: CLOTHES_SIZE,
       },
       {
-        id: "palace",
-        name: "Palace",
-        photo: "/photos/hoodie.jpg",
-        photoNote: "Stand-in hoodie. Not a specific Palace drop.",
-        shelf: "Only with a letter size tag",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Palace with a size tag. No invented sold. M, L, and XL move fastest. No tag is a pass.",
-        fitness: "Watch",
-        sizing: CLOTHES_SIZE,
-      },
-      {
-        id: "stussy",
-        name: "Stussy",
-        photo: "/photos/hoodie.jpg",
-        photoNote: "Stand-in hoodie. Not a specific Stussy drop.",
-        shelf: "Only with a letter size tag",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Stussy with a size tag. No invented sold. No tag is a pass.",
-        fitness: "Watch",
-        sizing: CLOTHES_SIZE,
-      },
-      {
-        id: "chrome-hearts",
-        name: "Chrome Hearts",
-        photo: "/photos/hoodie.jpg",
-        photoNote: "Stand-in garment photo. Not a specific Chrome Hearts piece.",
-        shelf: "Only with a letter size tag",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Chrome Hearts with a size tag. No invented sold. No tag is a pass.",
-        fitness: "Watch",
-        sizing: CLOTHES_SIZE,
-      },
-      {
         id: "nike-adidas",
         name: "Tagged Nike or Adidas collab",
         photo: "/photos/collab-tee.jpg",
@@ -778,98 +676,6 @@
           "Tagged Nike or Adidas collab only. Letter size required. No tag is a pass. No invented sold.",
         fitness: "Watch",
         sizing: CLOTHES_SIZE,
-      },
-    ],
-    dollartree: [
-      {
-        id: "dt-food-party",
-        name: "Name-brand food or party",
-        photo: "/photos/dollartree.svg",
-        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
-        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
-        shelfNum: 1.25,
-        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold. Scan the shelf checker.",
-        sentiment: "unknown",
-        digest:
-          "Worth a look only if a name-brand food or party item can resell. No settled sale stored. Fitness Pass until a scan shows $1.25 or a penny and a stored sold beats it after fees.",
-        fitness: "Pass",
-      },
-      {
-        id: "dt-seasonal",
-        name: "Seasonal before the holiday",
-        photo: "/photos/dollartree.svg",
-        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
-        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
-        shelfNum: 1.25,
-        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Seasonal only before the holiday. No settled sale stored. Skip after the date. Fitness Pass until a $1.25 or penny scan and a stored sold beats fees.",
-        fitness: "Pass",
-      },
-      {
-        id: "dt-books",
-        name: "Books",
-        photo: "/photos/dollartree.svg",
-        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
-        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
-        shelfNum: 1.25,
-        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Books can be worth a look. No settled sale stored for a generic Dollar Tree book. Fitness Pass until a scan and a stored sold beat $1.25 after fees.",
-        fitness: "Pass",
-      },
-      {
-        id: "dt-craft",
-        name: "Craft tools",
-        photo: "/photos/dollartree.svg",
-        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
-        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
-        shelfNum: 1.25,
-        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold.",
-        sentiment: "unknown",
-        digest:
-          "Craft tools only if they can resell. No settled sale stored. Skip random housewares with no sold. Fitness Pass until a $1.25 or penny scan and a stored sold beats fees.",
-        fitness: "Pass",
-      },
-      {
-        id: "dt-mistag",
-        name: "Mis-tagged name brand",
-        photo: "/photos/dollartree.svg",
-        photoNote: "Look-for mark. Not a photo of a specific Dollar Tree SKU.",
-        shelf: "$1.25 base as of 2026. Red dot is above $1.25, not a discount.",
-        shelfNum: 1.25,
-        retailLabel: "$1.25 as of 2026 unless a red dot or scan says otherwise",
-        listPrice: "No settled sale",
-        checkedPrice: "No settled sale",
-        source: "No settled sale fetched",
-        date: "No sale date",
-        checkedNote: "Do not invent a sold. Confirm the tag on the checker.",
-        sentiment: "unknown",
-        digest:
-          "A mis-tagged name brand is worth a look. No settled sale stored. Fitness Pass until a scan shows $1.25 or a penny and a stored sold beats it after fees.",
-        fitness: "Pass",
       },
     ],
   };
@@ -924,9 +730,9 @@
     },
     dollartree: {
       name: "Dollar Tree",
-      look: "Look here: base shelf is $1.25 as of 2026. A red dot means the item is priced above $1.25, not a discount. Scan the checker in the store. Do not treat sticker color as a sale. Worth a look only if it can resell: name-brand food or party, seasonal before the holiday, books, craft tools, a mis-tagged name brand. Skip random housewares with no sold. No settled sale stored for a generic Dollar Tree item. Fitness Watch only after a scan shows $1.25 or a penny and a stored sold beats it after fees. Otherwise Pass.",
-      cats: ["dollartree"],
-      ids: null,
+      look: "Scan the $1.25 checker. A red dot means the item is priced above $1.25, not a discount. Do not treat sticker color as a sale. Use Search this store. Name-brand food or party, seasonal before the holiday, books, craft tools, or a mis-tagged name brand can be worth a look. Skip random housewares with no sold. No generic Dollar Tree item is tracked here: no unique product photo and no settled sale.",
+      cats: null,
+      ids: [],
       search: "https://www.dollartree.com/searchresults?Ntt=",
     },
   };
@@ -946,10 +752,60 @@
     if (checkNode) CHECK = JSON.parse(checkNode.textContent);
   } catch (err) {}
 
+  function defaultPurchase(item) {
+    var q = item.name;
+    if (item._cat === "cars") {
+      return {
+        href: (CHECK.shopping || "https://www.google.com/search?tbm=shop&q=") + encodeURIComponent(q),
+        label: "Check stores",
+      };
+    }
+    if (item._cat === "sports") {
+      return {
+        href: (CHECK.target || "https://www.target.com/s?searchTerm=") + encodeURIComponent(q),
+        label: "Buy",
+      };
+    }
+    if (item._cat === "tech") {
+      return {
+        href: (CHECK.bestbuy || "https://www.bestbuy.com/site/searchpage.jsp?st=") + encodeURIComponent(q),
+        label: "Buy",
+      };
+    }
+    if (item._cat === "sneakers") {
+      return {
+        href: (CHECK.shopping || "https://www.google.com/search?tbm=shop&q=") + encodeURIComponent(q),
+        label: "Buy",
+      };
+    }
+    return {
+      href: (CHECK.goodwill || "https://shopgoodwill.com/categories/search?q=") + encodeURIComponent(q),
+      label: "Buy",
+    };
+  }
+
+  Object.keys(CATALOG).forEach(function (key) {
+    CATALOG[key].forEach(function (item) {
+      if (!item.buyUrl) {
+        var link = defaultPurchase(item);
+        item.buyUrl = link.href;
+        item.buyLabel = link.label;
+      }
+    });
+  });
+
   var MARKS_KEY = "reseller-marks";
   var VISIT_KEY = "reseller-visit";
   var SIZE_KEY = "reseller-sizes";
   var BOUGHT_KEY = "reseller-bought";
+  var CHECKED_AT_KEY = "reseller-checked-at";
+
+  var NOT_TRACKED = {
+    sneakers:
+      "Not tracked yet: New Balance 991, 992, and 993. No unique product photo was fetched for those models.",
+    streetwear:
+      "Not tracked yet: Palace, Stussy, and Chrome Hearts. No unique product photo was fetched.",
+  };
 
   var TODAY = "2026-09-09";
   var DATES = [];
@@ -990,8 +846,30 @@
     return readJson(SIZE_KEY, {});
   }
 
+  function checkedAtMap() {
+    return readJson(CHECKED_AT_KEY, {});
+  }
+
   function marksMap() {
     return readJson(MARKS_KEY, {});
+  }
+
+  function stampRefresh(id) {
+    var map = checkedAtMap();
+    var when = new Date().toISOString();
+    if (id) map[id] = when;
+    map.hunt = when;
+    writeJson(CHECKED_AT_KEY, map);
+    return when;
+  }
+
+  function trackedLine(item) {
+    var date =
+      item.date && item.date !== "No sale date" ? item.date : "no settled date";
+    var extra = checkedAtMap()[item.id];
+    return extra
+      ? "Tracked · " + date + " · refreshed " + extra.slice(0, 16).replace("T", " ")
+      : "Tracked · " + date;
   }
 
   function visitIds() {
@@ -1207,10 +1085,15 @@
 
   function pullControlsHtml(query) {
     return (
-      '<div class="actions"><button type="button" data-pull-prices="' +
+      '<div class="actions">' +
+      '<button type="button" data-refresh="item" data-query="' +
+      escapeHtml(query) +
+      '">Refresh</button>' +
+      '<button type="button" data-pull-prices="' +
       escapeHtml(query) +
       '">Pull prices</button></div>' +
-      '<p class="secondary" id="pull-status"></p>'
+      '<p class="secondary" id="pull-status"></p>' +
+      '<p class="secondary" id="refresh-time"></p>'
     );
   }
 
@@ -1226,9 +1109,12 @@
     return null;
   }
 
-  function pullLivePrices(query, statusEl) {
+  function pullLivePrices(query, statusEl, itemId) {
     if (!statusEl) return;
     statusEl.textContent = "Trying their site…";
+    var when = stampRefresh(itemId);
+    var timeEl = document.getElementById("refresh-time");
+    if (timeEl) timeEl.textContent = "Checked " + when.slice(0, 16).replace("T", " ");
     var jsonBase =
       CHECK.dollartreeJson ||
       "https://www.dollartree.com/ccstoreui/v1/search?Ntt=";
@@ -1247,7 +1133,7 @@
           return;
         }
         statusEl.textContent =
-          "Pulled from Dollar Tree search JSON: $" + price.toFixed(2);
+          "Could not match a sold for this item. Last checked number kept.";
       })
       .catch(function () {
         statusEl.textContent = "Could not read their site from here";
@@ -1305,7 +1191,9 @@
       escapeHtml(item.listPrice) +
       "</span>" +
       (mark === "found" ? '<span class="found-mark">Found</span>' : "") +
-      "</span>" +
+      '<span class="tracked">' +
+      escapeHtml(trackedLine(item)) +
+      "</span></span>" +
       '<span class="verdict' +
       fitnessClass(fit) +
       '">' +
@@ -1349,7 +1237,10 @@
       screen.innerHTML =
         '<header class="header">' +
         '<button class="back" type="button" data-go="home">‹ Reseller</button>' +
-        "<h1>Hunt</h1></header>" +
+        "<h1>Hunt</h1>" +
+        '<button class="refresh" type="button" data-refresh="hunt" data-query="' +
+        escapeHtml(q) +
+        '">Refresh</button></header>' +
         '<main class="list">' +
         '<label class="search"><span>Search</span><input id="hunt-search" type="search" value="' +
         escapeHtml(q) +
@@ -1422,6 +1313,9 @@
       escapeHtml(TITLES[cat] || cat) +
       "</h1></header>" +
       '<main class="list">' +
+      (NOT_TRACKED[cat]
+        ? '<div class="look"><p>' + escapeHtml(NOT_TRACKED[cat]) + "</p></div>"
+        : "") +
       items.map(rowHtml).join("") +
       "</main>";
   }
@@ -1459,13 +1353,15 @@
   }
 
   function buyBar(item) {
-    var buy = item.buyUrl
+    var href = item.buyUrl;
+    var label = item.buyLabel || "Buy";
+    var buy = href
       ? '<a class="buy" href="' +
-        escapeHtml(item.buyUrl) +
+        escapeHtml(href) +
         '" target="_blank" rel="noopener noreferrer">' +
-        escapeHtml(item.buyLabel || "Buy") +
+        escapeHtml(label) +
         "</a>"
-      : '<button class="buy" type="button" data-no-buy="1">No buy link yet</button>';
+      : '<button class="buy" type="button" data-no-buy="1">No purchase link yet</button>';
     return (
       '<div class="sticky"><button class="pass" type="button" data-go="back">Pass</button>' +
       buy +
@@ -1483,6 +1379,9 @@
     screen.innerHTML =
       '<header class="header">' +
       '<button class="back" type="button" data-go="back">‹ Back</button>' +
+      '<button class="refresh" type="button" data-refresh="item" data-query="' +
+      escapeHtml(item.name) +
+      '">Refresh</button>' +
       "</header>" +
       '<div class="hero"><img src="' +
       escapeHtml(item.photo) +
@@ -1493,6 +1392,9 @@
       "<h2>" +
       escapeHtml(item.name) +
       "</h2>" +
+      '<p class="tracked">' +
+      escapeHtml(trackedLine(item)) +
+      "</p>" +
       (item.photoNote
         ? '<p class="photo-note">' + escapeHtml(item.photoNote) + "</p>"
         : "") +
@@ -1908,8 +1810,22 @@
     if (pullBtn) {
       pullLivePrices(
         pullBtn.getAttribute("data-pull-prices") || "",
-        document.getElementById("pull-status")
+        document.getElementById("pull-status"),
+        lastReviewId
       );
+      return;
+    }
+    var refreshBtn = event.target.closest("[data-refresh]");
+    if (refreshBtn) {
+      var q = refreshBtn.getAttribute("data-query") || "";
+      var status = document.getElementById("pull-status");
+      if (!status) {
+        status = document.createElement("p");
+        status.id = "pull-status";
+        status.className = "secondary";
+        refreshBtn.parentNode.appendChild(status);
+      }
+      pullLivePrices(q, status, lastReviewId);
       return;
     }
     if (event.target.closest("[data-no-buy]")) {
