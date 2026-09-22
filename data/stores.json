@@ -1,0 +1,47 @@
+[
+  {
+    "id": "walmart",
+    "name": "Walmart",
+    "monogram": "W",
+    "look": "Sports hangers and blasters, the Pokémon box only at printed $49.99, Hot Wheels peg about $1, and electronics that power on. Skip printers and locked phones.",
+    "cats": ["cars", "sports", "tech"],
+    "ids": null,
+    "search": "https://www.walmart.com/search?q="
+  },
+  {
+    "id": "target",
+    "name": "Target",
+    "monogram": "T",
+    "look": "Sports hangers and blasters, Hot Wheels peg, streetwear with tags, and Pokémon only if the printed price is $49.99.",
+    "cats": ["cars", "sports", "streetwear"],
+    "ids": null,
+    "search": "https://www.target.com/s?searchTerm="
+  },
+  {
+    "id": "goodwill",
+    "name": "Goodwill",
+    "monogram": "G",
+    "look": "Sneakers with a size tag, streetwear with tags, and tech that powers on. Skip crushed shoes, clothes with no tag, and printers. Golf brands to look for are listed below. Those clubs are not tracked yet.",
+    "cats": ["sneakers", "streetwear", "tech"],
+    "ids": null,
+    "search": "https://shopgoodwill.com/categories/search?q="
+  },
+  {
+    "id": "bestbuy",
+    "name": "Best Buy",
+    "monogram": "BB",
+    "look": "Open-box or clearance Apple, and a Switch, only if it powers on and is not locked. No open-box price is invented. Fitness stays Watch until a stored sold exists.",
+    "cats": null,
+    "ids": ["iphone", "ipad", "macbook", "airpods", "watch", "switch"],
+    "search": "https://www.bestbuy.com/site/searchpage.jsp?st="
+  },
+  {
+    "id": "dollartree",
+    "name": "Dollar Tree",
+    "monogram": "DT",
+    "look": "The checker price is $1.25 as of 2026. A red dot means the item is priced above $1.25, not a discount. No generic Dollar Tree product is tracked here: there is no exact photo and no settled sale.",
+    "cats": null,
+    "ids": [],
+    "search": "https://www.dollartree.com/searchresults?Ntt="
+  }
+]

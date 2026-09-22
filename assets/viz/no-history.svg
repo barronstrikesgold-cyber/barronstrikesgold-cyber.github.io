@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-label="No settled sale">
+  <rect width="240" height="72" rx="16" fill="#F4EFE6"/>
+  <path d="M20 50h200" stroke="#E4D8C8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M20 36h48" stroke="#1A120C" stroke-width="8" stroke-linecap="round"/>
+</svg>

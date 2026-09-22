@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" role="img" aria-label="goodwill">
+  <rect width="160" height="96" rx="18" fill="#FFFBF5"/>
+  <rect x="12" y="16" width="48" height="64" rx="12" fill="#1A120C"/>
+  <text x="36" y="56" text-anchor="middle" fill="#FFFBF5" font-family="Avenir Next, Segoe UI, sans-serif" font-size="26" font-weight="700">G</text>
+  <path d="M76 62h64" stroke="#E4572E" stroke-width="3" stroke-linecap="round"/>
+</svg>
