@@ -808,5 +808,25 @@
       "photoAlt": "Photo needed",
       "photoSource": "Not shown. Stand-in collab tee. Not a specific drop."
     }
+  ],
+  "pokemon": [
+    {
+      "id": "m6a",
+      "name": "Pokémon Japanese M6a 30th CELEBRATION",
+      "photo": null,
+      "shelf": "Near ¥7200",
+      "listPrice": "No sold data",
+      "checkedPrice": "No sold data",
+      "source": "No sold data",
+      "date": "No sale date",
+      "checkedNote": "Buy only near ¥7200. Do not invent a sold.",
+      "sentiment": "unknown",
+      "digest": "Japanese M6a 30th CELEBRATION. Buy only near ¥7200. No sold data. Any other Japanese box is a Pass.",
+      "fitness": "Watch",
+      "category": "pokemon",
+      "photoMatched": false,
+      "photoAlt": "Photo needed",
+      "photoSource": "No exact photo is bundled for this box."
+    }
   ]
 }

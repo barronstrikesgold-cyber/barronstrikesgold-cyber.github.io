@@ -1,13 +1,13 @@
 {
   "name": "Reseller",
   "short_name": "Reseller",
-  "description": "Hunt stores, track drops, keep inventory, and figure profit.",
+  "description": "If it is not on the buy list, leave it.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1A120C",
-  "theme_color": "#1A120C",
+  "background_color": "#070708",
+  "theme_color": "#070708",
   "icons": [
     {
       "src": "assets/brand/icon-192.png",
