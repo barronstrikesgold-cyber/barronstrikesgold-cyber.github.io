@@ -18,7 +18,7 @@ Cards use a black, flame-orange, and gold layout with large tap targets, Buy / P
 | Stores | That store’s buy list, plus a search link for the store, Google, and Google Shopping. A link is not a shelf count. |
 | Drops | The dates that change a hunt. Other releases stay under Other dates. |
 | Inventory | The 78-package book, with sell-first and verify flags. |
-| Profit | 13% fees, shipping, optional tax. A blank sold stays unknown. |
+| Profit | 13% fees and shipping. The result stays blank until you type a sold, then it is labeled an estimate. |
 
 Hot Wheels buys are gold-flame Supers only: Spectraflame, Real Riders, and the tiny TH. Regular mainlines are not flips. Supers share a UPC with the regular, so the card says to read the card. Matchbox is a buy only when the card says SUPER CHASE. Pokémon is the 30th Celebration ETB at printed $49.99, and Japanese M6a 30th CELEBRATION near ¥7200. Golf is name-brand clubs with no stored sold. Sneakers, tech, and streetwear are secondary pass lanes. Sports blisters are a Pass at printed price.
 

@@ -82,7 +82,9 @@ try {
       await page.getByRole("button", { name: /Hot Wheels/ }).click();
       await page.getByRole("heading", { name: "Hot Wheels" }).waitFor();
       await page.getByText("Read the card").first().waitFor();
-      await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).waitFor();
+      const cuda = page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ });
+      await cuda.waitFor();
+      assert(/buy/i.test(await cuda.innerText()), "hunt card action is Buy");
       await page.getByText("No sold data").first().waitFor();
       await page.screenshot({ path: path.join(shots, "hunt-390.png"), fullPage: false });
       assert(await page.getByRole("button", { name: /Skyline/ }).count() === 0, "regular TH stays out of the buy list");
@@ -91,7 +93,7 @@ try {
       await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).click();
       await page.getByRole("link", { name: "Google", exact: true }).waitFor();
       await page.getByRole("link", { name: "Google Shopping", exact: true }).waitFor();
-      await page.getByRole("link", { name: "Check Walmart", exact: true }).waitFor();
+      await page.getByRole("link", { name: "Search on Walmart", exact: true }).waitFor();
       await page.locator("#hunt-q").waitFor({ state: "detached" });
       await page.getByRole("tab", { name: "Hunt" }).click();
       await page.locator("#hunt-q").fill("spectraflame blue");
@@ -100,7 +102,8 @@ try {
       await page.locator("#hunt-q").fill("");
       await page.getByRole("tab", { name: "Stores" }).click();
       await page.getByRole("button", { name: /Target/ }).click();
-      await page.getByRole("link", { name: "Check Target" }).first().waitFor();
+      await page.getByRole("link", { name: "Search on Target", exact: true }).first().waitFor();
+      await page.getByRole("button", { name: "Search on Target.com" }).waitFor();
       await page.getByRole("link", { name: "Google", exact: true }).first().waitFor();
       const href = await page.getByRole("link", { name: "Google", exact: true }).first().getAttribute("href");
       assert(href && href.includes("google.com/search"), "Google check is a search link");
@@ -113,13 +116,21 @@ try {
       await page.getByRole("heading", { name: "Profit" }).waitFor();
       await page.locator("#profit-item").selectOption("c:f40");
       await page.getByText("No sold data", { exact: true }).waitFor();
-      await page.getByText("Fees · Unknown").waitFor();
-      await page.getByText("Net profit · Unknown").waitFor();
+      await page.getByText("Enter Your sold to see an estimate. A blank field is not a return.").waitFor();
+      assert((await page.locator("#profit-roi").innerText()) === "", "blank sold does not show ROI");
       await page.locator("#profit-sold").fill("122");
+      await page.getByText("Estimate only. Not a realized return.").waitFor();
       await page.getByText("Fees · $15.86 · You entered this").waitFor();
       await page.screenshot({ path: path.join(shots, "profit-390.png"), fullPage: false });
       const target = await page.locator(".tabbar button").first().evaluate((el) => el.getBoundingClientRect().height);
       assert(target >= 44, "tab target is at least 44px");
+      const clears = await page.evaluate(() => {
+        var screen = document.querySelector(".screen");
+        var tab = document.querySelector(".tabbar");
+        var pad = parseFloat(getComputedStyle(screen).paddingBottom);
+        return pad >= tab.getBoundingClientRect().height + 24;
+      });
+      assert(clears, "screen padding clears the tab bar");
     }
     await page.close();
   }

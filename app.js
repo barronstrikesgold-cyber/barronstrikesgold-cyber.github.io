@@ -159,16 +159,26 @@
     return Rules.storeLanes(store.id);
   }
 
-  function pegPhoto(item) {
-    if (item && item.photoMatched && item.photo) {
-      return '<span class="peg-photo"><img src="' + esc(item.photo) + '" alt=""></span>';
+  function photoFor(item) {
+    if (!item) return null;
+    if (item.photoMatched && item.photo) return { src: item.photo, alt: item.photoAlt || item.name || "" };
+    if (item.catalogId) {
+      var cat = findCatalog(item.catalogId);
+      if (cat && cat.photoMatched && cat.photo) return { src: cat.photo, alt: cat.photoAlt || item.name || "" };
     }
-    return '<span class="peg-photo is-empty"><img src="assets/states/photo-needed.svg" alt=""><em>Photo needed</em></span>';
+    return null;
   }
 
-  function verdictChip(verdict) {
-    var kind = verdict === "Buy" ? "buy" : "pass";
-    return '<span class="verdict verdict-' + kind + '">' + esc(verdict === "Buy" ? "Buy" : "Pass") + "</span>";
+  function pegPhoto(item, large) {
+    var shot = photoFor(item);
+    if (shot) return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""></span>';
+    if (!large) return "";
+    return '<span class="peg-photo is-empty is-hero"><em>Photo needed</em></span>';
+  }
+
+  function decisionBar(verdict) {
+    var buy = verdict === "Buy";
+    return '<span class="decision decision-' + (buy ? "buy" : "pass") + '"><strong>' + (buy ? "Buy" : "Pass") + "</strong><span>" + (buy ? "If the card matches" : "Leave it") + "</span></span>";
   }
 
   function pegCard(item, opts) {
@@ -176,17 +186,19 @@
     var verdict = Rules.verdictFor(item);
     var idAttr = item.kind === "golf" ? ' data-golf="' + esc(item.name) + '"' : ' data-item="' + esc(item.id) + '"';
     var links = opts.links || "";
-    return '<article class="peg"><button class="peg-open" type="button"' + idAttr + ">" +
-      pegPhoto(item) +
-      '<span class="peg-copy"><span class="peg-top"><span class="peg-name">' + esc(item.name) + "</span>" + verdictChip(verdict) + "</span>" +
+    var photo = pegPhoto(item, true);
+    return '<article class="peg"><button class="peg-open is-stack" type="button"' + idAttr + ">" +
+      photo +
+      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
       '<span class="peg-tell">' + esc(Rules.tellsFor(item)) + "</span>" +
-      '<span class="peg-meta">' + esc(shelfLabel(item) || "Shelf price on the tag") + " · " + esc(Rules.priceLine(item)) + "</span></span></button>" +
+      '<span class="peg-meta">' + esc(shelfLabel(item) || "Shelf price on the tag") + " · " + esc(Rules.priceLine(item)) + "</span></span>" +
+      decisionBar(verdict) + "</button>" +
       links + "</article>";
   }
 
   function storeLinks(name, store) {
     var links = [];
-    if (store) links.push(["Check " + store.name, R.checkHref(store.search, name)]);
+    if (store) links.push(["Search on " + store.name, R.checkHref(store.search, name)]);
     links.push(["Google", R.checkHref(R.CHECK.google, name)]);
     links.push(["Google Shopping", R.checkHref(R.CHECK.shopping, name)]);
     return '<div class="link-row">' + links.map(function (link) {
@@ -194,19 +206,24 @@
     }).join("") + "</div>";
   }
 
+  function retailerLabel(store) {
+    return { walmart: "Walmart.com", target: "Target.com", goodwill: "Goodwill.com", bestbuy: "BestBuy.com", dollartree: "DollarTree.com" }[store && store.id] || "";
+  }
+
   function allCheckLinks(query, store) {
     var links = [
-      ["Walmart", R.CHECK.walmart],
-      ["Target", R.CHECK.target],
-      ["Goodwill", R.CHECK.goodwill],
-      ["Best Buy", R.CHECK.bestbuy],
-      ["Dollar Tree", R.CHECK.dollartree],
+      ["Walmart.com", R.CHECK.walmart],
+      ["Target.com", R.CHECK.target],
+      ["Goodwill.com", R.CHECK.goodwill],
+      ["BestBuy.com", R.CHECK.bestbuy],
+      ["DollarTree.com", R.CHECK.dollartree],
       ["Google", R.CHECK.google],
       ["Google Shopping", R.CHECK.shopping],
     ];
     if (store) {
-      links = links.filter(function (link) { return link[0] !== store.name; });
-      links.unshift(["Check " + store.name, store.search]);
+      var host = retailerLabel(store);
+      links = links.filter(function (link) { return link[0] !== host; });
+      links.unshift(["Search on " + store.name, store.search]);
     }
     return '<div class="link-row">' + links.map(function (link) {
       return '<a href="' + esc(R.checkHref(link[1], query)) + '" target="_blank" rel="noopener noreferrer">' + esc(link[0]) + "</a>";
@@ -237,12 +254,12 @@
   }
 
   function invBadge(item) {
-    if (item.status === "Sold") return '<span class="verdict verdict-muted">Sold</span>';
-    if (item.tag === "sth") return '<span class="verdict verdict-sth">STH</span>';
-    if (item.tag === "verify-sth") return '<span class="verdict verdict-verify">Verify STH</span>';
-    if (item.tag === "priority") return '<span class="verdict verdict-buy">Sell first</span>';
-    if (item.tag === "duplicate") return '<span class="verdict verdict-muted">Duplicate</span>';
-    return '<span class="verdict verdict-muted">On hand</span>';
+    if (item.status === "Sold") return '<span class="status">Sold</span>';
+    if (item.tag === "sth") return '<span class="status status-sth">Status · STH</span>';
+    if (item.tag === "verify-sth") return '<span class="status status-verify">Status · Verify</span>';
+    if (item.tag === "priority") return '<span class="status">Sell ahead</span>';
+    if (item.tag === "duplicate") return '<span class="status">Duplicate</span>';
+    return '<span class="status">On hand</span>';
   }
 
   function flagLabel(item) {
@@ -255,11 +272,13 @@
   function invRow(item) {
     var hint = sellHint(item);
     var flag = flagLabel(item);
-    return '<article class="peg"><button class="peg-open" type="button" data-inv="' + esc(item.id) + '">' +
-      pegPhoto(item) +
+    var photo = pegPhoto(item, false);
+    var shot = photoFor(item);
+    return '<article class="peg"><button class="peg-open' + (photo ? "" : " no-photo") + '" type="button" data-inv="' + esc(item.id) + '">' +
+      photo +
       '<span class="peg-copy"><span class="peg-top"><span class="peg-name">' + esc(item.name) + "</span>" + invBadge(item) + "</span>" +
       '<span class="peg-tell">' + esc(item.notes || "No notes") + "</span>" +
-      '<span class="peg-meta">' + esc(bookTarget(item)) + (flag ? " · " + esc(flag) : "") + (hint ? " · " + esc(hint) : "") + "</span></span></button></article>";
+      '<span class="peg-meta">' + esc(bookTarget(item)) + (flag ? " · " + esc(flag) : "") + (hint ? " · " + esc(hint) : "") + (shot ? "" : " · Photo needed") + "</span></span></button></article>";
   }
 
   function offlineBanner() {
@@ -346,7 +365,7 @@
     var lanes = storeLanes(store);
     return '<button class="back" type="button" data-back>Stores</button><h1>' + esc(store.name) + "</h1>" +
       '<p class="digest">' + esc(store.look) + "</p>" +
-      '<p class="fine">Nothing here is a shelf count. Open a link later if you want the store site.</p>' +
+      '<p class="fine">This list stays in the app. Retailer search is a separate button and opens that store’s site.</p>' +
       '<div class="lane-list">' + lanes.map(function (id) {
         var meta = Rules.laneMeta(id);
         if (!meta) return "";
@@ -377,7 +396,8 @@
 
   function renderStores() {
     return "<h1>Stores</h1>" + offlineBanner() +
-      '<p class="digest">Same hunts, with a link to that store’s search plus Google. A link is not a shelf count.</p>' +
+      '<p class="digest">Pick a store to open its buy list in this app.</p>' +
+      '<p class="fine">That is not the retailer. Search on Walmart, Target, and the others is a button on the next screen. It leaves this app and opens their site. It does not filter this list, and it is not a shelf count.</p>' +
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>";
   }
 
@@ -396,8 +416,8 @@
     var golfNote = store.id === "goodwill" ? '<p class="fine">' + esc(golf.note || "") + "</p>" : "";
     return '<button class="back" type="button" data-back>Stores</button><h1>' + esc(store.name) + "</h1>" +
       '<p class="digest">' + esc(store.look) + "</p>" +
-      '<p class="fine">Check links open a search. This app cannot see the shelf, and it will not say a product is waiting there.</p>' +
-      '<form data-store-search="' + esc(store.id) + '"><label class="search"><span>Search ' + esc(store.name) + '</span><input id="store-q" type="search" enterkeyhint="search" placeholder="Product name" autocomplete="off"></label><button class="solid full" type="submit">Open ' + esc(store.name) + " search</button></form>" +
+      '<p class="fine">The cards below are this app’s buy list. The button under the field leaves this app and searches ' + esc(store.name) + '’s own site. It does not filter these cards.</p>' +
+      '<form data-store-search="' + esc(store.id) + '"><label class="search"><span>On ' + esc(store.name) + '.com</span><input id="store-q" type="search" enterkeyhint="search" placeholder="Name to look up on ' + esc(store.name) + '" autocomplete="off"></label><button class="solid full" type="submit">Search on ' + esc(store.name) + ".com</button></form>" +
       '<div class="list">' + body + "</div>" + golfNote;
   }
 
@@ -410,8 +430,9 @@
   }
 
   function heroPhoto(item) {
-    if (item && item.photoMatched && item.photo) {
-      return '<button class="hero-photo" type="button" data-zoom="' + esc(item.photo) + '" data-alt="' + esc(item.photoAlt || item.name) + '"><img src="' + esc(item.photo) + '" alt="' + esc(item.photoAlt || item.name) + '"><span class="zoom-hint">Full photo</span></button>';
+    var shot = photoFor(item);
+    if (shot) {
+      return '<button class="hero-photo" type="button" data-zoom="' + esc(shot.src) + '" data-alt="' + esc(shot.alt) + '"><img src="' + esc(shot.src) + '" alt="' + esc(shot.alt) + '"><span class="zoom-hint">Full photo</span></button>';
     }
     return '<div class="photo-needed" role="img" aria-label="Photo needed"><img src="assets/states/photo-needed.svg" alt=""><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
   }
@@ -465,14 +486,22 @@
     function block(row) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
-      return '<article class="peg"><button class="peg-open" type="button" data-drop="' + esc(row.id) + '">' +
-        (row.photoMatched && row.photo ? pegPhoto(row) : '<span class="peg-photo is-empty"><img src="assets/calendar/release.svg" alt=""></span>') +
-        '<span class="peg-copy"><span class="peg-top"><span class="peg-name">' + esc(row.name) + "</span>" + verdictChip(rule.verdict) + "</span>" +
+      var photo = row.photoMatched && row.photo ? pegPhoto(row, true) : "";
+      if (rule.verdict === "Buy") {
+        return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
+          photo +
+          '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
+          '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
+          '<span class="peg-meta">' + esc(rule.tells) + "</span></span>" +
+          decisionBar("Buy") + "</button></article>";
+      }
+      return '<article class="peg"><button class="peg-open no-photo" type="button" data-drop="' + esc(row.id) + '">' +
+        '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
         '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
     return "<h1>Drops</h1>" + offlineBanner() +
-      '<p class="digest">The dates that change a hunt. Everything else stays a Pass.</p>' +
+      '<p class="digest">The dates that change a hunt. Other releases stay folded.</p>' +
       '<p class="kicker">On the buy list</p><div class="list">' + featured.map(block).join("") + "</div>" +
       '<details class="leave"><summary>Other dates</summary><div class="list">' + rest.map(block).join("") + "</div></details>";
   }
@@ -492,7 +521,6 @@
       "<p>Format · " + esc(item.format) + "</p>" +
       "<p>Printed · " + esc(item.printed || "unknown") + "</p>" +
       "<p>No sold data</p>" +
-      '<p class="digest">' + esc(item.digest || "") + "</p>" +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + "</section>";
   }
 
@@ -509,18 +537,14 @@
   function inventoryListHtml() {
     var rows = inventoryRows();
     if (!rows.length) return stateCard("empty", "Nothing in this filter", "The book is still saved.");
-    var html = "";
-    var last = "";
-    var labels = { sell: "Sell first", verify: "Verify the card", duplicate: "Duplicates", hand: "Rest of the book" };
-    rows.forEach(function (item) {
-      var bucket = sellBucket(item);
-      if (bucket !== last) {
-        html += '<p class="kicker">' + esc(labels[bucket] || "Book") + "</p>";
-        last = bucket;
-      }
-      html += invRow(item);
-    });
-    return html;
+    var grouped = !state.invQuery.trim() && state.invFilter === "all";
+    if (!grouped) return '<div class="list">' + rows.map(invRow).join("") + "</div>";
+    var buckets = { sell: [], verify: [], duplicate: [], hand: [] };
+    rows.forEach(function (item) { buckets[sellBucket(item)].push(item); });
+    return '<p class="kicker">Sell first</p><div class="list">' + buckets.sell.map(invRow).join("") + "</div>" +
+      '<p class="kicker">Verify the card</p><div class="list">' + buckets.verify.map(invRow).join("") + "</div>" +
+      '<details class="leave"><summary>Duplicates (' + buckets.duplicate.length + ')</summary><div class="list">' + buckets.duplicate.map(invRow).join("") + "</div></details>" +
+      '<details class="leave"><summary>Rest of the book (' + buckets.hand.length + ')</summary><div class="list">' + buckets.hand.map(invRow).join("") + "</div></details>";
   }
 
   function renderInventory() {
@@ -546,6 +570,7 @@
     var item = findInv(state.invId);
     if (!item) return stateCard("error", "Missing package", "That package is not in inventory.");
     var hint = sellHint(item);
+    var shot = photoFor(item);
     return '<button class="back" type="button" data-back>Inventory</button>' +
       heroPhoto(item) +
       "<h1>" + esc(item.name) + "</h1>" +
@@ -555,9 +580,9 @@
       "<p>" + esc(bookTarget(item)) + ". This is your book, not a sold comp.</p>" +
       "<p>No sold data</p>" +
       "<p>Notes · " + esc(item.notes || "None") + "</p>" +
-      "<p>Status · " + esc(item.status || "On hand") + "</p>" +
+      "<p>Status · " + esc(item.status || "On hand") + ". STH and Verify are statuses, not a buy button.</p>" +
       "<p>Grade · " + esc(item.grade || "Not set") + "</p>" +
-      "<p>Photo · Photo needed</p></section>" +
+      "<p>Photo · " + (shot ? "Package photo from the buy list." : "Photo needed") + "</p></section>" +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + '<p class="fine">Search only. Not a shelf count.</p></section>' +
       '<div class="actions"><button class="solid" type="button" data-action="keep">Keep</button><button class="solid" type="button" data-action="sold">Sold</button><button class="ghost" type="button" data-action="estimate">Estimate</button><button class="ghost" type="button" data-action="edit-inv">Edit</button><button class="danger" type="button" data-action="remove-inv">Remove</button></div>';
   }
@@ -618,10 +643,10 @@
       '<label class="field"><span>Item</span><select id="profit-item">' + options + "</select></label>" +
       field("Shelf or cost", "profit-cost", "number", "") +
       '<p id="profit-tracked"></p><p id="profit-target"></p>' +
-      field("Sold you actually have", "profit-sold", "number", "") +
+      field("Your sold", "profit-sold", "number", "") +
       field("Shipping", "profit-ship", "number", shipping()) +
       field("Tax, optional", "profit-tax", "number", tax()) +
-      '<div class="result"><p class="kicker">Result</p><p id="profit-fees"></p><p id="profit-net"></p><p id="profit-roi"></p><p id="profit-even"></p></div>' +
+      '<div class="result"><p class="kicker" id="profit-result-label">Result</p><p id="profit-gate"></p><p id="profit-fees"></p><p id="profit-net"></p><p id="profit-roi"></p><p id="profit-even"></p></div>' +
       '<button class="ghost" type="button" data-action="sources">Sources</button>' +
       "</form>";
   }
@@ -770,40 +795,39 @@
       if (item && picked.kind === "inventory") targetLine = bookTarget(item) + " · not a sold comp";
       document.getElementById("profit-target").textContent = targetLine;
       document.getElementById("profit-tracked").textContent = comp
-        ? "Sourced comp · " + comp.label + " · " + comp.source
+        ? "Sourced comp · " + comp.label + " · " + comp.source + ". Not used until you type Your sold."
         : "No sold data";
-      var low = null;
-      var high = null;
-      var source = "Unknown";
-      if (typed != null && Number.isFinite(typed)) {
-        low = high = typed;
-        source = "You entered this";
-      } else if (comp && item.compLow != null && item.compHigh != null) {
-        low = Number(item.compLow);
-        high = Number(item.compHigh);
-        source = comp.source;
-      }
       var feeEl = document.getElementById("profit-fees");
       var netEl = document.getElementById("profit-net");
       var roiEl = document.getElementById("profit-roi");
       var evenEl = document.getElementById("profit-even");
-      var even = C.breakEven({ cost: cost || 0, shipping: ship, tax: taxVal });
-      evenEl.textContent = "Break-even · " + money(even) + " · covers cost, 13% fees, shipping, and tax. Not a market comp.";
-      if (low == null || !Number.isFinite(low)) {
-        feeEl.textContent = "Fees · Unknown";
-        netEl.textContent = "Net profit · Unknown";
-        roiEl.textContent = "ROI · Unknown";
+      var gate = document.getElementById("profit-gate");
+      var label = document.getElementById("profit-result-label");
+      if (typed == null || !Number.isFinite(typed)) {
+        label.textContent = "Result";
+        gate.textContent = "Enter Your sold to see an estimate. A blank field is not a return.";
+        feeEl.textContent = "";
+        netEl.textContent = "";
+        roiEl.textContent = "";
+        evenEl.textContent = "";
         return;
       }
+      label.textContent = "Estimate";
+      gate.textContent = "You typed this sold. Estimate only. Not a realized return.";
+      var low = typed;
+      var high = typed;
+      var source = "You entered this";
       var feeLow = C.feeAmount(Math.min(low, high), 0.13);
       var feeHigh = C.feeAmount(Math.max(low, high), 0.13);
       var netLow = C.netProfit({ sold: Math.min(low, high), cost: cost || 0, shipping: ship, tax: taxVal });
       var netHigh = C.netProfit({ sold: Math.max(low, high), cost: cost || 0, shipping: ship, tax: taxVal });
       var roiLow = C.roi(netLow, cost);
       var roiHigh = C.roi(netHigh, cost);
+      var even = C.breakEven({ cost: cost || 0, shipping: ship, tax: taxVal });
       feeEl.textContent = "Fees · " + spanMoney(feeLow, feeHigh) + " · " + source;
       netEl.textContent = "Net profit · " + spanMoney(netLow, netHigh);
-      roiEl.textContent = "ROI · " + (roiLow == null ? "Unknown" : spanPct(roiLow, roiHigh));
+      roiEl.textContent = "Estimate ROI · " + (roiLow == null ? "Unknown" : spanPct(roiLow, roiHigh));
+      evenEl.textContent = "Break-even · " + money(even) + " · estimate, not a return.";
     }
     itemEl.addEventListener("change", fill);
     [costEl, soldEl, shipEl, taxEl].forEach(function (el) { el.addEventListener("input", paint); });
@@ -1208,12 +1232,13 @@
   }
 
   function openScan() {
-    openSheet('<h2>Scan a code</h2><p>The camera can read a barcode. Supers share a UPC with the regular, so the code is not the tell. Read the card.</p><video id="scan-video" playsinline muted></video><p id="scan-msg" class="fine"></p><label class="field"><span>Or type the name</span><input id="scan-q" type="text" autocomplete="off"></label><button class="solid full" type="button" data-action="run-scan-text">Search the list</button>');
+    var canScan = !!(navigator.mediaDevices && window.BarcodeDetector);
+    var camera = canScan
+      ? '<video id="scan-video" playsinline muted></video><p id="scan-msg" class="fine"></p>'
+      : '<p id="scan-msg" class="fine">No barcode detector in this browser. Type the name. The code is not the tell. Read the card.</p>';
+    openSheet('<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' + camera + '<label class="field"><span>Or type the name</span><input id="scan-q" type="text" autocomplete="off"></label><button class="solid full" type="button" data-action="run-scan-text">Search the list</button>');
+    if (!canScan) return;
     var msg = document.getElementById("scan-msg");
-    if (!navigator.mediaDevices || !window.BarcodeDetector) {
-      msg.textContent = "This browser has no barcode detector. Type the name.";
-      return;
-    }
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (media) {
       stream = media;
       var video = document.getElementById("scan-video");
@@ -1233,7 +1258,9 @@
         }, 500);
       });
     }).catch(function () {
-      msg.textContent = "Camera permission was blocked. Type the name.";
+      var video = document.getElementById("scan-video");
+      if (video) video.remove();
+      msg.textContent = "Camera is unavailable. Type the name. Read the card.";
     });
   }
 
