@@ -224,7 +224,7 @@
     {
       "id": "subaru",
       "name": "Subaru Impreza Super",
-      "photo": null,
+      "photo": "photos/subaru.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -237,14 +237,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Subaru Impreza Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "drift",
       "name": "Drift-Ender Super",
-      "photo": null,
+      "photo": "photos/drift.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -257,14 +257,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Drift-Ender Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "sierra",
       "name": "'87 Sierra Cosworth Super",
-      "photo": null,
+      "photo": "photos/sierra.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -277,14 +277,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'87 Sierra Cosworth Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "otto",
       "name": "Custom Otto Super",
-      "photo": null,
+      "photo": "photos/otto.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -297,14 +297,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Custom Otto Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "supra-tooned",
       "name": "'94 Toyota Supra Tooned Super",
-      "photo": null,
+      "photo": "photos/supra-tooned.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -317,14 +317,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'94 Toyota Supra Tooned Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "maxima",
       "name": "Nissan Maxima Drift Super",
-      "photo": null,
+      "photo": "photos/maxima.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -337,14 +337,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Nissan Maxima Drift Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "ram",
       "name": "'23 Ram 1500 Super",
-      "photo": null,
+      "photo": "photos/ram.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -357,14 +357,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'23 Ram 1500 Super on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "lincoln",
       "name": "'64 Lincoln Continental Super",
-      "photo": null,
+      "photo": "photos/lincoln.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -377,14 +377,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'64 Lincoln Continental Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "m4",
       "name": "BMW M4 GT3 Super",
-      "photo": null,
+      "photo": "photos/m4.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -397,14 +397,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "BMW M4 GT3 Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "d100",
       "name": "'87 Dodge D100 Super",
-      "photo": null,
+      "photo": "photos/d100.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -417,14 +417,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'87 Dodge D100 Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "starion",
       "name": "'88 Mitsubishi Starion Super",
-      "photo": null,
+      "photo": "photos/starion.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -437,14 +437,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'88 Mitsubishi Starion Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "db5",
       "name": "Aston Martin DB5 Safari Super",
-      "photo": null,
+      "photo": "photos/db5.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -457,14 +457,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Aston Martin DB5 Safari Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "ferrari12",
       "name": "Ferrari 12Cilindri Super",
-      "photo": null,
+      "photo": "photos/ferrari12.jpg",
       "shelf": "Pay ~$1.25",
       "shelfNum": 1.25,
       "listPrice": "No settled sale",
@@ -477,9 +477,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Ferrari 12Cilindri Super on its card",
+      "photoSource": "Card photo from the public 2027 Super Treasure Hunt preview on HW Headline. It shows this casting on a Hot Wheels card."
     },
     {
       "id": "belair",
@@ -524,7 +524,7 @@
     {
       "id": "ff-supra",
       "name": "Fast & Furious Supra chase",
-      "photo": null,
+      "photo": "photos/ff-supra.jpg",
       "shelf": "Pay ~$6–$8",
       "shelfNum": 7,
       "listPrice": "No settled sale",
@@ -537,9 +537,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Fast & Furious Spectraflame Supra chase on its card",
+      "photoSource": "Package photo cropped from the late September 2026 hunt sheet. It shows this casting on the card."
     },
     {
       "id": "mb-integra",
