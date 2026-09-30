@@ -42,6 +42,12 @@ assert(Rules.priceLine({ id: "mb-gtr" }) === "No sold data", "gtr stays unconfir
 assert(/Not the Skyline/.test(Rules.tellsFor({ id: "subaru" })), "impreza is not the skyline");
 assert(Rules.laneFor({ id: "belair" }) === "cc" && Rules.laneFor({ id: "ff-supra" }) === "ff" && Rules.laneFor({ id: "mb-911" }) === "mbsc", "chase lanes");
 assert(Rules.laneFor({ id: "skyline" }) === "leave" && Rules.laneFor({ id: "red-supra" }) === "selective", "pass lanes");
+assert(Rules.laneFor({ id: "boulevard" }) === "selective" && Rules.laneFor({ id: "zamac" }) === "selective" && Rules.laneFor({ id: "tt-msrp" }) === "selective", "premium lines sit in Selective");
+assert(Rules.laneFor({ id: "exclusives" }) === "leave", "common exclusives stay in Leave these");
+["knockout", "tech-sticker", "bundle"].forEach((id) => assert(Rules.verdictFor({ id }) === "Buy", id + " is a sealed MSRP buy"));
+assert(Rules.verdictFor({ id: "poke-wave2" }) === "Pass" && Rules.verdictFor({ id: "poke-markup" }) === "Pass", "wave 2 and markup pass");
+assert(/\$19\.99/.test(Rules.tellsFor({ id: "knockout" })) && /\$59\.99/.test(Rules.tellsFor({ id: "bundle" })), "printed pokemon prices");
+assert(Rules.priceLine({ id: "knockout" }) === "No sold data", "knockout has no sold");
 
 assert(Rules.verdictFor({ id: "skyline" }) === "Pass", "regular TH is a pass");
 assert(Rules.verdictFor({ id: "cuda" }) === "Buy", "gold-flame Super is a buy");

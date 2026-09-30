@@ -364,12 +364,40 @@
     return '<button class="store-pick" type="button" data-store="' + esc(store.id) + '"><span class="mono">' + esc(store.monogram || store.name.slice(0, 1)) + "</span><span><b>" + esc(store.name) + "</b><span>" + esc(store.short || store.look) + "</span></span><span class=\"chev\" aria-hidden=\"true\">›</span></button>";
   }
 
+  var HUNT_LANES = ["sth", "cc", "ff", "mbsc", "leave", "selective", "pokemon"];
+
+  function aisleSection(laneId, linkStore) {
+    var meta = Rules.laneMeta(laneId);
+    var items = laneItems(laneId);
+    if (!meta || !items.length) return "";
+    var store = linkStore ? findStore(linkStore) : null;
+    return '<section class="aisle" id="aisle-' + esc(laneId) + '">' +
+      '<p class="kicker">' + esc(meta.kicker) + "</p>" +
+      "<h2>" + esc(meta.title) + "</h2>" +
+      '<p class="digest">' + esc(meta.rule) + "</p>" +
+      '<div class="list">' + items.map(function (item) {
+        return pegCard(item, store ? { links: storeLinks(item.name, store) } : {});
+      }).join("") + "</div></section>";
+  }
+
+  function aisleJump() {
+    return '<nav class="aisle-jump" aria-label="Peg lines">' + HUNT_LANES.map(function (id) {
+      var meta = Rules.laneMeta(id);
+      if (!meta) return "";
+      return '<a href="#aisle-' + esc(id) + '">' + esc(meta.title) + "</a>";
+    }).join("") + "</nav>";
+  }
+
   function renderHunt() {
-    var body = state.query.trim() ? huntResults() : '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
-      '<button class="ghost" type="button" data-action="scan">Scan a code</button>';
+    var body = state.query.trim() ? huntResults() : '<div class="store-row">' + stores.map(function (store) {
+      return '<button class="store-chip" type="button" data-store="' + esc(store.id) + '">' + esc(store.name) + "</button>";
+    }).join("") + "</div>" +
+      '<button class="ghost" type="button" data-action="scan">Scan a code</button>' +
+      aisleJump() +
+      HUNT_LANES.map(function (id) { return aisleSection(id); }).join("");
     return offlineBanner() +
       "<h1>Where are you?</h1>" +
-      '<p class="digest">Pick the store, then the aisle. The list after that is short on purpose.</p>' +
+      '<p class="digest">Every peg line is on this screen. Pick a store when you want that store’s copy of the same list.</p>' +
       '<label class="search"><span>Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Card name, notes, Subaru, Lotus" value="' + esc(state.query) + '"></label>' +
       '<div id="hunt-body">' + body + "</div>";
   }
@@ -436,15 +464,10 @@
   function renderStore() {
     var store = findStore(state.storeId);
     if (!store) return stateCard("error", "Missing store", "That store is not on the list.");
-    var items = [];
-    storeLanes(store).forEach(function (lane) {
-      laneItems(lane).forEach(function (item) {
-        if (Rules.verdictFor(item) === "Buy") items.push(item);
-      });
-    });
-    var body = items.length
-      ? items.map(function (item) { return pegCard(item, { links: storeLinks(item.name, store) }); }).join("")
-      : stateCard("empty", "No buy list here", store.look);
+    var body = storeLanes(store).map(function (lane) {
+      return aisleSection(lane, store.id);
+    }).join("");
+    if (!body) body = stateCard("empty", "No buy list here", store.look);
     var golfNote = store.id === "goodwill" ? '<p class="fine">' + esc(golf.note || "") + "</p>" : "";
     return '<button class="back" type="button" data-back>Stores</button><h1>' + esc(store.name) + "</h1>" +
       '<p class="digest">' + esc(store.look) + "</p>" +

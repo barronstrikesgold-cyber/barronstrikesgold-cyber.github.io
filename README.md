@@ -14,7 +14,7 @@ Cards use a black, flame-orange, and gold layout with large tap targets, Buy / P
 
 | Tab | What it is |
 | --- | --- |
-| Hunt | Store, then aisle, then the short buy list. Search still finds the book, including both Subarus. |
+| Hunt | Every peg line is on this screen: Hot Wheels Supers, Car Culture chase, Fast & Furious chase, Matchbox Super Chase, Leave these, Selective, and Pokémon. A store chip opens that store’s copy. Search still finds the book, including both Subarus. |
 | Stores | That store’s buy list, plus a search link for the store, Google, and Google Shopping. A link is not a shelf count. |
 | Drops | The dates that change a hunt. Other releases stay under Other dates. |
 | Inventory | The 78-package book, with sell-first and verify flags. |

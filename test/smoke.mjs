@@ -77,6 +77,17 @@ try {
       await page.screenshot({ path: path.join(shots, "inventory-390.png"), fullPage: false });
       await page.getByRole("tab", { name: "Hunt" }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
+      for (const line of ["Hot Wheels Supers", "Car Culture chase", "Fast & Furious chase", "Matchbox Super Chase", "Leave these", "Selective", "Pokémon"]) {
+        await page.getByRole("heading", { name: line, exact: true }).waitFor();
+      }
+      await page.getByRole("button", { name: /Bel Air/ }).waitFor();
+      await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
+      await page.getByRole("button", { name: /Fast & Furious Supra/ }).waitFor();
+      await page.getByRole("button", { name: /Lincoln Continental/ }).waitFor();
+      await page.getByRole("button", { name: /Knockout/ }).waitFor();
+      await page.getByRole("button", { name: /Booster Bundle/ }).waitFor();
+      await page.getByRole("button", { name: /Wave 2/ }).waitFor();
+      await page.screenshot({ path: path.join(shots, "hunt-lines-390.png"), fullPage: false });
       await page.getByRole("button", { name: /Walmart/ }).click();
       await page.getByRole("heading", { name: "Walmart" }).waitFor();
       await page.getByRole("button", { name: /Hot Wheels/ }).click();

@@ -145,6 +145,44 @@ h2 {
   letter-spacing: -0.03em;
 }
 
+.aisle { display: grid; gap: 8px; scroll-margin-top: 168px; }
+.aisle-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+.aisle-jump a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #000;
+  color: var(--gold);
+  font-weight: 800;
+  text-decoration: none;
+}
+.store-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.store-chip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: inherit;
+  font-weight: 800;
+  padding: 0 14px;
+}
+
 .kicker {
   margin: 0;
   font-size: 0.72rem;
