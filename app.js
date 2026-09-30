@@ -181,6 +181,31 @@
     return '<span class="decision decision-' + (buy ? "buy" : "pass") + '"><strong>' + (buy ? "Buy" : "Pass") + "</strong><span>" + (buy ? "If the card matches" : "Leave it") + "</span></span>";
   }
 
+  function restockNote() {
+    return '<p class="fine">Restocks, confirm with the store: Walmart often Monday, Tuesday, or midweek. Target often Sunday night or Monday. Dollar Tree follows freight. Kroger is a vendor stop, not a store tab. A case code is freight, not a national day.</p>';
+  }
+
+  function pegMoney(item) {
+    var pay = Rules.payFor(item) || shelfLabel(item) || "Shelf price on the tag";
+    var line = Rules.priceLine(item);
+    if (line === "No sold data") return esc(pay) + " · No sold data";
+    return esc(pay) + " · " + esc(line);
+  }
+
+  function priceDetail(item, comp) {
+    if (comp) return "Sourced comp · " + comp.label + " · " + comp.source;
+    var money = Rules.moneyOf(item);
+    if (!money) return "No sold data";
+    return "Last sold " + money.sold + " · Net " + money.net;
+  }
+
+  function priceNote(item, comp) {
+    if (comp) return '<a class="text-link" href="' + esc(comp.url) + '" target="_blank" rel="noopener noreferrer">Open source</a>';
+    var money = Rules.moneyOf(item);
+    if (money) return '<p class="fine">' + esc(money.note) + " Re-check solds before listing. Net is sold × 0.87 − $5.</p>";
+    return '<p class="fine">No source URL and no sheet sold. Do not invent a sold.</p>';
+  }
+
   function pegCard(item, opts) {
     opts = opts || {};
     var verdict = Rules.verdictFor(item);
@@ -189,10 +214,10 @@
     var photo = pegPhoto(item, true);
     return '<article class="peg"><button class="peg-open is-stack" type="button"' + idAttr + ">" +
       photo +
-      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
-      '<span class="peg-tell">' + esc(Rules.tellsFor(item)) + "</span>" +
-      '<span class="peg-meta">' + esc(shelfLabel(item) || "Shelf price on the tag") + " · " + esc(Rules.priceLine(item)) + "</span></span>" +
-      decisionBar(verdict) + "</button>" +
+      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span></span>" +
+      decisionBar(verdict) +
+      '<span class="peg-foot"><span class="peg-tell">' + esc(Rules.tellsFor(item)) + "</span>" +
+      '<span class="peg-meta">' + pegMoney(item) + "</span></span></button>" +
       links + "</article>";
   }
 
@@ -388,6 +413,12 @@
     var passHtml = passes.length
       ? '<details class="leave"' + (buys.length ? "" : " open") + '><summary>Leave these (' + passes.length + ")</summary><div class=\"list\">" + passes.map(function (item) { return pegCard(item); }).join("") + "</div></details>"
       : "";
+    if (state.lane === "leave" || state.lane === "selective") {
+      return '<button class="back" type="button" data-back>' + esc(store ? store.name : "Back") + "</button>" +
+        '<p class="kicker">' + esc(meta.kicker) + "</p><h1>" + esc(meta.title) + "</h1>" +
+        '<p class="digest">' + esc(meta.rule) + "</p>" +
+        '<div class="list">' + items.map(function (item) { return pegCard(item); }).join("") + "</div>";
+    }
     return '<button class="back" type="button" data-back>' + esc(store ? store.name : "Back") + "</button>" +
       '<p class="kicker">' + esc(meta.kicker) + "</p><h1>" + esc(meta.title) + "</h1>" +
       '<p class="digest">' + esc(meta.rule) + "</p>" +
@@ -397,6 +428,7 @@
   function renderStores() {
     return "<h1>Stores</h1>" + offlineBanner() +
       '<p class="digest">Pick a store to open its buy list in this app.</p>' +
+      restockNote() +
       '<p class="fine">That is not the retailer. Search on Walmart, Target, and the others is a button on the next screen. It leaves this app and opens their site. It does not filter this list, and it is not a shelf count.</p>' +
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>";
   }
@@ -417,6 +449,7 @@
     return '<button class="back" type="button" data-back>Stores</button><h1>' + esc(store.name) + "</h1>" +
       '<p class="digest">' + esc(store.look) + "</p>" +
       '<p class="fine">The cards below are this app’s buy list. The button under the field leaves this app and searches ' + esc(store.name) + '’s own site. It does not filter these cards.</p>' +
+      restockNote() +
       '<form data-store-search="' + esc(store.id) + '"><label class="search"><span>On ' + esc(store.name) + '.com</span><input id="store-q" type="search" enterkeyhint="search" placeholder="Name to look up on ' + esc(store.name) + '" autocomplete="off"></label><button class="solid full" type="submit">Search on ' + esc(store.name) + ".com</button></form>" +
       '<div class="list">' + body + "</div>" + golfNote;
   }
@@ -453,9 +486,9 @@
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + (verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(verdict) + "</strong><p>" + esc(Rules.tellsFor(item)) + "</p></section>" +
       '<section class="tool"><p class="kicker">Price</p>' +
-      "<p>Shelf · " + esc(shelfLabel(item)) + "</p>" +
-      "<p>" + (comp ? "Sourced comp · " + esc(comp.label) + " · " + esc(comp.source) : "No sold data") + "</p>" +
-      (comp ? '<a class="text-link" href="' + esc(comp.url) + '" target="_blank" rel="noopener noreferrer">Open source</a>' : '<p class="fine">No source URL, so this stays a Pass on price. Do not invent a sold.</p>') +
+      "<p>" + esc(Rules.payFor(item) || ("Shelf · " + shelfLabel(item))) + "</p>" +
+      "<p>" + esc(priceDetail(item, comp)) + "</p>" +
+      priceNote(item, comp) +
       "</section>" +
       '<section class="tool"><p class="kicker">Grade</p>' + chips(gradesFor(item.category), gradeOfCatalog(item), "data-grade") + "</section>" +
       (sizeKind ? '<section class="tool"><p class="kicker">Size</p><p class="fine">' + esc(item.sizing || "") + "</p>" + chips(sizes, sizeMap()[item.id] || "", "data-size", sizeKind === "shoe" ? FAST_SHOES : FAST_CLOTHES) + "</section>" : "") +
@@ -490,10 +523,10 @@
       if (rule.verdict === "Buy") {
         return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
           photo +
-          '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
-          '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
-          '<span class="peg-meta">' + esc(rule.tells) + "</span></span>" +
-          decisionBar("Buy") + "</button></article>";
+          '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span></span>" +
+          decisionBar("Buy") +
+          '<span class="peg-foot"><span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
+          '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
       }
       return '<article class="peg"><button class="peg-open no-photo" type="button" data-drop="' + esc(row.id) + '">' +
         '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
@@ -501,7 +534,8 @@
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
     return "<h1>Drops</h1>" + offlineBanner() +
-      '<p class="digest">The dates that change a hunt. Other releases stay folded.</p>' +
+      '<p class="digest">The dates that change a hunt. Other releases stay folded. Buy marks the dates that matter.</p>' +
+      restockNote() +
       '<p class="kicker">On the buy list</p><div class="list">' + featured.map(block).join("") + "</div>" +
       '<details class="leave"><summary>Other dates</summary><div class="list">' + rest.map(block).join("") + "</div></details>";
   }

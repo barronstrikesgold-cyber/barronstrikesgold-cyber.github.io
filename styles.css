@@ -271,7 +271,12 @@ h2 {
 }
 
 .peg-copy { display: grid; align-content: center; gap: 4px; min-width: 0; }
-.peg-open.is-stack .peg-copy { padding: 12px 14px 10px; }
+.peg-open.is-stack .peg-copy { padding: 12px 14px 8px; }
+.peg-foot {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px 14px;
+}
 .peg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .peg-top .peg-name { flex: 1; min-width: 0; }
 .peg-top .verdict { flex: none; margin-top: 1px; }
@@ -288,7 +293,7 @@ h2 {
 }
 .peg-photo.is-hero {
   width: 100%;
-  height: 210px;
+  height: 168px;
   border-radius: 0;
 }
 .peg-photo img { width: 100%; height: 100%; object-fit: cover; }
