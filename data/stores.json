@@ -3,45 +3,45 @@
     "id": "walmart",
     "name": "Walmart",
     "monogram": "W",
-    "look": "Sports hangers and blasters, the Pokémon box only at printed $49.99, Hot Wheels peg about $1, and electronics that power on. Skip printers and locked phones.",
-    "cats": ["cars", "sports", "tech"],
-    "ids": null,
+    "short": "Gold-flame Supers, chase cards, SUPER CHASE.",
+    "look": "Hot Wheels Supers, Car Culture chase, Fast & Furious chase, and Matchbox SUPER CHASE at peg price. Leave mainlines. Pokémon ETB only at printed $49.99. Sports blisters you will mostly leave. Tech only if it powers on and is unlocked.",
+    "lanes": ["sth", "cc", "ff", "mbsc", "leave", "selective", "pokemon", "sports", "tech"],
     "search": "https://www.walmart.com/search?q="
   },
   {
     "id": "target",
     "name": "Target",
     "monogram": "T",
-    "look": "Sports hangers and blasters, Hot Wheels peg, streetwear with tags, and Pokémon only if the printed price is $49.99.",
-    "cats": ["cars", "sports", "streetwear"],
-    "ids": null,
+    "short": "Gold-flame Supers, chase cards, SUPER CHASE.",
+    "look": "Hot Wheels Supers, Car Culture chase, Fast & Furious chase, and Matchbox SUPER CHASE at peg price. Leave mainlines. Pokémon only at the printed price, sports you will mostly leave, and tagged streetwear.",
+    "lanes": ["sth", "cc", "ff", "mbsc", "leave", "selective", "pokemon", "sports", "streetwear"],
     "search": "https://www.target.com/s?searchTerm="
   },
   {
     "id": "goodwill",
     "name": "Goodwill",
     "monogram": "G",
-    "look": "Sneakers with a size tag, streetwear with tags, and tech that powers on. Skip crushed shoes, clothes with no tag, and printers. Golf brands to look for are listed below. Those clubs are not tracked yet.",
-    "cats": ["sneakers", "streetwear", "tech"],
-    "ids": null,
+    "short": "Name-brand golf first.",
+    "look": "Name-brand golf first. Sneakers, streetwear, and tech are secondary and not a blind buy. Local pegs are usually not online.",
+    "lanes": ["golf", "sneakers", "streetwear", "tech"],
     "search": "https://shopgoodwill.com/categories/search?q="
   },
   {
     "id": "bestbuy",
     "name": "Best Buy",
     "monogram": "BB",
-    "look": "Open-box or clearance Apple, and a Switch, only if it powers on and is not locked. No open-box price is invented. Fitness stays Watch until a stored sold exists.",
-    "cats": null,
-    "ids": ["iphone", "ipad", "macbook", "airpods", "watch", "switch"],
+    "short": "Nothing here is a blind buy.",
+    "look": "Secondary tech lane. Nothing here is a blind buy. It has to power on and stay unlocked. No open-box price is stored.",
+    "lanes": ["tech"],
     "search": "https://www.bestbuy.com/site/searchpage.jsp?st="
   },
   {
     "id": "dollartree",
     "name": "Dollar Tree",
     "monogram": "DT",
-    "look": "The checker price is $1.25 as of 2026. A red dot means the item is priced above $1.25, not a discount. No generic Dollar Tree product is tracked here: there is no exact photo and no settled sale.",
-    "cats": null,
-    "ids": [],
+    "short": "$1.25 peg. A red dot is not a sale.",
+    "look": "Checker price is $1.25. A red dot means the tag is above $1.25, not a discount. No generic Dollar Tree product is on the buy list. Same card rules: gold-flame Super, chase card, or SUPER CHASE.",
+    "lanes": ["sth", "cc", "ff", "mbsc", "leave", "selective"],
     "search": "https://www.dollartree.com/searchresults?Ntt="
   }
 ]

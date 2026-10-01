@@ -2,7 +2,7 @@
   "name": "reseller",
   "private": true,
   "scripts": {
-    "test": "node test/cash.test.js && node test/inventory.test.js && node test/search.test.js && node test/prices.test.js && node test/dates.test.js && node test/shell.test.js && node test/catalog.test.js",
+    "test": "node test/cash.test.js && node test/inventory.test.js && node test/search.test.js && node test/prices.test.js && node test/dates.test.js && node test/rules.test.js && node test/shell.test.js && node test/catalog.test.js",
     "smoke": "node test/smoke.mjs"
   },
   "devDependencies": {
