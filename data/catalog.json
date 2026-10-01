@@ -484,7 +484,7 @@
     {
       "id": "belair",
       "name": "'55 Chevy Bel Air chase",
-      "photo": null,
+      "photo": "photos/belair.jpg",
       "shelf": "Pay ~$7",
       "shelfNum": 7,
       "listPrice": "No settled sale",
@@ -497,14 +497,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Gold '55 Chevy Bel Air Gasser Car Culture chase, 0/5, on its card",
+      "photoSource": "Pack photo of the 2026 Car Culture Thrill Climbers 0/5 chase. The card reads '55 Chevy Bel Air Gasser."
     },
     {
       "id": "datsun",
       "name": "Datsun 510 Wagon chase",
-      "photo": null,
+      "photo": "photos/datsun.jpg",
       "shelf": "Pay ~$7",
       "shelfNum": 7,
       "listPrice": "No settled sale",
@@ -517,9 +517,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Gold Datsun 510 Wagon Car Culture chase, 0/5, on its card",
+      "photoSource": "Pack photo of the 2026 Car Culture Japan Historics 5 0/5 chase. The card reads Datsun 510 Wagon."
     },
     {
       "id": "ff-supra",
@@ -544,7 +544,7 @@
     {
       "id": "mb-integra",
       "name": "Acura Integra Type R Super Chase",
-      "photo": null,
+      "photo": "photos/mb-integra.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -557,14 +557,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Yellow 1997 Acura Integra Type R Super Chase on its card",
+      "photoSource": "Pack photo of the 2026 Matchbox Mix H Super Chase. The card reads SUPER CHASE."
     },
     {
       "id": "mb-911",
       "name": "'85 Porsche 911 Rally Super Chase",
-      "photo": null,
+      "photo": "photos/mb-911.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -577,14 +577,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Black 1985 Porsche 911 Rally Super Chase on its card",
+      "photoSource": "Pack photo of the 2026 Matchbox Super Chase. The card reads 1985 PORSCHE 911 RALLY and SUPER CHASE."
     },
     {
       "id": "mb-jag",
       "name": "'77 Jaguar XJ6C Super Chase",
-      "photo": null,
+      "photo": "photos/mb-jag.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -597,14 +597,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Orange 1977 Jaguar XJ6C Super Chase on its card",
+      "photoSource": "Pack photo of the 2026 Matchbox Super Chase. The card reads 1977 JAGUAR XJ6C and SUPER CHASE."
     },
     {
       "id": "mb-bronco",
       "name": "'78 Ford Bronco Super Chase",
-      "photo": null,
+      "photo": "photos/mb-bronco.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -617,14 +617,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Copper 1978 Ford Bronco Moving Parts Super Chase on its card",
+      "photoSource": "Pack photo of the 2026 Matchbox Moving Parts Super Chase. The card reads 1978 FORD BRONCO and SUPER CHASE."
     },
     {
       "id": "mb-gtr",
       "name": "Nissan GT-R NISMO Super Chase",
-      "photo": null,
+      "photo": "photos/mb-gtr.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -637,14 +637,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Teal 2020 Nissan GT-R NISMO Moving Parts Super Chase on its card",
+      "photoSource": "Pack photo of the 2026 Matchbox Moving Parts Super Chase. The card reads 2020 NISSAN GT-R NISMO and SUPER CHASE."
     },
     {
       "id": "mb-356",
       "name": "Porsche 356A Super Chase",
-      "photo": null,
+      "photo": "photos/mb-356.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -657,14 +657,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Loose silver Porsche 356A Moving Parts Super Chase",
+      "photoSource": "Loose photo of the silver Moving Parts Super Chase. The car shows the SC mark. No carded pack shot was available."
     },
     {
       "id": "mb-vanquish",
       "name": "Aston Martin Vanquish Super Chase",
-      "photo": null,
+      "photo": "photos/mb-vanquish.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -677,9 +677,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Silver Aston Martin Vanquish Super Chase from the 2027 preview",
+      "photoSource": "2027 Matchbox line-preview photo of the silver Super Chase. A retail card photo is not out yet."
     },
     {
       "id": "mb-defender",
@@ -699,7 +699,7 @@
       "category": "cars",
       "photoMatched": false,
       "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoSource": "No single photo attached. The only 2027 preview frame shows several Defenders together."
     },
     {
       "id": "mainline",
@@ -1493,7 +1493,7 @@
     {
       "id": "m6a",
       "name": "Pokémon Japanese M6a 30th CELEBRATION",
-      "photo": null,
+      "photo": "photos/m6a.jpg",
       "shelf": "Near ¥7200",
       "listPrice": "No sold data",
       "checkedPrice": "No sold data",
@@ -1504,14 +1504,14 @@
       "digest": "Japanese M6a 30th CELEBRATION. Buy only near ¥7200. No sold data. Any other Japanese box is a Pass.",
       "fitness": "Watch",
       "category": "pokemon",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact photo is bundled for this box."
+      "photoMatched": true,
+      "photoAlt": "Japanese Pokémon MEGA 30th CELEBRATION booster box, set M6a",
+      "photoSource": "Product photo of the Japanese M6a 30th CELEBRATION booster box."
     },
     {
       "id": "knockout",
       "name": "Pokémon Knockout",
-      "photo": null,
+      "photo": "photos/knockout.jpg",
       "shelf": "Printed ~$19.99",
       "shelfNum": 19.99,
       "listPrice": "No settled sale",
@@ -1524,14 +1524,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "pokemon",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Pokémon TCG 30th Celebration Knock Out Collection box",
+      "photoSource": "Official Pokémon product image of the 30th Celebration Knock Out Collection."
     },
     {
       "id": "tech-sticker",
       "name": "Pokémon Tech Sticker",
-      "photo": null,
+      "photo": "photos/tech-sticker.jpg",
       "shelf": "Printed MSRP",
       "shelfNum": null,
       "listPrice": "No settled sale",
@@ -1544,9 +1544,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "pokemon",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Pokémon TCG 30th Celebration Tech Sticker Collection box",
+      "photoSource": "Official Pokémon product image of the 30th Celebration Tech Sticker Collection."
     },
     {
       "id": "bundle",
@@ -1566,7 +1566,7 @@
       "category": "pokemon",
       "photoMatched": false,
       "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoSource": "No photo attached. This card does not name a set, so a booster-bundle photo would not be a verified match."
     },
     {
       "id": "poke-wave2",
