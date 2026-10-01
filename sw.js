@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261001c";
+var CACHE = "reseller-shell-20261001d";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -127,6 +127,11 @@ var SHELL = [
   "./photos/starion.jpg",
   "./photos/subaru.jpg",
   "./photos/supra-tooned.jpg",
+  "./photos/knockout.jpg",
+  "./photos/m6a.jpg",
+  "./photos/mb-356.jpg",
+  "./photos/mb-vanquish.jpg",
+  "./photos/tech-sticker.jpg",
   "./styles.css",
   "./sw.js"
 ];

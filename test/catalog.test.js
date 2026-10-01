@@ -65,11 +65,16 @@ const ownPackage = {
   "mb-jag": "photos/mb-jag.jpg",
   "mb-bronco": "photos/mb-bronco.jpg",
   "mb-gtr": "photos/mb-gtr.jpg",
+  "mb-356": "photos/mb-356.jpg",
+  "mb-vanquish": "photos/mb-vanquish.jpg",
+  knockout: "photos/knockout.jpg",
+  "tech-sticker": "photos/tech-sticker.jpg",
+  m6a: "photos/m6a.jpg",
 };
 Object.entries(ownPackage).forEach(([id, photo]) => {
   assert(byId[id] && byId[id].photo === photo && byId[id].photoMatched === true, id + " keeps its own package photo");
 });
-["mb-356", "mb-vanquish", "mb-defender", "mainline", "boulevard", "matchbox"].forEach((id) => {
+["mb-defender", "bundle", "mainline", "boulevard", "matchbox"].forEach((id) => {
   assert(byId[id] && byId[id].photoMatched === false && !byId[id].photo, id + " stays unmatched");
 });
 assert(!items.some((item) => item.id === "palace" || item.id === "nb-991"), "unphotographed models stay off the list");
