@@ -47,6 +47,44 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
+async function assertFullPackage(locator, label, src) {
+  const img = locator.locator(".peg-photo.is-hero img");
+  await img.waitFor();
+  await locator.scrollIntoViewIfNeeded();
+  await img.evaluate((el) => {
+    if (el.complete && el.naturalWidth) return true;
+    return new Promise((resolve, reject) => {
+      el.addEventListener("load", () => resolve(true), { once: true });
+      el.addEventListener("error", () => reject(new Error("photo failed to load")), { once: true });
+    });
+  });
+  const text = await locator.innerText();
+  assert(!/photo needed/i.test(text), label + " is not Photo needed");
+  const framed = await img.evaluate((el) => {
+    const frame = el.parentElement.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    return {
+      fit: style.objectFit,
+      position: style.objectPosition,
+      frameH: frame.height,
+      imgH: box.height,
+      src: el.getAttribute("src"),
+      naturalRatio: el.naturalWidth / el.naturalHeight,
+      shownRatio: box.width / box.height,
+      capped: box.height >= window.innerHeight * 0.78 - 2,
+    };
+  });
+  assert(framed.src === src, label + " photo is " + src);
+  assert(framed.fit === "contain", label + " photo uses contain");
+  assert(framed.position === "50% 50%", label + " photo is centered");
+  assert(framed.imgH > 180, label + " photo is tall enough to include the car");
+  assert(Math.abs(framed.frameH - framed.imgH) < 2, label + " photo is not clipped by the frame");
+  if (!framed.capped) {
+    assert(Math.abs(framed.shownRatio - framed.naturalRatio) < 0.08, label + " photo keeps the package aspect");
+  }
+}
+
 try {
   for (const width of [375, 390, 430]) {
     const page = await browser.newPage({ viewport: { width, height: 844 }, deviceScaleFactor: 2 });
@@ -139,9 +177,19 @@ try {
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.getByRole("button", { name: /Car Culture/ }).click();
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
+      await assertFullPackage(page.getByRole("button", { name: /Bel Air/ }), "belair", "photos/belair.jpg");
+      await assertFullPackage(page.getByRole("button", { name: /Datsun 510/ }), "datsun", "photos/datsun.jpg");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.getByRole("button", { name: /Matchbox Super Chase/ }).click();
       await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
+      await assertFullPackage(page.getByRole("button", { name: /Integra Type R/ }), "mb-integra", "photos/mb-integra.jpg");
+      await assertFullPackage(page.getByRole("button", { name: /Porsche 911 Rally/ }), "mb-911", "photos/mb-911.jpg");
+      await assertFullPackage(page.getByRole("button", { name: /Jaguar XJ6C/ }), "mb-jag", "photos/mb-jag.jpg");
+      await assertFullPackage(page.getByRole("button", { name: /Ford Bronco/ }), "mb-bronco", "photos/mb-bronco.jpg");
+      await assertFullPackage(page.getByRole("button", { name: /GT-R NISMO/ }), "mb-gtr", "photos/mb-gtr.jpg");
+      await page.getByRole("button", { name: "Walmart", exact: true }).click();
+      await page.getByRole("button", { name: /Fast & Furious/ }).click();
+      await assertFullPackage(page.getByRole("button", { name: /Fast & Furious Supra/ }), "ff-supra", "photos/ff-supra.jpg");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.getByRole("button", { name: /Hot Wheels/ }).click();
       await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).click();

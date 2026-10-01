@@ -205,7 +205,7 @@
     {
       "id": "matchbox",
       "name": "2024 Nissan Z Super Chase (not this peg list)",
-      "photo": "photos/matchbox.jpg",
+      "photo": null,
       "shelf": "About $1",
       "shelfNum": 1,
       "listPrice": "No settled sale",
@@ -217,9 +217,9 @@
       "digest": "Matchbox Super Chase only if the card says SUPER CHASE. No settled sale. Pass any Matchbox that does not print those words.",
       "fitness": "Watch",
       "category": "cars",
-      "photoMatched": true,
-      "photoAlt": "Matchbox Moving Parts 2024 Nissan Z Super Chase on its card",
-      "photoSource": "Local photograph bundled with this app. Package text matches this exact item."
+      "photoMatched": false,
+      "photoAlt": "Photo needed",
+      "photoSource": "No exact package photo is bundled for this casting."
     },
     {
       "id": "subaru",
@@ -484,7 +484,7 @@
     {
       "id": "belair",
       "name": "'55 Chevy Bel Air chase",
-      "photo": null,
+      "photo": "photos/belair.jpg",
       "shelf": "Pay ~$7",
       "shelfNum": 7,
       "listPrice": "No settled sale",
@@ -497,14 +497,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'55 Chevy Bel Air Car Culture chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "datsun",
       "name": "Datsun 510 Wagon chase",
-      "photo": null,
+      "photo": "photos/datsun.jpg",
       "shelf": "Pay ~$7",
       "shelfNum": 7,
       "listPrice": "No settled sale",
@@ -517,9 +517,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Datsun 510 Wagon Car Culture chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "ff-supra",
@@ -544,7 +544,7 @@
     {
       "id": "mb-integra",
       "name": "Acura Integra Type R Super Chase",
-      "photo": null,
+      "photo": "photos/mb-integra.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -557,14 +557,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Acura Integra Type R Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-911",
       "name": "'85 Porsche 911 Rally Super Chase",
-      "photo": null,
+      "photo": "photos/mb-911.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -577,14 +577,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'85 Porsche 911 Rally Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-jag",
       "name": "'77 Jaguar XJ6C Super Chase",
-      "photo": null,
+      "photo": "photos/mb-jag.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -597,14 +597,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'77 Jaguar XJ6C Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-bronco",
       "name": "'78 Ford Bronco Super Chase",
-      "photo": null,
+      "photo": "photos/mb-bronco.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -617,14 +617,14 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "'78 Ford Bronco Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-gtr",
       "name": "Nissan GT-R NISMO Super Chase",
-      "photo": null,
+      "photo": "photos/mb-gtr.jpg",
       "shelf": "Pay ~$1–$2",
       "shelfNum": 1.5,
       "listPrice": "No settled sale",
@@ -637,9 +637,9 @@
       "fitness": "Watch",
       "worth": true,
       "category": "cars",
-      "photoMatched": false,
-      "photoAlt": "Photo needed",
-      "photoSource": "No exact package photo is bundled for this casting."
+      "photoMatched": true,
+      "photoAlt": "Nissan GT-R NISMO Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-356",

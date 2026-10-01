@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261001a";
+var CACHE = "reseller-shell-20261001b";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -86,7 +86,6 @@ var SHELL = [
   "./photos/jordan-4.jpg",
   "./photos/lotus.jpg",
   "./photos/macbook.jpg",
-  "./photos/matchbox.jpg",
   "./photos/mustang.jpg",
   "./photos/nb-2002r.jpg",
   "./photos/nb-550.jpg",
@@ -111,6 +110,13 @@ var SHELL = [
   "./photos/drift.jpg",
   "./photos/ferrari12.jpg",
   "./photos/ff-supra.jpg",
+  "./photos/belair.jpg",
+  "./photos/datsun.jpg",
+  "./photos/mb-911.jpg",
+  "./photos/mb-bronco.jpg",
+  "./photos/mb-gtr.jpg",
+  "./photos/mb-integra.jpg",
+  "./photos/mb-jag.jpg",
   "./photos/lincoln.jpg",
   "./photos/m4.jpg",
   "./photos/maxima.jpg",

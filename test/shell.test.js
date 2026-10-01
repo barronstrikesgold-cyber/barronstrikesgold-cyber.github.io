@@ -50,5 +50,11 @@ assert(!/in stock/i.test(html + app), "no invented in-stock claim");
 assert(fs.readFileSync(path.join(root, "lib/providers.js"), "utf8").includes("walmart.com/search"), "Walmart search");
 assert(fs.readFileSync(path.join(root, "lib/providers.js"), "utf8").includes("shopgoodwill.com/categories/search"), "ShopGoodwill search");
 assert(fs.readFileSync(path.join(root, "lib/providers.js"), "utf8").includes("dollartree.com/searchresults"), "Dollar Tree search");
+const sw = fs.readFileSync(path.join(root, "sw.js"), "utf8");
+assert(sw.includes("reseller-shell-20261001b"), "service worker cache name is bumped");
+const shellPaths = [...sw.matchAll(/"(\.\/[^"]+)"/g)].map((match) => match[1]);
+shellPaths.forEach((rel) => {
+  assert(fs.existsSync(path.join(root, rel.replace(/^\.\//, ""))), rel + " exists for the shell cache");
+});
 
 console.log("shell.test.js OK");
