@@ -115,6 +115,18 @@ try {
       await page.screenshot({ path: path.join(shots, "inventory-390.png"), fullPage: false });
       await page.getByRole("tab", { name: "Hunt" }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
+      const strip = page.locator(".drops-strip");
+      await strip.waitFor();
+      const stripText = await strip.innerText();
+      assert(stripText.includes("Next"), "drops strip shows the next drop");
+      assert(stripText.includes("New"), "drops strip shows what is new");
+      assert(stripText.includes("Matchbox Super Chase still landing"), "next buy drop is pinned on Hunt");
+      await page.locator("#status-live").getByText("Updated just now").waitFor();
+      assert(await page.locator("#update-banner").isHidden(), "update banner stays hidden until a new shell is waiting");
+      await strip.click();
+      await page.getByRole("heading", { name: "Drops" }).waitFor();
+      await page.getByRole("tab", { name: "Hunt" }).click();
+      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
       for (const line of ["Hot Wheels Supers", "Car Culture chase", "Fast & Furious chase", "Matchbox Super Chase", "Leave these", "Selective", "Pokémon"]) {
         await page.getByRole("heading", { name: line, exact: true }).waitFor();
       }
