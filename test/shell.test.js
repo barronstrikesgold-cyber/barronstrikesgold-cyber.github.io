@@ -38,6 +38,11 @@ assert(app.includes("Read the card") || rules.includes("Read the card"), "supers
 assert(rules.includes("SUPER CHASE"), "matchbox tell");
 assert(html.includes("lib/rules.js"), "rules script is on the page");
 assert(app.includes("Golf"), "golf category");
+assert(/\.peg-photo\.is-hero\s*\{[^}]*height:\s*auto/.test(css), "hunt photo frame follows the package");
+assert(/\.peg-photo\.is-hero\s*\{[^}]*aspect-ratio:\s*auto/.test(css), "hunt photo keeps the source aspect");
+assert(/\.peg-photo\.is-hero img\s*\{[^}]*object-fit:\s*contain/.test(css), "hunt photo contains the car");
+assert(/\.peg-photo\.is-hero img\s*\{[^}]*object-position:\s*center center/.test(css), "hunt photo is centered");
+assert(!/\.peg-photo\.is-hero\s*\{[^}]*height:\s*168px/.test(css), "hunt photo is not a short crop");
 assert(css.includes("prefers-reduced-motion"), "reduced motion");
 assert(css.includes("safe-area-inset-bottom"), "safe area");
 assert(css.includes("min-height: 44px"), "44px targets");

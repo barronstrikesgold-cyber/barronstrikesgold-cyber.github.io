@@ -97,6 +97,33 @@ try {
       await cuda.waitFor();
       const cudaText = await cuda.innerText();
       assert(/buy/i.test(cudaText), "hunt card action is Buy");
+      const framed = await cuda.locator(".peg-photo img").evaluate((img) => {
+        const frame = img.parentElement.getBoundingClientRect();
+        const box = img.getBoundingClientRect();
+        const style = getComputedStyle(img);
+        return {
+          fit: style.objectFit,
+          position: style.objectPosition,
+          frameH: frame.height,
+          imgH: box.height,
+          naturalRatio: img.naturalWidth / img.naturalHeight,
+          shownRatio: box.width / box.height,
+        };
+      });
+      assert(framed.fit === "contain", "cuda photo uses contain");
+      assert(framed.position === "50% 50%", "cuda photo is centered");
+      assert(framed.imgH > 320, "cuda photo is tall enough to include the car");
+      assert(Math.abs(framed.frameH - framed.imgH) < 2, "cuda photo is not clipped by the frame");
+      assert(Math.abs(framed.shownRatio - framed.naturalRatio) < 0.08, "cuda photo keeps the package aspect");
+      const firebird = page.getByRole("button", { name: /Firebird 400 Super/ });
+      const fireFrame = await firebird.locator(".peg-photo img").evaluate((img) => {
+        const frame = img.parentElement.getBoundingClientRect();
+        const box = img.getBoundingClientRect();
+        return { frameH: frame.height, imgH: box.height, shownRatio: box.width / box.height, naturalRatio: img.naturalWidth / img.naturalHeight };
+      });
+      assert(fireFrame.imgH > 320, "firebird photo is tall enough to include the car");
+      assert(Math.abs(fireFrame.frameH - fireFrame.imgH) < 2, "firebird photo is not clipped");
+      assert(Math.abs(fireFrame.shownRatio - fireFrame.naturalRatio) < 0.08, "firebird photo keeps the package aspect");
       assert(/pay/i.test(cudaText), "cuda shows peg price");
       assert(/last sold/i.test(cudaText) && /\$82/.test(cudaText), "cuda shows sheet last sold and net");
       const lincoln = page.getByRole("button", { name: /Lincoln Continental/ });
