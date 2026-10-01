@@ -205,7 +205,7 @@
     {
       "id": "matchbox",
       "name": "2024 Nissan Z Super Chase (not this peg list)",
-      "photo": "photos/matchbox.jpg",
+      "photo": null,
       "shelf": "About $1",
       "shelfNum": 1,
       "listPrice": "No settled sale",
@@ -217,9 +217,9 @@
       "digest": "Matchbox Super Chase only if the card says SUPER CHASE. No settled sale. Pass any Matchbox that does not print those words.",
       "fitness": "Watch",
       "category": "cars",
-      "photoMatched": true,
-      "photoAlt": "Matchbox Moving Parts 2024 Nissan Z Super Chase on its card",
-      "photoSource": "Local photograph bundled with this app. Package text matches this exact item."
+      "photoMatched": false,
+      "photoAlt": "Photo needed",
+      "photoSource": "No exact package photo is bundled for this casting."
     },
     {
       "id": "subaru",
@@ -498,8 +498,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Gold '55 Chevy Bel Air Gasser Car Culture chase, 0/5, on its card",
-      "photoSource": "Pack photo of the 2026 Car Culture Thrill Climbers 0/5 chase. The card reads '55 Chevy Bel Air Gasser."
+      "photoAlt": "'55 Chevy Bel Air Car Culture chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "datsun",
@@ -518,8 +518,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Gold Datsun 510 Wagon Car Culture chase, 0/5, on its card",
-      "photoSource": "Pack photo of the 2026 Car Culture Japan Historics 5 0/5 chase. The card reads Datsun 510 Wagon."
+      "photoAlt": "Datsun 510 Wagon Car Culture chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "ff-supra",
@@ -558,8 +558,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Yellow 1997 Acura Integra Type R Super Chase on its card",
-      "photoSource": "Pack photo of the 2026 Matchbox Mix H Super Chase. The card reads SUPER CHASE."
+      "photoAlt": "Acura Integra Type R Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-911",
@@ -578,8 +578,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Black 1985 Porsche 911 Rally Super Chase on its card",
-      "photoSource": "Pack photo of the 2026 Matchbox Super Chase. The card reads 1985 PORSCHE 911 RALLY and SUPER CHASE."
+      "photoAlt": "'85 Porsche 911 Rally Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-jag",
@@ -598,8 +598,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Orange 1977 Jaguar XJ6C Super Chase on its card",
-      "photoSource": "Pack photo of the 2026 Matchbox Super Chase. The card reads 1977 JAGUAR XJ6C and SUPER CHASE."
+      "photoAlt": "'77 Jaguar XJ6C Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-bronco",
@@ -618,8 +618,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Copper 1978 Ford Bronco Moving Parts Super Chase on its card",
-      "photoSource": "Pack photo of the 2026 Matchbox Moving Parts Super Chase. The card reads 1978 FORD BRONCO and SUPER CHASE."
+      "photoAlt": "'78 Ford Bronco Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-gtr",
@@ -638,8 +638,8 @@
       "worth": true,
       "category": "cars",
       "photoMatched": true,
-      "photoAlt": "Teal 2020 Nissan GT-R NISMO Moving Parts Super Chase on its card",
-      "photoSource": "Pack photo of the 2026 Matchbox Moving Parts Super Chase. The card reads 2020 NISSAN GT-R NISMO and SUPER CHASE."
+      "photoAlt": "Nissan GT-R NISMO Matchbox Super Chase on its card",
+      "photoSource": "Attached package photo for this casting."
     },
     {
       "id": "mb-356",
@@ -699,7 +699,7 @@
       "category": "cars",
       "photoMatched": false,
       "photoAlt": "Photo needed",
-      "photoSource": "No single photo attached. The only 2027 preview frame shows several Defenders together."
+      "photoSource": "No single photo attached. The 2027 preview frame shows several Defenders together, and the write-ups disagree on the chase color."
     },
     {
       "id": "mainline",
