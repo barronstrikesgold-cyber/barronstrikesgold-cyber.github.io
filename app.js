@@ -38,6 +38,7 @@
     from: "hunt",
     refreshing: false,
     note: "",
+    dataPhase: "",
     stack: [],
     moveFocus: false,
     profitId: "c:cuda",
@@ -388,6 +389,21 @@
     }).join("") + "</nav>";
   }
 
+  function renderDropsStrip() {
+    var picked = window.ResellerHuntDrops.pickHuntDrops(drops, D.APP_TODAY, function (row) {
+      return Rules.dropVerdict(row.id).verdict;
+    });
+    function line(label, row) {
+      if (!row) return "<p><b>" + label + "</b> Nothing dated</p>";
+      return "<p><b>" + label + "</b> " + esc(row.name) + " · " + esc(D.releaseState(row.iso)) + "</p>";
+    }
+    return '<button class="drops-strip" type="button" data-action="open-drops">' +
+      '<span class="kicker">Drops</span>' +
+      line("Next", picked.next) +
+      line("New", picked.fresh) +
+      '<span class="chev" aria-hidden="true">›</span></button>';
+  }
+
   function renderHunt() {
     var body = state.query.trim() ? huntResults() : '<div class="store-row">' + stores.map(function (store) {
       return '<button class="store-chip" type="button" data-store="' + esc(store.id) + '">' + esc(store.name) + "</button>";
@@ -396,6 +412,7 @@
       aisleJump() +
       HUNT_LANES.map(function (id) { return aisleSection(id); }).join("");
     return offlineBanner() +
+      renderDropsStrip() +
       "<h1>Where are you?</h1>" +
       '<p class="digest">Every peg line is on this screen. Pick a store when you want that store’s copy of the same list.</p>' +
       '<label class="search"><span>Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Card name, notes, Subaru, Lotus" value="' + esc(state.query) + '"></label>' +
@@ -727,7 +744,18 @@
     return renderHunt();
   }
 
-  function render() {
+  function paintDataStatus() {
+    var live = document.getElementById("status-live");
+    if (!live || !window.ResellerHuntDrops) return;
+    live.textContent = window.ResellerHuntDrops.dataStatusLabel(state.dataPhase);
+    live.classList.toggle("is-fresh", state.dataPhase === "fresh");
+    live.classList.toggle("is-checking", state.dataPhase === "checking");
+    live.classList.toggle("is-error", state.dataPhase === "error");
+  }
+
+  function render(opts) {
+    opts = opts || {};
+    var keepY = opts.keepScroll ? window.scrollY : null;
     screen.innerHTML = screenHtml();
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
@@ -737,9 +765,14 @@
     });
     var checked = localStorage.getItem("reseller-checked-at");
     var checkedLine = document.getElementById("checked-line");
-    if (checkedLine) checkedLine.textContent = checked ? "Last refresh · " + formatWhen(checked) : "";
-    var live = document.getElementById("status-live");
-    if (live) live.textContent = state.note || "";
+    if (checkedLine) {
+      var checkedParts = [];
+      if (checked) checkedParts.push("Last refresh · " + formatWhen(checked));
+      if (state.note) checkedParts.push(state.note);
+      checkedLine.textContent = checkedParts.join(" · ");
+    }
+    paintDataStatus();
+    if (keepY != null) window.scrollTo(0, keepY);
     if (state.tab === "profit" && state.view === "root") bindProfit();
     var hunt = document.getElementById("hunt-q");
     if (hunt && document.activeElement && document.activeElement.id === "hunt-q") {
@@ -971,20 +1004,22 @@
   async function refreshAll() {
     state.refreshing = true;
     state.note = "Checking what this page is allowed to reach…";
-    render();
+    render({ keepScroll: true });
+    var dataPromise = loadHuntData(false);
     var results = [];
     for (var i = 0; i < R.PROVIDERS.length; i++) {
       var plan = R.refreshPlan(R.PROVIDERS[i]);
       if (plan.status === "attempt") results.push(await attemptDollarTree());
       else results.push(plan);
     }
+    await dataPromise;
     results.forEach(function (result) { R.applyRefreshResult(null, result); });
     var when = new Date().toISOString();
     localStorage.setItem("reseller-checked-at", when);
     writeJson("reseller-provider-log", { at: when, results: results });
     state.refreshing = false;
     state.note = "No prices changed. Store sites stay blocked from this page.";
-    render();
+    render({ keepScroll: true });
   }
 
   function attemptDollarTree() {
@@ -1127,6 +1162,7 @@
     if (!actionBtn) return;
     var actionName = actionBtn.getAttribute("data-action");
     if (actionName === "refresh") { refreshAll(); return; }
+    if (actionName === "open-drops") { setTab("drops"); return; }
     if (actionName === "sources") { openSheet(sourcesHtml()); return; }
     if (actionName === "close-sheet") { closeSheet(); return; }
     if (actionName === "close-zoom") { closeZoom(); return; }
@@ -1325,43 +1361,155 @@
     openSheet('<h2>Mark sold</h2><p>Leave the price blank if you do not want to store one. Blank is not a guess.</p><label class="field"><span>Sold price, optional</span><input id="sold-price" type="number" inputmode="decimal" step="0.01"></label><button class="solid full" type="button" data-action="confirm-sold">Save sold</button>');
   }
 
-  function boot() {
-    bootError = "";
-    screen.innerHTML = stateCard("loading", "Loading", "Opening the hunt.");
-    Promise.all([
-      fetch("data/catalog.json").then(function (res) { if (!res.ok) throw new Error("catalog"); return res.json(); }),
-      fetch("data/drops.json").then(function (res) { if (!res.ok) throw new Error("drops"); return res.json(); }),
-      fetch("data/inventory-seed.json").then(function (res) { if (!res.ok) throw new Error("inventory"); return res.json(); }),
-      fetch("data/stores.json").then(function (res) { if (!res.ok) throw new Error("stores"); return res.json(); }),
-      fetch("data/golf.json").then(function (res) { if (!res.ok) throw new Error("golf"); return res.json(); }),
-    ]).then(function (parts) {
-      catalog = parts[0];
-      drops = parts[1];
-      seedFile = parts[2];
-      stores = parts[3];
-      golf = parts[4];
-      var loaded = Inv.load(localStorage, seedFile);
-      if (!loaded.ok) {
-        bootError = "Saved inventory could not be read. It was not replaced. Clear site data only if you have a backup.";
-        invState = { version: 2, items: [], tombstones: [], migratedBought: true };
-        render();
-        return;
-      }
-      invState = loaded.state;
-      if (seedFile && seedFile.count && Inv.visible(invState).length === 0) {
-        bootError = "The 78-package book did not load.";
-      }
-      render();
-    }).catch(function () {
-      bootError = "The app files did not load.";
-      if (!navigator.onLine) bootError = "Offline, and this phone does not have the app shell cached yet.";
-      screen.innerHTML = stateCard(navigator.onLine ? "error" : "offline", navigator.onLine ? "Could not open" : "Offline", bootError);
+  var huntLoaded = false;
+  var huntFlight = null;
+  var quietUntil = 0;
+  var returnsBound = false;
+
+  function fetchFreshJson(url) {
+    return fetch(url, { cache: "no-store", credentials: "omit" }).then(function (res) {
+      if (!res.ok) throw new Error(url);
+      var fromCache = res.headers.get("X-Reseller-From-Cache") === "1";
+      return res.json().then(function (data) {
+        return { data: data, fromCache: fromCache };
+      });
     });
   }
 
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  function screenIsQuiet() {
+    if (sheet && sheet.open) return false;
+    if (zoom && zoom.open) return false;
+    var active = document.activeElement;
+    if (!active) return true;
+    var tag = active.tagName;
+    return tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT";
   }
 
+  function canRepaint() {
+    if (!screenIsQuiet()) return false;
+    if (state.tab === "profit") return false;
+    if (state.view === "inv-form") return false;
+    return true;
+  }
+
+  function applyHuntParts(parts) {
+    catalog = parts[0].data;
+    drops = parts[1].data;
+    seedFile = parts[2].data;
+    stores = parts[3].data;
+    golf = parts[4].data;
+    var loaded = Inv.load(localStorage, seedFile);
+    if (!loaded.ok) {
+      bootError = "Saved inventory could not be read. It was not replaced. Clear site data only if you have a backup.";
+      if (!invState) invState = { version: 2, items: [], tombstones: [], migratedBought: true };
+      return;
+    }
+    bootError = "";
+    invState = loaded.state;
+    if (seedFile && seedFile.count && Inv.visible(invState).length === 0) {
+      bootError = "The 78-package book did not load.";
+    }
+  }
+
+  function loadHuntData(isBoot) {
+    if (huntFlight) return huntFlight;
+    state.dataPhase = "checking";
+    if (isBoot) {
+      paintDataStatus();
+      screen.innerHTML = stateCard("loading", "Loading", "Opening the hunt.");
+    } else {
+      paintDataStatus();
+    }
+    huntFlight = Promise.all([
+      "data/catalog.json",
+      "data/drops.json",
+      "data/inventory-seed.json",
+      "data/stores.json",
+      "data/golf.json",
+    ].map(fetchFreshJson)).then(function (parts) {
+      applyHuntParts(parts);
+      huntLoaded = true;
+      state.dataPhase = parts.some(function (part) { return part.fromCache; }) ? "error" : "fresh";
+      if (isBoot || canRepaint()) render({ keepScroll: !isBoot });
+      else paintDataStatus();
+    }).catch(function () {
+      state.dataPhase = "error";
+      if (!huntLoaded) {
+        bootError = navigator.onLine
+          ? "The app files did not load."
+          : "Offline, and this phone does not have the app shell cached yet.";
+        screen.innerHTML = stateCard(navigator.onLine ? "error" : "offline", navigator.onLine ? "Could not open" : "Offline", bootError);
+        paintDataStatus();
+        return;
+      }
+      if (canRepaint()) render({ keepScroll: true });
+      else paintDataStatus();
+    }).then(function () {
+      huntFlight = null;
+    });
+    return huntFlight;
+  }
+
+  function onPageReturn() {
+    if (!window.ResellerHuntDrops.shouldRefreshOnReturn(Date.now(), quietUntil, document.visibilityState)) return;
+    quietUntil = Date.now() + 1200;
+    loadHuntData(false);
+  }
+
+  function bindReturns() {
+    if (returnsBound) return;
+    returnsBound = true;
+    document.addEventListener("visibilitychange", onPageReturn);
+    window.addEventListener("pageshow", onPageReturn);
+    window.addEventListener("focus", onPageReturn);
+  }
+
+  function watchShellUpdates() {
+    if (!("serviceWorker" in navigator)) return;
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+    navigator.serviceWorker.register("./sw.js").then(function (reg) {
+      function offer() {
+        var banner = document.getElementById("update-banner");
+        if (banner) banner.hidden = false;
+      }
+      if (reg.waiting && navigator.serviceWorker.controller) offer();
+      reg.addEventListener("updatefound", function () {
+        var worker = reg.installing;
+        if (!worker) return;
+        worker.addEventListener("statechange", function () {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) offer();
+        });
+      });
+      function poke() {
+        if (document.visibilityState === "hidden") return;
+        reg.update().catch(function () {});
+      }
+      document.addEventListener("visibilitychange", poke);
+      window.addEventListener("pageshow", poke);
+      window.addEventListener("focus", poke);
+      var button = document.getElementById("apply-update");
+      if (button) {
+        button.addEventListener("click", function () {
+          if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+          else window.location.reload();
+        });
+      }
+    }).catch(function () {});
+  }
+
+  function boot() {
+    bootError = "";
+    quietUntil = Date.now() + 1200;
+    bindReturns();
+    loadHuntData(true);
+  }
+
+  watchShellUpdates();
   boot();
 })();

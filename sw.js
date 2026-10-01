@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261001c";
+var CACHE = "reseller-shell-20261001d";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -57,6 +57,7 @@ var SHELL = [
   "./icon.svg",
   "./index.html",
   "./lib/dates.js",
+  "./lib/hunt-drops.js",
   "./lib/inventory.js",
   "./lib/prices.js",
   "./lib/providers.js",
@@ -138,7 +139,11 @@ var SHELL = [
 self.addEventListener("install", function (event) {
   event.waitUntil(caches.open(CACHE).then(function (cache) {
     return cache.addAll(SHELL);
-  }).then(function () { return self.skipWaiting(); }));
+  }));
+});
+
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", function (event) {
@@ -149,20 +154,46 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+function isHuntData(url) {
+  return url.pathname.indexOf("/data/") !== -1 && url.pathname.slice(-5) === ".json";
+}
+
+function cacheUrl(request) {
+  var url = new URL(request.url);
+  url.search = "";
+  return url.toString();
+}
+
+function storeResponse(request, response) {
+  if (!response || !response.ok) return;
+  var copy = response.clone();
+  caches.open(CACHE).then(function (cache) {
+    cache.put(cacheUrl(request), copy);
+  });
+}
+
+function offlineFallback(request) {
+  return caches.match(cacheUrl(request)).then(function (hit) {
+    if (hit) {
+      var headers = new Headers(hit.headers);
+      headers.set("X-Reseller-From-Cache", "1");
+      return new Response(hit.body, { status: hit.status, statusText: hit.statusText, headers: headers });
+    }
+    if (request.mode === "navigate") return caches.match("./index.html");
+    return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
+  });
+}
+
 self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin || event.request.method !== "GET") return;
+  var pull = isHuntData(url) ? fetch(event.request, { cache: "no-store" }) : fetch(event.request);
   event.respondWith(
-    fetch(event.request).then(function (res) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function (cache) { cache.put(event.request, copy); });
+    pull.then(function (res) {
+      storeResponse(event.request, res);
       return res;
     }).catch(function () {
-      return caches.match(event.request).then(function (hit) {
-        if (hit) return hit;
-        if (event.request.mode === "navigate") return caches.match("./index.html");
-        return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
-      });
+      return offlineFallback(event.request);
     })
   );
 });
