@@ -30,6 +30,10 @@
           <button type="button" class="icon-btn" id="refresh-btn" data-action="refresh">Refresh</button>
         </div>
       </header>
+      <div id="update-banner" class="update-banner" hidden>
+        <p>Update available</p>
+        <button type="button" id="apply-update">Update</button>
+      </div>
       <main id="screen" class="screen" tabindex="-1">
         <div class="state-card">
           <img src="assets/states/scene-loading.svg" alt="" />
@@ -72,6 +76,7 @@
     <script src="lib/providers.js"></script>
     <script src="lib/inventory.js"></script>
     <script src="lib/rules.js"></script>
+    <script src="lib/hunt-drops.js"></script>
     <script src="app.js"></script>
     <noscript>Reseller needs JavaScript for the hunt, inventory, and profit math.</noscript>
   </body>
