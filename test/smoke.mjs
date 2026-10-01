@@ -118,8 +118,8 @@ try {
       const strip = page.locator(".drops-strip");
       await strip.waitFor();
       const stripText = await strip.innerText();
-      assert(stripText.includes("Next"), "drops strip shows the next drop");
-      assert(stripText.includes("New"), "drops strip shows what is new");
+      assert(/next/i.test(stripText), "drops strip shows the next drop");
+      assert(/\bnew\b/i.test(stripText), "drops strip shows what is new");
       assert(stripText.includes("Matchbox Super Chase still landing"), "next buy drop is pinned on Hunt");
       await page.locator("#status-live").getByText("Updated just now").waitFor();
       assert(await page.locator("#update-banner").isHidden(), "update banner stays hidden until a new shell is waiting");
@@ -245,6 +245,11 @@ try {
         return pad >= tab.getBoundingClientRect().height + 24;
       });
       assert(clears, "screen padding clears the tab bar");
+      const refresh = page.waitForRequest((req) => req.url().includes("data/drops.json"));
+      await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+      const came = await refresh;
+      assert(came.url().includes("drops.json"), "returning to the page refetches drops");
+      await page.locator("#status-live").getByText(/Updated just now|Could not update/).waitFor();
     }
     await page.close();
   }
