@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261011f";
+var CACHE = "reseller-shell-20261011g";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -140,8 +140,11 @@ var SHELL = [
 ];
 
 self.addEventListener("install", function (event) {
+  self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(function (cache) {
     return cache.addAll(SHELL);
+  }).then(function () {
+    return self.skipWaiting();
   }));
 });
 
@@ -157,8 +160,12 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+function isHwData(url) {
+  return url.pathname.indexOf("/data/hw/") !== -1;
+}
+
 function isHuntData(url) {
-  return url.pathname.indexOf("/data/") !== -1 && url.pathname.slice(-5) === ".json";
+  return url.pathname.indexOf("/data/") !== -1 && url.pathname.slice(-5) === ".json" && !isHwData(url);
 }
 
 function cacheUrl(request) {
@@ -187,9 +194,32 @@ function offlineFallback(request) {
   });
 }
 
+function staleWhileRevalidate(event) {
+  var key = cacheUrl(event.request);
+  var refresh = caches.open(CACHE).then(function (cache) {
+    return fetch(event.request).then(function (res) {
+      if (res && res.ok) return cache.put(key, res.clone()).then(function () { return res; });
+      return res;
+    }).catch(function () { return null; });
+  });
+  event.waitUntil(refresh.then(function () { return null; }));
+  event.respondWith(caches.open(CACHE).then(function (cache) {
+    return cache.match(key).then(function (cached) {
+      if (cached) return cached;
+      return refresh.then(function (res) {
+        return res || offlineFallback(event.request);
+      });
+    });
+  }));
+}
+
 self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin || event.request.method !== "GET") return;
+  if (isHwData(url)) {
+    staleWhileRevalidate(event);
+    return;
+  }
   var pull = isHuntData(url) ? fetch(event.request, { cache: "no-store" }) : fetch(event.request);
   event.respondWith(
     pull.then(function (res) {

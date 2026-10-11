@@ -215,12 +215,14 @@ async function pokemonSets() {
     photo: (row.set.images && (row.set.images.logo || row.set.images.symbol)) || "",
     photoAlt: row.set.name,
     photoCredit: "Pokémon TCG API",
-    photoPage: "https://pokemontcg.io/",
+    photoPage: row.set.id === "me55" ? "https://www.pokemon.com/us/pokemon-tcg/30th-celebration" : "https://pokemontcg.io/",
     spot: "Set logo from the public set feed. This is not a sealed SKU, an ETB price, or a street price.",
     retail: null,
     retailLabel: "MSRP not on the set feed",
-    retailSource: "Pokémon TCG API",
-    retailUrl: "https://api.pokemontcg.io/v2/sets/" + row.set.id,
+    retailSource: row.set.id === "me55" ? "Pokémon.com" : "Pokémon TCG API",
+    retailUrl: row.set.id === "me55"
+      ? "https://www.pokemon.com/us/pokemon-tcg/30th-celebration"
+      : "https://api.pokemontcg.io/v2/sets/" + row.set.id,
     release: row.release,
     releaseLabel: labelDate(row.release),
     feed: row.release >= today,
@@ -245,6 +247,11 @@ async function loadPokemon(prev) {
   return { items: sealed.concat(sets), note };
 }
 
+function scryfallPage(set) {
+  if (set && set.code === "nau") return "https://scryfall.com/search?q=" + encodeURIComponent("set:tnau or set:nau");
+  return (set && set.scryfall_uri) || "";
+}
+
 async function loadMagic() {
   const data = await getJson("https://api.scryfall.com/sets");
   const today = new Date().toISOString().slice(0, 10);
@@ -261,12 +268,12 @@ async function loadMagic() {
     photo: set.icon_svg_uri || "",
     photoAlt: set.name + " set icon",
     photoCredit: "Scryfall",
-    photoPage: set.scryfall_uri || "",
+    photoPage: scryfallPage(set),
     spot: "Scryfall set record (" + set.set_type + "). Not a sealed display price.",
     retail: null,
     retailLabel: "MSRP not on the Scryfall set feed",
     retailSource: "Scryfall",
-    retailUrl: set.scryfall_uri || "",
+    retailUrl: scryfallPage(set),
     release: set.released_at,
     releaseLabel: labelDate(set.released_at),
     feed: String(set.released_at) >= today,
@@ -619,29 +626,32 @@ async function loadConsoles() {
   return { items, note: "Nintendo store hardware JSON. Official price only." };
 }
 
+function onePieceLink(name) {
+  return "https://www.tcgplayer.com/search/one-piece-card-game/product?q=" + encodeURIComponent(name) + "&view=grid";
+}
+
 async function loadOnePiece() {
   const html = await getText("https://en.onepiece-cardgame.com/products/", "text/html");
   const blocks = html.match(/<li class="linkListColBox"[\s\S]*?<\/li>/g) || [];
   const items = blocks.map((block) => {
     const name = decodeHtml((block.match(/linkListColTitle">([^<]+)/) || [])[1] || "");
     const price = Number((block.match(/USD \$([0-9.]+)/) || [])[1]);
-    const href = (block.match(/href="([^"]+)"/) || [])[1] || "";
-    const img = (block.match(/data-src="([^"]+)"/) || [])[1] || "";
     const cat = decodeHtml((block.match(/linkListColCat">([^<]+)/) || [])[1] || "");
     if (!name || !Number.isFinite(price)) return null;
+    const page = onePieceLink(name);
     return baseItem({
       id: "op-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60),
       section: "onepiece",
       name,
-      photo: absoluteUrl("https://en.onepiece-cardgame.com", img),
+      photo: "",
       photoAlt: name,
-      photoCredit: "One Piece Card Game",
-      photoPage: href,
-      spot: (cat ? cat + ". " : "") + "Official products page. The figure is MSRP, not a sold price.",
+      photoCredit: "TCGplayer",
+      photoPage: page,
+      spot: (cat ? cat + ". " : "") + "MSRP from the official list. The official page is not reachable, so this opens a TCGplayer search.",
       retail: price,
       retailLabel: moneyLabel(price),
-      retailSource: "One Piece Card Game",
-      retailUrl: href || "https://en.onepiece-cardgame.com/products/",
+      retailSource: "TCGplayer",
+      retailUrl: page,
       feed: false,
       streetNote: "No verified street price.",
       soldSource: "No settled sale fetched.",

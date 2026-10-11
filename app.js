@@ -665,8 +665,8 @@
   }
 
   function marketPhoto(item) {
-    if (!item || !item.photo) return '<span class="market-photo"><em>Photo needed</em></span>';
-    return '<span class="market-photo"><img src="' + esc(item.photo) + '" alt="" width="640" height="480" loading="lazy" decoding="async"></span>';
+    if (!item || !item.photo) return "";
+    return '<span class="market-photo"><img src="' + esc(item.photo) + '" alt="" width="640" height="480" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>';
   }
 
   function marketFoot(item) {
@@ -703,8 +703,9 @@
 
   function marketCard(item) {
     var when = item.releaseLabel || "";
-    return '<article class="peg"><button class="peg-open is-stack" type="button" data-market="' + esc(item.id) + '">' +
-      marketPhoto(item) +
+    var photo = marketPhoto(item);
+    return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
+      photo +
       '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
       (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
       "</span>" +
@@ -1527,6 +1528,14 @@
   document.addEventListener("error", function (event) {
     var img = event.target;
     if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
+    var market = img.closest && img.closest(".market-photo");
+    if (market) {
+      img.setAttribute("data-fallback", "1");
+      var open = market.closest(".peg-open");
+      market.remove();
+      if (open) open.classList.add("no-photo");
+      return;
+    }
     var catalog = img.closest && img.closest(".hw-photo");
     if (!catalog && img.id !== "zoom-img") return;
     img.setAttribute("data-fallback", "1");

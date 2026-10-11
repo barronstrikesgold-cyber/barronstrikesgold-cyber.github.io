@@ -136,7 +136,22 @@ file.sections.find((row) => row.id === "sneakers").items.forEach((item) => {
 });
 file.sections.find((row) => row.id === "onepiece").items.forEach((item) => {
   assert(Number(item.retail) > 0, "One Piece row keeps an official MSRP");
+  assert(!item.photo, item.id + " has no Bandai image to hotlink or self-host");
+  assert(!/onepiece-cardgame\.com/.test([item.retailUrl, item.photoPage, item.photo].join(" ")), item.id + " does not link the unreachable official host");
+  assert(/^https:\/\/www\.tcgplayer\.com\/search\/one-piece-card-game\/product\?/.test(item.retailUrl), item.id + " links a TCGplayer search");
 });
+const nau = file.sections.find((row) => row.id === "magic").items.find((item) => item.id === "magic-nau");
+assert(nau && /scryfall\.com\/search\?q=/.test(nau.retailUrl) && !/\/sets\/nau(?:$|\?)/.test(nau.retailUrl), "Nauctis uses a Scryfall search page");
+assert(/scryfall\.com\/search\?q=/.test(nau.photoPage), "Nauctis photo link is the same search page");
+const me55 = file.sections.find((row) => row.id === "pokemon").items.find((item) => item.id === "pkset-me55");
+assert(me55 && me55.retailUrl === "https://www.pokemon.com/us/pokemon-tcg/30th-celebration", "30th Celebration links to the human set page");
+assert(!/api\.pokemontcg\.io\/v2\/sets\/me55(?!c)/.test(JSON.stringify(me55)), "me55 is not the raw API link");
+file.sections.find((row) => row.id === "lego").items.forEach((item) => {
+  assert(/lego\.com/.test(item.retailUrl || ""), "LEGO retail stays on lego.com");
+});
+assert(refresh.includes("www.pokemon.com/us/pokemon-tcg/30th-celebration"), "refresh keeps the human me55 page");
+assert(refresh.includes("set:tnau or set:nau"), "refresh keeps the Nauctis search page");
+assert(refresh.includes("tcgplayer.com/search/one-piece-card-game"), "refresh links One Piece to TCGplayer");
 file.sections.find((row) => row.id === "lego").items.forEach((item) => {
   assert(Number(item.retail) > 0, "LEGO price is the shelf price");
   if (item.sold != null) assert(/bricklink/i.test(item.soldUrl) && /bricklink/i.test(item.soldSource), "LEGO sold is a BrickLink comp");
