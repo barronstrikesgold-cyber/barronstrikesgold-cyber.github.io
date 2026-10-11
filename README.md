@@ -15,7 +15,7 @@ Cards use a black, flame-orange, and gold layout with large tap targets, Buy / P
 | Tab | What it is |
 | --- | --- |
 | Hunt | Every peg line is on this screen: Super TH, Premium chase, F&F, Matchbox Super Chase, Exclusives, Premium, Multipacks, Mainline, Leave on peg, Selective, and Pokémon. A store chip opens that store’s copy. Search still finds the book, including both Subarus. |
-| Catalog | Every Hot Wheels release the wiki lists from 1968 on, one year file at a time. Search name, toy number, or series. Filter by year, line, and worth reselling (the hunt list). Photos hotlink to Mattel Creations when the toy number matches, otherwise to the Hot Wheels Wiki. |
+| Catalog | Every Hot Wheels release the wiki lists from 1968 on, one year file at a time. Search name, toy number, or series. Filter by year, line, and worth reselling (the hunt list). Wiki photos are small WebP thumbs hosted here, because Fandom blocks a GitHub Pages referrer. Mattel Creations photos stay on Shopify over https. |
 | Stores | That store’s buy list, plus a search link for the store, Google, and Google Shopping. A link is not a shelf count. |
 | Drops | The dates that change a hunt. Other releases stay under Other dates. |
 | Inventory | The 78-package book, with sell-first and verify flags. |

@@ -319,15 +319,20 @@ try {
       await page.getByRole("tab", { name: "Catalog" }).click();
       await page.getByRole("heading", { name: "Catalog" }).waitFor();
       await page.waitForFunction(() => {
-        const img = document.querySelector(".hw-card img");
-        return img && /^https:/.test(img.getAttribute("src") || "");
+        const img = document.querySelector(".hw-card .hw-photo img");
+        if (!img) return false;
+        const src = img.getAttribute("src") || "";
+        const hosted = src.startsWith("assets/hw/thumbs/") || src.startsWith("https://");
+        return hosted && img.complete && img.naturalWidth > 0 && img.getAttribute("referrerpolicy") === "no-referrer";
       }, null, { timeout: 20000 });
       await page.locator("#archive-year").selectOption("1968");
       await page.locator("#archive-q").fill("Cougar");
       await page.locator(".hw-card h2", { hasText: "Custom Cougar" }).waitFor();
       await page.waitForFunction(() => {
-        const img = document.querySelector(".hw-card img");
-        return img && /^https:/.test(img.getAttribute("src") || "");
+        const img = document.querySelector(".hw-card .hw-photo img");
+        if (!img) return false;
+        const src = img.getAttribute("src") || "";
+        return src.startsWith("assets/hw/thumbs/") && img.complete && img.naturalWidth > 0;
       });
       await page.getByRole("button", { name: "Worth reselling" }).click();
       assert(await page.getByRole("button", { name: "Worth reselling" }).getAttribute("aria-pressed") === "true", "worth filter toggles");

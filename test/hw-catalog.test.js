@@ -70,18 +70,23 @@ async function main() {
     file.items.forEach((item) => {
       count += 1;
       assert(item.id && item.name && item.year === row.year, "item identity " + item.id);
-      assert(!item.image || /^https:\/\//.test(item.image), "hotlinked image " + item.id);
+      assert(!item.image || /^https:\/\//.test(item.image) || item.image.startsWith("assets/hw/thumbs/"), "image is https or a hosted thumb " + item.id);
+      assert(!/^http:\/\//.test(item.image || ""), "catalog image is not http " + item.id);
       assert(!String(item.image || "").includes("/photos/"), "catalog does not use bundled hunt photos");
+      if (item.image && item.image.startsWith("assets/hw/thumbs/")) {
+        assert(fs.existsSync(path.join(root, item.image)), "hosted thumb exists " + item.id);
+      }
       if (item.image) photos += 1;
       if (item.imageSource === "mattel") {
         mattel += 1;
         assert(item.imageCredit === "Mattel Creations", "mattel credit");
         assert(/creations\.mattel\.com\/products\//.test(item.imagePage), "mattel product link");
-        assert(/cdn\.shopify\.com/.test(item.image), "mattel cdn");
+        assert(/^https:\/\//.test(item.image) && /cdn\.shopify\.com/.test(item.image), "mattel cdn https");
       }
       if (item.imageSource === "wiki") {
         assert(item.imageCredit === "Hot Wheels Wiki", "wiki credit");
         assert(/hotwheels\.fandom\.com/.test(item.imagePage + item.wiki), "wiki link");
+        if (item.image) assert(item.image.startsWith("assets/hw/thumbs/"), "wiki photo is hosted " + item.id);
       }
       if (item.worth) {
         worth += 1;
@@ -94,6 +99,10 @@ async function main() {
   assert(mattel === manifest.totals.mattel, "mattel count");
   assert(index.items.length === count, "search index covers every car");
   assert(manifest.totals.photoPct >= 70, "photo coverage stays high");
+  const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
+  assert(app.includes('referrerpolicy="no-referrer"'), "catalog images omit the referrer");
+  assert(app.includes("assets/states/photo-needed.svg"), "a broken catalog image falls back");
+  assert(app.includes("function catalogSrc"), "http catalog urls are upgraded");
   assert(mattel >= 50, "official Mattel photos are matched");
   assert(worth >= 40, "hunt list cars are flagged in the catalog");
   const shell = fs.readFileSync(path.join(root, "sw.js"), "utf8");

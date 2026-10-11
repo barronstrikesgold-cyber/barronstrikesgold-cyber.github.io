@@ -11,7 +11,9 @@
  *
  * Official photos come from Mattel Creations public product JSON and the
  * read-only UCP search_catalog tool. This script never creates a cart or a
- * checkout. Wiki thumbnails fill the gaps. Image files are not downloaded.
+ * checkout. Wiki thumbnails fill the gaps. After a rebuild, run
+ * scripts/host-hw-thumbs.mjs so Fandom files are stored as local WebP thumbs.
+ * Fandom returns a 404 placeholder when the request sends a GitHub Pages referrer.
  */
 import { createRequire } from "node:module";
 import fs from "node:fs";
