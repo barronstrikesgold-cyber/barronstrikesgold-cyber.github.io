@@ -184,8 +184,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .top-actions { display: flex; gap: 8px; flex: none; }
 
 .screen {
-  padding: 18px 16px calc(var(--tab-h) + 48px);
-  scroll-padding-bottom: calc(var(--tab-h) + 24px);
+  padding: 18px 16px calc(var(--tab-h) + 88px);
+  scroll-padding-bottom: calc(var(--tab-h) + 72px);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -349,7 +349,7 @@ h2 {
   overflow: hidden;
 }
 
-.peg, .store-pick, .lane-card { scroll-margin-bottom: calc(var(--tab-h) + 16px); }
+.peg, .store-pick, .lane-card { scroll-margin-bottom: calc(var(--tab-h) + 56px); }
 
 .peg-open {
   width: 100%;
@@ -621,6 +621,24 @@ h2 {
 }
 .banner img { width: 28px; height: 28px; }
 
+.site-footer {
+  position: fixed;
+  z-index: 19;
+  left: 50%;
+  bottom: var(--tab-h);
+  transform: translateX(-50%);
+  width: min(480px, 100%);
+  margin: 0;
+  padding: 6px 16px 8px;
+  background: rgba(7, 7, 8, 0.96);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-align: center;
+}
+.site-footer p { margin: 0; }
+
 .tabbar {
   position: fixed;
   z-index: 20;
@@ -787,7 +805,7 @@ h2 {
 .market-note { color: var(--muted); }
 
 @media (min-width: 700px) {
-  .app, .tabbar { width: min(760px, 100%); }
+  .app, .tabbar, .site-footer { width: min(760px, 100%); }
   .store-list, .lane-list { display: grid; grid-template-columns: 1fr 1fr; }
   h1 { font-size: 2.4rem; }
 }

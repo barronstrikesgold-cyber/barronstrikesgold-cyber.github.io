@@ -4,6 +4,7 @@
  * Retail comes from the official page. A sold price is stored only when this
  * repo already has a verified comp (URL, source, date). StockX and GOAT are
  * not guessed. A failed feed keeps the last good copy of that section.
+ * Amazon.com product links are stamped with the Associates tag before write.
  *
  *   node scripts/refresh-market.mjs
  */
@@ -15,6 +16,7 @@ import { applyMarketComps } from "./market-comps.mjs";
 
 const require = createRequire(import.meta.url);
 const Market = require("../lib/market.js");
+const Amazon = require("../lib/amazon.js");
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outFile = path.join(root, "data", "market.json");
 const UA = "ResellerHunt/1.0 (read-only market refresh)";
@@ -795,7 +797,9 @@ async function main() {
     sections,
     sources,
   };
-  fs.writeFileSync(outFile, JSON.stringify(file, null, 2) + "\n");
+  const stamped = Amazon.stampAssociates(file);
+  fs.writeFileSync(outFile, JSON.stringify(stamped.value, null, 2) + "\n");
+  process.stdout.write("amazon tagged " + stamped.tagged + " added " + stamped.added + "\n");
   const total = sections.reduce((sum, section) => sum + section.items.length, 0);
   process.stdout.write("market items " + total + "\n");
 }

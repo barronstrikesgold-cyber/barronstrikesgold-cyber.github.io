@@ -82,6 +82,28 @@
       .replace(/"/g, "&quot;");
   }
 
+  function externalAnchor(href, label, className) {
+    var url = href;
+    var rel = "noopener noreferrer";
+    if (window.ResellerAmazon && ResellerAmazon.isProductUrl(href)) {
+      url = ResellerAmazon.tagUrl(href);
+      rel = "sponsored noopener";
+    }
+    var cls = className ? ' class="' + className + '"' : "";
+    return '<a' + cls + ' href="' + esc(url) + '" target="_blank" rel="' + rel + '">' + esc(label) + "</a>";
+  }
+
+  function amazonBuyRow(item, verdict, already) {
+    if (!window.ResellerAmazon) return "";
+    var href = ResellerAmazon.buyHref(item, verdict);
+    if (!href) return "";
+    var shown = already || [];
+    for (var i = 0; i < shown.length; i++) {
+      if (ResellerAmazon.sameProduct(shown[i], href)) return "";
+    }
+    return '<div class="link-row">' + externalAnchor(href, "Buy on Amazon") + "</div>";
+  }
+
   function readJson(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
@@ -253,11 +275,11 @@
   }
 
   function priceNote(item, comp) {
-    if (comp) return '<a class="text-link" href="' + esc(comp.url) + '" target="_blank" rel="noopener noreferrer">Open source</a>';
+    if (comp) return externalAnchor(comp.url, "Open source", "text-link");
     var money = Rules.moneyOf(item);
     if (money) {
       var link = money.url && Rules.isSourceUrl(money.url)
-        ? ' <a class="text-link" href="' + esc(money.url) + '" target="_blank" rel="noopener noreferrer">Sold source</a>'
+        ? " " + externalAnchor(money.url, "Sold source", "text-link")
         : "";
       return '<p class="fine">' + esc(money.note) + " Re-check solds before listing. Net is sold × 0.87 − $5." + link + "</p>";
     }
@@ -277,7 +299,7 @@
   function sourceLink(resale) {
     var url = resale && resale.soldUrl;
     if (!url || !Rules.isSourceUrl(url)) return "";
-    return '<div class="link-row"><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Sold source</a></div>';
+    return '<div class="link-row">' + externalAnchor(url, "Sold source") + "</div>";
   }
 
   function pegCard(item, opts) {
@@ -298,6 +320,7 @@
       '<span class="peg-foot"><span class="peg-tell">' + esc(spot) + "</span>" +
       '<span class="peg-meta">' + pegMoney(item) + "</span></span></button>" +
       sourceLink(resale) +
+      amazonBuyRow(item, (resale && resale.verdict) || verdict, []) +
       links + "</article>";
   }
 
@@ -307,7 +330,7 @@
     links.push(["Google", R.checkHref(R.CHECK.google, name)]);
     links.push(["Google Shopping", R.checkHref(R.CHECK.shopping, name)]);
     return '<div class="link-row">' + links.map(function (link) {
-      return '<a href="' + esc(link[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(link[0]) + "</a>";
+      return externalAnchor(link[1], link[0]);
     }).join("") + "</div>";
   }
 
@@ -331,7 +354,7 @@
       links.unshift(["Search on " + store.name, store.search]);
     }
     return '<div class="link-row">' + links.map(function (link) {
-      return '<a href="' + esc(R.checkHref(link[1], query)) + '" target="_blank" rel="noopener noreferrer">' + esc(link[0]) + "</a>";
+      return externalAnchor(R.checkHref(link[1], query), link[0]);
     }).join("") + "</div>";
   }
 
@@ -616,6 +639,7 @@
       "<p>" + esc(Rules.payFor(item) || ("Shelf · " + shelfLabel(item))) + "</p>" +
       "<p>" + esc(priceDetail(item, comp)) + "</p>" +
       priceNote(item, comp) +
+      amazonBuyRow(item, badge, []) +
       "</section>" +
       '<section class="tool"><p class="kicker">Grade</p>' + chips(gradesFor(item.category), gradeOfCatalog(item), "data-grade") + "</section>" +
       (sizeKind ? '<section class="tool"><p class="kicker">Size</p><p class="fine">' + esc(item.sizing || "") + "</p>" + chips(sizes, sizeMap()[item.id] || "", "data-size", sizeKind === "shoe" ? FAST_SHOES : FAST_CLOTHES) + "</section>" : "") +
@@ -686,7 +710,9 @@
       "</span>" +
       decisionBar("", item.verdict) +
       '<span class="peg-foot"><span class="peg-tell">' + esc(item.spot || "") + "</span>" +
-      '<span class="peg-meta">' + esc(marketFoot(item)) + "</span></span></button></article>";
+      '<span class="peg-meta">' + esc(marketFoot(item)) + "</span></span></button>" +
+      amazonBuyRow(item, item.verdict, []) +
+      "</article>";
   }
 
   function renderMarketList() {
@@ -727,19 +753,20 @@
       ? "<p>No sold data</p>" + (item.soldSource ? '<p class="fine">' + esc(item.soldSource) + "</p>" : "")
       : "<p>Sold " + esc(marketMoneyText(item.sold)) + (item.soldDate ? " · " + esc(item.soldDate) : "") + "</p>" +
         (item.soldSource ? "<p>" + esc(item.soldSource) + "</p>" : "") +
-        (item.soldUrl ? '<div class="link-row"><a href="' + esc(item.soldUrl) + '" target="_blank" rel="noopener noreferrer">Sold source</a></div>' : "");
+        (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
+    var retailLabel = window.ResellerAmazon && ResellerAmazon.isProductUrl(item.retailUrl) ? "Buy on Amazon" : (item.retailSource || "Retail source");
     var retailLink = item.retailUrl
-      ? '<div class="link-row"><a href="' + esc(item.retailUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(item.retailSource || "Retail source") + "</a></div>"
+      ? '<div class="link-row">' + externalAnchor(item.retailUrl, retailLabel) + "</div>"
       : "";
     var photoCredit = item.photoPage
-      ? '<p class="fine"><a class="text-link" href="' + esc(item.photoPage) + '" target="_blank" rel="noopener noreferrer">' + esc(item.photoCredit || "Photo source") + "</a></p>"
+      ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
     return '<button class="back" type="button" data-back>Drops</button>' +
       marketPhoto(item) +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
-      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + amazonBuyRow(item, item.verdict, [item.retailUrl]) + "</section>" +
       (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
@@ -794,6 +821,7 @@
       "<p>Format · " + esc(item.format) + "</p>" +
       "<p>Printed · " + esc(item.printed || "unknown") + "</p>" +
       "<p>No sold data</p>" +
+      amazonBuyRow(item, rule.verdict, []) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + "</section>";
   }
 
@@ -1052,12 +1080,13 @@
         var creditHref = item.imagePage || item.wiki || "";
         var creditName = item.imageCredit || (item.imageSource === "mattel" ? "Mattel Creations" : "Hot Wheels Wiki");
         credit = '<p class="hw-credit">Photo · ' + (creditHref
-          ? '<a href="' + esc(creditHref) + '" rel="noopener noreferrer">' + esc(creditName) + "</a>"
+          ? externalAnchor(creditHref, creditName)
           : esc(creditName)) + "</p>";
       } else if (item && item.wiki) {
-        credit = '<p class="hw-credit"><a href="' + esc(item.wiki) + '" rel="noopener noreferrer">Hot Wheels Wiki</a></p>';
+        credit = '<p class="hw-credit">' + externalAnchor(item.wiki, "Hot Wheels Wiki") + "</p>";
       }
-      return '<article class="hw-card">' + photo + '<div class="hw-copy"><h2>' + esc(name) + "</h2><p class=\"hw-meta\">" + esc(bits.join(" · ")) + "</p>" + extra + flag + credit + "</div></article>";
+      var buy = item ? amazonBuyRow(item, worth && worth.verdict, []) : "";
+      return '<article class="hw-card">' + photo + '<div class="hw-copy"><h2>' + esc(name) + "</h2><p class=\"hw-meta\">" + esc(bits.join(" · ")) + "</p>" + extra + flag + buy + credit + "</div></article>";
     }).join("");
     var more = total > page.length
       ? '<button type="button" class="ghost hw-more" data-archive-more>Show more · ' + page.length + " of " + total + "</button>"
