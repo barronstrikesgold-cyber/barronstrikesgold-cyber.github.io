@@ -18,7 +18,7 @@ const sports = ["topps-s1", "topps-fb", "fifa", "artifacts", "optic-fb", "chrome
 items.forEach((item) => {
   const rule = Rules.cardRule(item.id);
   assert(rule, item.id + " is on the buy/pass card");
-  assert(rule.verdict === "Buy" || rule.verdict === "Pass", item.id + " verdict is Buy or Pass");
+  assert(rule.verdict === "Buy" || rule.verdict === "Pass" || rule.verdict === "Check" || rule.verdict === "Lot", item.id + " verdict is Buy, Check, Lot, or Pass");
   const line = Rules.priceLine(item);
   if (rule.lastSold == null) assert(line === "No sold data", item.id + " has no sheet sold");
   else {
@@ -28,20 +28,21 @@ items.forEach((item) => {
   assert(Rules.compOf(item) === null, item.id + " comp stays hidden without a source URL");
 });
 
-const alwaysBuy = ["cuda", "firebird", "subaru", "f40", "civic", "lotus", "mustang", "impala", "porsche", "drift", "sierra", "otto", "supra-tooned", "maxima", "ram", "lincoln", "m4", "d100", "starion", "db5", "ferrari12", "belair", "datsun", "ff-supra", "mb-integra", "mb-911", "mb-jag", "mb-bronco", "mb-gtr", "mb-356", "mb-vanquish", "mb-defender"];
+const alwaysBuy = ["cuda", "subaru", "f40", "civic", "lotus", "mustang", "impala", "porsche", "drift", "sierra", "otto", "supra-tooned", "maxima", "ram", "skyline", "lincoln", "m4", "d100", "starion", "db5", "ferrari12", "belair", "datsun", "ff-supra", "mb-vanquish", "mb-defender"];
 alwaysBuy.forEach((id) => assert(Rules.verdictFor({ id }) === "Buy", id + " is a peg buy"));
-["skyline", "mainline", "boulevard", "tt-msrp", "mb-regular", "cars-movie", "matchbox", "red-supra", "tt-under", "rlc"].forEach((id) => {
+["mainline", "boulevard", "tt-msrp", "mb-regular", "cars-movie", "matchbox", "tt-under", "rlc"].forEach((id) => {
   assert(Rules.verdictFor({ id }) === "Pass", id + " stays a pass");
 });
-assert(Rules.netOf(100) === 82 && Rules.moneyOf({ id: "cuda" }).net === "~$82", "cuda net uses sold × 0.87 − $5");
-assert(Rules.moneyOf({ id: "firebird" }).sold.indexOf("sparse") !== -1, "firebird sold is sparse");
-assert(Rules.moneyOf({ id: "f40" }).net === "~$124", "f40 card uses the sheet, not the $122 snapshot");
+assert(Rules.netOf(100) === 82, "netOf still rounds sold × 0.87 − $5");
+assert(Rules.moneyOf({ id: "cuda" }).net === "$78.52", "cuda uses the Oct 2026 sold");
+assert(Rules.moneyOf({ id: "firebird" }).sold.indexOf("$126.00") === 0 && Rules.verdictFor({ id: "firebird" }) === "Check", "firebird is a thin CHECK comp");
+assert(Rules.moneyOf({ id: "f40" }).net === "$121.15", "f40 card uses the Oct 2026 sheet, not the $122 snapshot");
 assert(Rules.priceLine({ id: "lincoln" }) === "No sold data", "early 2027 has no sold");
 assert(Rules.priceLine({ id: "mb-integra" }) === "No sold data", "integra has no solid solds");
 assert(Rules.priceLine({ id: "mb-gtr" }) === "No sold data", "gtr stays unconfirmed");
 assert(/Not the Skyline/.test(Rules.tellsFor({ id: "subaru" })), "impreza is not the skyline");
 assert(Rules.laneFor({ id: "belair" }) === "cc" && Rules.laneFor({ id: "ff-supra" }) === "ff" && Rules.laneFor({ id: "mb-911" }) === "mbsc", "chase lanes");
-assert(Rules.laneFor({ id: "skyline" }) === "leave" && Rules.laneFor({ id: "red-supra" }) === "selective", "pass lanes");
+assert(Rules.laneFor({ id: "skyline" }) === "sth" && Rules.laneFor({ id: "red-supra" }) === "exclusive", "skyline TH and Red Supra moved onto the resale list");
 assert(Rules.laneFor({ id: "boulevard" }) === "selective" && Rules.laneFor({ id: "zamac" }) === "selective" && Rules.laneFor({ id: "tt-msrp" }) === "selective", "premium lines sit in Selective");
 assert(Rules.laneFor({ id: "exclusives" }) === "leave", "common exclusives stay in Leave these");
 ["knockout", "tech-sticker", "bundle"].forEach((id) => assert(Rules.verdictFor({ id }) === "Buy", id + " is a sealed MSRP buy"));
@@ -49,17 +50,18 @@ assert(Rules.verdictFor({ id: "poke-wave2" }) === "Pass" && Rules.verdictFor({ i
 assert(/\$19\.99/.test(Rules.tellsFor({ id: "knockout" })) && /\$59\.99/.test(Rules.tellsFor({ id: "bundle" })), "printed pokemon prices");
 assert(Rules.priceLine({ id: "knockout" }) === "No sold data", "knockout has no sold");
 
-assert(Rules.verdictFor({ id: "skyline" }) === "Pass", "regular TH is a pass");
+assert(Rules.verdictFor({ id: "skyline" }) === "Buy", "skyline TH clears fees");
+assert(Rules.verdictFor({ id: "red-supra" }) === "Lot", "red supra is lot only");
+assert(Rules.verdictFor({ id: "mb-911" }) === "Check" && Rules.priceLine({ id: "mb-911" }) === "No sold data", "911 super chase has no verified comp");
 assert(Rules.verdictFor({ id: "cuda" }) === "Buy", "gold-flame Super is a buy");
 assert(/read the card/i.test(Rules.tellsFor({ id: "cuda" })), "supers teach read the card");
-assert(Rules.verdictFor({ id: "mb-911" }) === "Buy", "super chase is a buy");
 assert(/SUPER CHASE/.test(Rules.tellsFor({ id: "mb-911" })), "matchbox tell");
 assert(Rules.verdictFor({ id: "etb" }) === "Buy" && /\$49\.99/.test(Rules.tellsFor({ id: "etb" })), "ETB only at printed 49.99");
 assert(Rules.verdictFor({ id: "m6a" }) === "Buy" && /¥7200/.test(Rules.tellsFor({ id: "m6a" })), "M6a near 7200 yen");
 sports.forEach((id) => assert(Rules.verdictFor({ id: id }) === "Pass", id + " blister is a pass"));
 assert(Rules.laneFor({ id: "etb" }) === "pokemon", "ETB is a pokemon lane, not a car");
 assert(Rules.storeLanes("goodwill").indexOf("golf") === 0, "Goodwill leads with golf");
-assert(Rules.storeLanes("dollartree").join(",") === "sth,cc,ff,mbsc,leave,selective", "Dollar Tree is the peg only");
+assert(Rules.storeLanes("dollartree").join(",") === "sth,cc,ff,mbsc,exclusive,premium,multipack,hw-main,leave,selective", "Dollar Tree is the peg only");
 assert(Rules.dropVerdict("hw-sth-2027").verdict === "Buy" && Rules.dropVerdict("mb-sc-2027").verdict === "Buy", "2027 drops stay on the buy calendar");
 assert(Rules.compOf({ compLabel: "$33", sourceUrl: "https://example.com/lotus-sold" }).label === "$33", "real source URL can show a comp");
 assert(Rules.compOf({ compLabel: "$33", sourceUrl: "https://www.walmart.com/search?q=lotus" }) === null, "search URLs are not comps");

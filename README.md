@@ -2,7 +2,7 @@
 
 A phone-first hunt list for one reseller walking Walmart, Target, Goodwill, Best Buy, and Dollar Tree. Five tabs: Hunt, Stores, Drops, Inventory, and Profit. It is a static PWA for GitHub Pages. It does not read live store inventory, and it does not invent a sold price.
 
-The locked rule is on the header: buy gold-flame STH, Car Culture and Fast & Furious Spectraflame chase, and Matchbox SUPER CHASE at peg price. Leave everything else unless Selective and a last sold clears fees.
+The hunt list is the 2026 Hot Wheels and Matchbox resale sheet. Anything that clears fees is on it: Super Treasure Hunts, premium gold chases, Fast & Furious chase, Matchbox SUPER CHASE, exclusives, multipacks, and the few mainlines that clear. Net is sold × 0.87 − $5. Cards say BUY, CHECK, or LOT ONLY. Leave on peg is everything that does not clear.
 
 ## What changed
 
@@ -14,7 +14,7 @@ Cards use a black, flame-orange, and gold layout with large tap targets, Buy / P
 
 | Tab | What it is |
 | --- | --- |
-| Hunt | Every peg line is on this screen: Hot Wheels Supers, Car Culture chase, Fast & Furious chase, Matchbox Super Chase, Leave these, Selective, and Pokémon. A store chip opens that store’s copy. Search still finds the book, including both Subarus. |
+| Hunt | Every peg line is on this screen: Super TH, Premium chase, F&F, Matchbox Super Chase, Exclusives, Premium, Multipacks, Mainline, Leave on peg, Selective, and Pokémon. A store chip opens that store’s copy. Search still finds the book, including both Subarus. |
 | Stores | That store’s buy list, plus a search link for the store, Google, and Google Shopping. A link is not a shelf count. |
 | Drops | The dates that change a hunt. Other releases stay under Other dates. |
 | Inventory | The 78-package book, with sell-first and verify flags. |

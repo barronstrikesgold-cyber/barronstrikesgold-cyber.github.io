@@ -127,9 +127,15 @@ try {
       await page.getByRole("heading", { name: "Drops" }).waitFor();
       await page.getByRole("tab", { name: "Hunt" }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
-      for (const line of ["Hot Wheels Supers", "Car Culture chase", "Fast & Furious chase", "Matchbox Super Chase", "Leave these", "Selective", "Pokémon"]) {
+      for (const line of ["Super TH", "Premium chase", "F&F", "Matchbox Super Chase", "Exclusives", "Premium", "Multipacks", "Mainline", "Leave on peg", "Selective", "Pokémon"]) {
         await page.getByRole("heading", { name: line, exact: true }).waitFor();
       }
+      assert(await page.locator("[data-resale]").count() === 87, "all 87 resale cards are on Hunt");
+      const bare = await page.locator("[data-resale]").evaluateAll((els) => els.filter((el) => !el.querySelector("img")).map((el) => el.getAttribute("data-resale")));
+      assert(bare.length === 0, "every resale card has a photo tag, missing " + bare.join(","));
+      await assertFullPackage(page.getByRole("button", { name: /Aero Styles/ }), "aero", "photos/resale/hw26-001.jpg");
+      assert(/BUY/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero is BUY");
+      assert(/\$204\.67/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero shows net");
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
       await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
       await page.getByRole("button", { name: /Fast & Furious Supra/ }).waitFor();
@@ -140,13 +146,21 @@ try {
       await page.screenshot({ path: path.join(shots, "hunt-lines-390.png"), fullPage: false });
       await page.getByRole("button", { name: /Walmart/ }).click();
       await page.getByRole("heading", { name: "Walmart" }).waitFor();
-      await page.getByRole("button", { name: /Hot Wheels/ }).click();
-      await page.getByRole("heading", { name: "Hot Wheels" }).waitFor();
+      await page.getByRole("button", { name: /Super TH/ }).click();
+      await page.getByRole("heading", { name: "Super TH" }).waitFor();
       await page.getByText("Read the card").first().waitFor();
       const cuda = page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ });
+      await cuda.scrollIntoViewIfNeeded();
       await cuda.waitFor();
       const cudaText = await cuda.innerText();
       assert(/buy/i.test(cudaText), "hunt card action is Buy");
+      await cuda.locator(".peg-photo img").evaluate((el) => {
+        if (el.complete && el.naturalWidth) return true;
+        return new Promise((resolve, reject) => {
+          el.addEventListener("load", () => resolve(true), { once: true });
+          el.addEventListener("error", () => reject(new Error("cuda photo failed")), { once: true });
+        });
+      });
       const framed = await cuda.locator(".peg-photo img").evaluate((img) => {
         const frame = img.parentElement.getBoundingClientRect();
         const box = img.getBoundingClientRect();
@@ -166,6 +180,15 @@ try {
       assert(Math.abs(framed.frameH - framed.imgH) < 2, "cuda photo is not clipped by the frame");
       assert(Math.abs(framed.shownRatio - framed.naturalRatio) < 0.08, "cuda photo keeps the package aspect");
       const firebird = page.getByRole("button", { name: /Firebird 400 Super/ });
+      await firebird.scrollIntoViewIfNeeded();
+      await firebird.locator(".peg-photo img").evaluate((el) => {
+        if (el.complete && el.naturalWidth) return true;
+        return new Promise((resolve, reject) => {
+          el.addEventListener("load", () => resolve(true), { once: true });
+          el.addEventListener("error", () => reject(new Error("firebird photo failed")), { once: true });
+        });
+      });
+      assert(/CHECK/.test(await firebird.innerText()), "firebird is CHECK");
       const fireFrame = await firebird.locator(".peg-photo img").evaluate((img) => {
         const frame = img.parentElement.getBoundingClientRect();
         const box = img.getBoundingClientRect();
@@ -175,19 +198,22 @@ try {
       assert(Math.abs(fireFrame.frameH - fireFrame.imgH) < 2, "firebird photo is not clipped");
       assert(Math.abs(fireFrame.shownRatio - fireFrame.naturalRatio) < 0.08, "firebird photo keeps the package aspect");
       assert(/pay/i.test(cudaText), "cuda shows peg price");
-      assert(/last sold/i.test(cudaText) && /\$82/.test(cudaText), "cuda shows sheet last sold and net");
+      assert(/last sold/i.test(cudaText) && /\$78\.52/.test(cudaText), "cuda shows Oct 2026 last sold and net");
+      assert(/Read the card/i.test(cudaText), "cuda shows how to spot");
       const lincoln = page.getByRole("button", { name: /Lincoln Continental/ });
       await lincoln.waitFor();
       assert((await lincoln.innerText()).includes("No sold data"), "2027 super has no sold");
       await page.screenshot({ path: path.join(shots, "hunt-390.png"), fullPage: false });
-      assert(await page.getByRole("button", { name: /Black Nissan Skyline/ }).count() === 0, "regular TH stays out of the buy list");
+      const sky = page.getByRole("button", { name: /Black Nissan Skyline/ });
+      await sky.waitFor();
+      assert(/BUY/.test(await sky.innerText()) && /Last sold/i.test(await sky.innerText()), "skyline TH is on the resale list");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Leave these/ }).click();
-      await page.getByRole("heading", { name: "Leave these" }).waitFor();
-      await page.getByRole("button", { name: /Black Nissan Skyline/ }).waitFor();
+      await page.getByRole("button", { name: /Leave on peg/ }).click();
+      await page.getByRole("heading", { name: "Leave on peg" }).waitFor();
+      assert(await page.getByRole("button", { name: /Black Nissan Skyline/ }).count() === 0, "skyline TH left the pass lane");
       await page.getByRole("button", { name: /Basic Hot Wheels mainline/ }).waitFor();
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Car Culture/ }).click();
+      await page.getByRole("button", { name: /Premium chase/ }).click();
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
       await assertFullPackage(page.getByRole("button", { name: /Bel Air/ }), "belair", "photos/belair.jpg");
       await assertFullPackage(page.getByRole("button", { name: /Datsun 510/ }), "datsun", "photos/datsun.jpg");
@@ -205,7 +231,7 @@ try {
       await defender.waitFor();
       assert(/photo needed/i.test(await defender.innerText()), "defender stays Photo needed");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Fast & Furious/ }).click();
+      await page.getByRole("button", { name: /F&F/ }).click();
       await assertFullPackage(page.getByRole("button", { name: /Fast & Furious Supra/ }), "ff-supra", "photos/ff-supra.jpg");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.getByRole("button", { name: /Pokémon/ }).click();
