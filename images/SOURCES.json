@@ -1,0 +1,5 @@
+{
+  "policy": "Show a product photo only when licenses contains that id with written true and kind product. Do not host brand logos. Chips, the calendar, and coupons use the plain brand name in the app font, or the photo-needed placeholder.",
+  "operator": "Broken Beaker Labs LC",
+  "licenses": []
+}

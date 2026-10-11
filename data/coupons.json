@@ -1,0 +1,22 @@
+[
+  {
+    "id": "coupon-hot-wheels",
+    "brand": "Hot Wheels",
+    "detail": "No coupon on file."
+  },
+  {
+    "id": "coupon-matchbox",
+    "brand": "Matchbox",
+    "detail": "No coupon on file."
+  },
+  {
+    "id": "coupon-pokemon",
+    "brand": "Pokémon",
+    "detail": "No coupon on file."
+  },
+  {
+    "id": "coupon-golf",
+    "brand": "Golf",
+    "detail": "No coupon on file."
+  }
+]

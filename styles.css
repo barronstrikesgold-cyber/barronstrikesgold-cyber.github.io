@@ -624,6 +624,18 @@ h2 {
   font-weight: 750;
 }
 .chip.is-on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.brand-word {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: inherit;
+}
+.chip .brand-word, .hw-lines .brand-word, .store-chip .brand-word { font-size: 0.92rem; }
+.coupon-card { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.coupon-card .brand-word { font-size: 1.15rem; }
+.mark-slot { width: 88px; height: 64px; object-fit: contain; background: var(--ghost); border-radius: 12px; }
+.peg-copy .brand-word { display: block; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: none; margin-bottom: 2px; }
 .chip.is-fast { box-shadow: inset 0 0 0 2px var(--flame); }
 
 .link-row a, .text-link {
