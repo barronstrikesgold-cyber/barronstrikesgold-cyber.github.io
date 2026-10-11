@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-11T03:42:52.653Z",
-  "formula": "net = sold × 0.87 − 5. CHECK when there is no verified sold URL.",
+  "generatedAt": "2026-10-11T04:14:25.497Z",
+  "formula": "net = sold × 0.87 − 5. BUY when that net beats retail × 1.09 by at least $15 and the comp is liquid. PASS when the net is under retail. CHECK otherwise.",
   "sections": [
     {
       "id": "pokemon",
       "title": "Pokémon",
       "group": "TCG",
-      "note": "Sealed rows are the hunt book's printed prices. No sold was added. Upcoming set names are from the Pokémon TCG API and have no MSRP. Mega Evolution, Worlds, and League Battle decks are included only when a public page names them. None of those prices were invented.",
+      "note": "Sealed rows are the hunt book's printed prices. The set feed failed (500 https://api.pokemontcg.io/v2/sets?pageSize=250). Mega Evolution, Worlds, and League Battle decks are included only when a public page names them. None of those prices were invented. Mega Evolution ETBs, League Battle decks, and Worlds decks were added from TCGplayer when the product was named there. 13 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -22,16 +22,17 @@
           "photoCredit": "Hunt book photo",
           "photoPage": "",
           "streetNote": "No verified street price. A shop ask is not a sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 163.37,
+          "soldDate": "2026-10-11",
+          "soldSource": "TCGplayer sales for 30th Celebration Elite Trainer Box. Volume-weighted average $163.37 across 10528 sales, last sale 2026-10-11. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/704143?range=month",
+          "net": 137.13,
           "street": null,
           "id": "pk-etb",
           "section": "pokemon",
           "name": "Pokémon 30th Celebration ETB",
-          "verdict": "CHECK"
+          "verdict": "BUY",
+          "liquid": true
         },
         {
           "feed": false,
@@ -56,7 +57,8 @@
           "id": "pk-m6a",
           "section": "pokemon",
           "name": "Pokémon Japanese M6a 30th CELEBRATION",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -81,7 +83,8 @@
           "id": "pk-knockout",
           "section": "pokemon",
           "name": "Pokémon Knockout",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -106,7 +109,8 @@
           "id": "pk-tech-sticker",
           "section": "pokemon",
           "name": "Pokémon Tech Sticker",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -131,7 +135,8 @@
           "id": "pk-bundle",
           "section": "pokemon",
           "name": "Pokémon Booster Bundle",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -149,14 +154,15 @@
           "streetNote": "No verified street price.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale on the set feed.",
+          "soldSource": "",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "pkset-me55",
           "section": "pokemon",
           "name": "Pokémon TCG · 30th Celebration",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -174,13 +180,302 @@
           "streetNote": "No verified street price.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale on the set feed.",
+          "soldSource": "",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "pkset-me55c",
           "section": "pokemon",
           "name": "Pokémon TCG · 30th Celebration: Classic Collection",
+          "verdict": "CHECK",
+          "liquid": false
+        },
+        {
+          "id": "pk-tcg-648394",
+          "section": "pokemon",
+          "name": "Mega Evolution Elite Trainer Box [Mega Lucario]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/648394_200w.jpg",
+          "photoAlt": "Mega Evolution Elite Trainer Box [Mega Lucario]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/648394/Mega Evolution Elite Trainer Box Mega Lucario",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/648394/Mega Evolution Elite Trainer Box Mega Lucario",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 126.57,
+          "soldDate": "2026-10-10",
+          "soldSource": "TCGplayer sales for Mega Evolution Elite Trainer Box [Mega Lucario]. Volume-weighted average $126.57 across 103 sales, last sale 2026-10-10. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/648394?range=month",
+          "liquid": true,
+          "net": 105.12,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-644279",
+          "section": "pokemon",
+          "name": "Mega Evolution Elite Trainer Box [Mega Gardevoir]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/644279_200w.jpg",
+          "photoAlt": "Mega Evolution Elite Trainer Box [Mega Gardevoir]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/644279/Mega Evolution Elite Trainer Box Mega Gardevoir",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/644279/Mega Evolution Elite Trainer Box Mega Gardevoir",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 121.07,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for Mega Evolution Elite Trainer Box [Mega Gardevoir]. Volume-weighted average $121.07 across 86 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/644279?range=month",
+          "liquid": true,
+          "net": 100.33,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-644282",
+          "section": "pokemon",
+          "name": "Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Lucario]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/644282_200w.jpg",
+          "photoAlt": "Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Lucario]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/644282/Mega Evolution Pokemon Center Elite Trainer Box Exclusive Mega Lucario",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/644282/Mega Evolution Pokemon Center Elite Trainer Box Exclusive Mega Lucario",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 200.86,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Lucario]. Volume-weighted average $200.86 across 32 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/644282?range=month",
+          "liquid": true,
+          "net": 169.75,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-648415",
+          "section": "pokemon",
+          "name": "Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Gardevoir]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/648415_200w.jpg",
+          "photoAlt": "Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Gardevoir]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/648415/Mega Evolution Pokemon Center Elite Trainer Box Exclusive Mega Gardevoir",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/648415/Mega Evolution Pokemon Center Elite Trainer Box Exclusive Mega Gardevoir",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 195.79,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for Mega Evolution Pokemon Center Elite Trainer Box (Exclusive) [Mega Gardevoir]. Volume-weighted average $195.79 across 24 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/648415?range=month",
+          "liquid": true,
+          "net": 165.34,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-516580",
+          "section": "pokemon",
+          "name": "League Battle Deck [Miraidon ex]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/516580_200w.jpg",
+          "photoAlt": "League Battle Deck [Miraidon ex]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/516580/League Battle Deck Miraidon ex",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/516580/League Battle Deck Miraidon ex",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 25.1,
+          "soldDate": "2026-10-07",
+          "soldSource": "TCGplayer sales for League Battle Deck [Miraidon ex]. Volume-weighted average $25.10 across 15 sales, last sale 2026-10-07. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/516580?range=month",
+          "liquid": true,
+          "net": 16.84,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-539385",
+          "section": "pokemon",
+          "name": "League Battle Deck [Gardevoir ex]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/539385_200w.jpg",
+          "photoAlt": "League Battle Deck [Gardevoir ex]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/539385/League Battle Deck Gardevoir ex",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/539385/League Battle Deck Gardevoir ex",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 51.08,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for League Battle Deck [Gardevoir ex]. Volume-weighted average $51.08 across 11 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/539385?range=month",
+          "liquid": true,
+          "net": 39.44,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-236379",
+          "section": "pokemon",
+          "name": "League Battle Deck [Inteleon VMAX]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/236379_200w.jpg",
+          "photoAlt": "League Battle Deck [Inteleon VMAX]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/236379/League Battle Deck Inteleon VMAX",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/236379/League Battle Deck Inteleon VMAX",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 23.18,
+          "soldDate": "2026-10-07",
+          "soldSource": "TCGplayer sales for League Battle Deck [Inteleon VMAX]. Volume-weighted average $23.18 across 4 sales, last sale 2026-10-07. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/236379?range=month",
+          "liquid": false,
+          "net": 15.17,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-283599",
+          "section": "pokemon",
+          "name": "League Battle Deck [Mew VMAX]",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/283599_200w.jpg",
+          "photoAlt": "League Battle Deck [Mew VMAX]",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/283599/League Battle Deck Mew VMAX",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/283599/League Battle Deck Mew VMAX",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 73.67,
+          "soldDate": "2026-09-22",
+          "soldSource": "TCGplayer sales for League Battle Deck [Mew VMAX]. Volume-weighted average $73.67 across 4 sales, last sale 2026-09-22. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/283599?range=month",
+          "liquid": false,
+          "net": 59.09,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-616301",
+          "section": "pokemon",
+          "name": "2024 World Championship Deck: Sakuya Ota (Ancient Toolbox)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/616301_200w.jpg",
+          "photoAlt": "2024 World Championship Deck: Sakuya Ota (Ancient Toolbox)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/616301/2024 World Championship Deck Sakuya Ota Ancient Toolbox",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/616301/2024 World Championship Deck Sakuya Ota Ancient Toolbox",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 15.02,
+          "soldDate": "2026-10-07",
+          "soldSource": "TCGplayer sales for 2024 World Championship Deck: Sakuya Ota (Ancient Toolbox). Volume-weighted average $15.02 across 16 sales, last sale 2026-10-07. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/616301?range=month",
+          "liquid": true,
+          "net": 8.07,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-616299",
+          "section": "pokemon",
+          "name": "2024 World Championship Deck: Fernando Cifuentes (Crushing Thorn)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/616299_200w.jpg",
+          "photoAlt": "2024 World Championship Deck: Fernando Cifuentes (Crushing Thorn)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/616299/2024 World Championship Deck Fernando Cifuentes Crushing Thorn",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/616299/2024 World Championship Deck Fernando Cifuentes Crushing Thorn",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 14.63,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for 2024 World Championship Deck: Fernando Cifuentes (Crushing Thorn). Volume-weighted average $14.63 across 20 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/616299?range=month",
+          "liquid": true,
+          "net": 7.73,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-616302",
+          "section": "pokemon",
+          "name": "2024 World Championship Deck: Jesse Parker (The 'Don)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/616302_200w.jpg",
+          "photoAlt": "2024 World Championship Deck: Jesse Parker (The 'Don)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/616302/2024 World Championship Deck Jesse Parker The Don",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/616302/2024 World Championship Deck Jesse Parker The Don",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 20.05,
+          "soldDate": "2026-10-09",
+          "soldSource": "TCGplayer sales for 2024 World Championship Deck: Jesse Parker (The 'Don). Volume-weighted average $20.05 across 17 sales, last sale 2026-10-09. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/616302?range=month",
+          "liquid": true,
+          "net": 12.44,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "pk-tcg-616300",
+          "section": "pokemon",
+          "name": "2024 World Championship Deck: Evan Pavelski (Regidrago VSTAR)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/616300_200w.jpg",
+          "photoAlt": "2024 World Championship Deck: Evan Pavelski (Regidrago VSTAR)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/616300/2024 World Championship Deck Evan Pavelski Regidrago VSTAR",
+          "spot": "Named on TCGplayer. A retailer MSRP was not on a page this refresh could read, so retail stays blank unless the sales comp can be compared.",
+          "retail": null,
+          "retailLabel": "MSRP not on a retailer page this refresh could read",
+          "retailSource": "TCGplayer product",
+          "retailUrl": "https://www.tcgplayer.com/product/616300/2024 World Championship Deck Evan Pavelski Regidrago VSTAR",
+          "feed": false,
+          "street": null,
+          "streetNote": "Listing asks were not used.",
+          "sold": 20.15,
+          "soldDate": "2026-09-29",
+          "soldSource": "TCGplayer sales for 2024 World Championship Deck: Evan Pavelski (Regidrago VSTAR). Volume-weighted average $20.15 across 7 sales, last sale 2026-09-29. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/616300?range=month",
+          "liquid": true,
+          "net": 12.53,
           "verdict": "CHECK"
         }
       ]
@@ -189,7 +484,7 @@
       "id": "magic",
       "title": "Magic: The Gathering",
       "group": "TCG",
-      "note": "Release dates from Scryfall. No sealed MSRP and no sold price.",
+      "note": "Release dates from Scryfall. No sealed MSRP and 2 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -205,16 +500,17 @@
           "photoCredit": "Scryfall",
           "photoPage": "https://scryfall.com/sets/fra",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale on the set feed.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 159.06,
+          "soldDate": "2026-10-11",
+          "soldSource": "TCGplayer sales for Reality Fracture - Play Booster Display. Volume-weighted average $159.06 across 5131 sales, last sale 2026-10-11. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/692980?range=month",
+          "net": 133.38,
           "street": null,
           "id": "magic-fra",
           "section": "magic",
           "name": "Reality Fracture",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": false,
@@ -239,7 +535,8 @@
           "id": "magic-frc",
           "section": "magic",
           "name": "Reality Fracture Commander",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -264,7 +561,8 @@
           "id": "magic-mbc",
           "section": "magic",
           "name": "Mystery Booster Commander Edition",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -289,7 +587,8 @@
           "id": "magic-trc",
           "section": "magic",
           "name": "Star Trek Commander",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -305,16 +604,17 @@
           "photoCredit": "Scryfall",
           "photoPage": "https://scryfall.com/sets/trk",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale on the set feed.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 152.5,
+          "soldDate": "2026-10-10",
+          "soldSource": "TCGplayer sales for Star Trek - Play Booster Display. Volume-weighted average $152.50 across 376 sales, last sale 2026-10-10. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/706138?range=month",
+          "net": 127.68,
           "street": null,
           "id": "magic-trk",
           "section": "magic",
           "name": "Star Trek",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": true,
@@ -339,7 +639,8 @@
           "id": "magic-nau",
           "section": "magic",
           "name": "Nauctis: The Sunken Realm",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -364,7 +665,8 @@
           "id": "magic-mdd",
           "section": "magic",
           "name": "Marvel: Darkhold Destiny",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -389,7 +691,8 @@
           "id": "magic-mdc",
           "section": "magic",
           "name": "Darkhold Destiny Commander",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -397,7 +700,7 @@
       "id": "onepiece",
       "title": "One Piece",
       "group": "TCG",
-      "note": "Official One Piece Card Game MSRP. No street price.",
+      "note": "Official One Piece Card Game MSRP. 1 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -408,7 +711,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/07/24/YIpBK0MBL8U3BwY7/img_item01_pb.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/07/24/YIpBK0MBL8U3BwY7/img_item01_pb.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Chinese 3rd Anniversary Set",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/3rd_anniversary_set_cn.html",
@@ -422,7 +725,8 @@
           "id": "op-chinese-3rd-anniversary-set",
           "section": "onepiece",
           "name": "Chinese 3rd Anniversary Set",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -433,7 +737,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/07/24/b3Ga6ynPa0qmbNcH/img_item01_pb.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/07/24/b3Ga6ynPa0qmbNcH/img_item01_pb.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Premium Card Collection -Ace & Sabo & Luffy-",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/card_collection_asl.html",
@@ -447,7 +751,8 @@
           "id": "op-premium-card-collection-ace-sabo-luffy-",
           "section": "onepiece",
           "name": "Premium Card Collection -Ace & Sabo & Luffy-",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -458,7 +763,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/03/NcpIYveTOFjrSSH1/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/03/NcpIYveTOFjrSSH1/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Premium Card Collection -6 assort vol.2-",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/collection-6assort-vol2.html",
@@ -472,7 +777,8 @@
           "id": "op-premium-card-collection-6-assort-vol-2-",
           "section": "onepiece",
           "name": "Premium Card Collection -6 assort vol.2-",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -483,7 +789,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/03/HPXMQszWEFCQiUJJ/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/03/HPXMQszWEFCQiUJJ/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Playmat&Card Set -Luffy&Bonney-",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/playmat_liffy-bonney.html",
@@ -497,7 +803,8 @@
           "id": "op-playmat-card-set-luffy-bonney-",
           "section": "onepiece",
           "name": "Playmat&Card Set -Luffy&Bonney-",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -508,7 +815,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/asia-en/product/2026/09/02/JxaWO4p8YG9fSJYe/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/asia-en/product/2026/09/02/JxaWO4p8YG9fSJYe/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Limited Card Sleeve Championship 26-27 KV",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/sleeve045.html",
@@ -522,7 +829,8 @@
           "id": "op-limited-card-sleeve-championship-26-27-kv",
           "section": "onepiece",
           "name": "Limited Card Sleeve Championship 26-27 KV",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -533,7 +841,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/asia-en/product/2026/09/02/Cti0LE4hZ06BZ4T0/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/asia-en/product/2026/09/02/Cti0LE4hZ06BZ4T0/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Limited Card Sleeve ONE PIECE Heroines Edition",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/sleeve046.html",
@@ -547,7 +855,8 @@
           "id": "op-limited-card-sleeve-one-piece-heroines-edition",
           "section": "onepiece",
           "name": "Limited Card Sleeve ONE PIECE Heroines Edition",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -558,21 +867,22 @@
           "release": "",
           "releaseLabel": "",
           "spot": "BOOSTERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/09/18/rGCJ1ZUyi5qrA7zL/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/09/18/rGCJ1ZUyi5qrA7zL/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "BOOSTER PACK -THE DOMINANCE OF GOD- [OP-18]",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/op18.html",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 24.95,
+          "soldDate": "2026-10-07",
+          "soldSource": "TCGplayer sales for The Dominance of God Booster Pack. Volume-weighted average $24.95 across 27 sales, last sale 2026-10-07. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/712904?range=month",
+          "net": 16.71,
           "street": null,
           "id": "op-booster-pack-the-dominance-of-god-op-18-",
           "section": "onepiece",
           "name": "BOOSTER PACK -THE DOMINANCE OF GOD- [OP-18]",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": false,
@@ -583,7 +893,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/10/01/1G5QS6sl6UETbgKE/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/10/01/1G5QS6sl6UETbgKE/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Gift Collection -ONE PIECE Heroines- [GC-2026]",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/gift-collection.html",
@@ -597,7 +907,8 @@
           "id": "op-gift-collection-one-piece-heroines-gc-2026-",
           "section": "onepiece",
           "name": "Gift Collection -ONE PIECE Heroines- [GC-2026]",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -608,7 +919,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/04/17/VLw2s5angR3lvzLp/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/04/17/VLw2s5angR3lvzLp/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Premium Card Collection -Live Action Edition vol.2 Baroque Works-",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/collection-drama003.html",
@@ -622,7 +933,8 @@
           "id": "op-premium-card-collection-live-action-edition-vol-2-baroque-wo",
           "section": "onepiece",
           "name": "Premium Card Collection -Live Action Edition vol.2 Baroque Works-",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -633,7 +945,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/04/17/MP7cRkVFMjQzyMqj/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/04/17/MP7cRkVFMjQzyMqj/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Premium Card Collection -Live Action Edition vol.2 Straw Hat Crew-",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/collection-drama002.html",
@@ -647,7 +959,8 @@
           "id": "op-premium-card-collection-live-action-edition-vol-2-straw-hat-",
           "section": "onepiece",
           "name": "Premium Card Collection -Live Action Edition vol.2 Straw Hat Crew-",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -658,7 +971,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "OTHERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/17/2vusNMocLlUK8Mf3/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/product/2026/09/17/2vusNMocLlUK8Mf3/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "Mini Case Set -Luffy/Shanks/Hancock- [TS-03]",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/ts03.html",
@@ -672,7 +985,8 @@
           "id": "op-mini-case-set-luffy-shanks-hancock-ts-03-",
           "section": "onepiece",
           "name": "Mini Case Set -Luffy/Shanks/Hancock- [TS-03]",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -683,7 +997,7 @@
           "release": "",
           "releaseLabel": "",
           "spot": "BOOSTERS. Official products page. The figure is MSRP, not a sold price.",
-          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/09/28/MoM8mqZvZfoZYePF/img_item01.webp?_=569b1f0591069df4ac8b1eb3b945bfe9",
+          "photo": "https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/09/28/MoM8mqZvZfoZYePF/img_item01.webp?_=b2678679f68a4c90327cda160b5b8191",
           "photoAlt": "EXTRA BOOSTER -ONE PIECE HEROINES EDITION vol.2- [EB-05]",
           "photoCredit": "One Piece Card Game",
           "photoPage": "https://en.onepiece-cardgame.com/products/eb05.html",
@@ -697,7 +1011,8 @@
           "id": "op-extra-booster-one-piece-heroines-edition-vol-2-eb-05-",
           "section": "onepiece",
           "name": "EXTRA BOOSTER -ONE PIECE HEROINES EDITION vol.2- [EB-05]",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -705,7 +1020,7 @@
       "id": "lorcana",
       "title": "Disney Lorcana",
       "group": "TCG",
-      "note": "Release dates from Disney Lorcana product pages. No MSRP and no street price.",
+      "note": "Release dates from Disney Lorcana product pages. No MSRP and 1 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": true,
@@ -721,16 +1036,17 @@
           "photoCredit": "Disney Lorcana",
           "photoPage": "https://www.disneylorcana.com/en-US/product/hyperia-city",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 199.65,
+          "soldDate": "2026-10-10",
+          "soldSource": "TCGplayer sales for Disney Lorcana: Hyperia City Booster Box. Volume-weighted average $199.65 across 440 sales, last sale 2026-10-10. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/706239?range=month",
+          "net": 168.7,
           "street": null,
           "id": "lor-hyperia-city",
           "section": "lorcana",
           "name": "Hyperia City",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         }
       ]
     },
@@ -738,7 +1054,7 @@
       "id": "yugioh",
       "title": "Yu-Gi-Oh",
       "group": "TCG",
-      "note": "Yu-Gi-Oh release dates from the official product index. No MSRP and no street price.",
+      "note": "Yu-Gi-Oh release dates from the official product index. No MSRP and 2 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -754,16 +1070,17 @@
           "photoCredit": "Yu-Gi-Oh! TCG",
           "photoPage": "https://www.yugioh-card.com/en/products/betb/",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 62.45,
+          "soldDate": "2026-10-11",
+          "soldSource": "TCGplayer sales for Beyond the Brave Booster Box [1st Edition]. Volume-weighted average $62.45 across 2410 sales, last sale 2026-10-11. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/711263?range=month",
+          "net": 49.33,
           "street": null,
           "id": "ygo-beyond-the-brave",
           "section": "yugioh",
           "name": "Beyond the Brave",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": true,
@@ -779,16 +1096,17 @@
           "photoCredit": "Yu-Gi-Oh! TCG",
           "photoPage": "https://www.yugioh-card.com/en/products/glvi/",
           "streetNote": "No verified street price.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 79.52,
+          "soldDate": "2026-10-05",
+          "soldSource": "TCGplayer sales for Glorious Victors Booster Box [1st Edition]. Volume-weighted average $79.52 across 9 sales, last sale 2026-10-05. Not a listing ask.",
+          "soldUrl": "https://infinite-api.tcgplayer.com/price/history/713238?range=month",
+          "net": 64.18,
           "street": null,
           "id": "ygo-glorious-victors",
           "section": "yugioh",
           "name": "Glorious Victors",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": true,
@@ -813,7 +1131,8 @@
           "id": "ygo-immortal-phoenix",
           "section": "yugioh",
           "name": "Immortal Phoenix",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -846,7 +1165,8 @@
           "id": "sport-topps-fb-cal",
           "section": "sports",
           "name": "2026 Topps Football blaster",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -871,7 +1191,8 @@
           "id": "sport-artifacts-cal",
           "section": "sports",
           "name": "2026-27 Upper Deck Artifacts hockey blaster",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -896,7 +1217,8 @@
           "id": "sport-epl-cal",
           "section": "sports",
           "name": "2026-27 Topps English Premier League",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -921,7 +1243,8 @@
           "id": "sport-ice-cal",
           "section": "sports",
           "name": "2025-26 Upper Deck Ice hockey",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -946,7 +1269,8 @@
           "id": "sport-usa-juniors-cal",
           "section": "sports",
           "name": "2026 Upper Deck Team USA Juniors",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -971,7 +1295,8 @@
           "id": "sport-prizm-fb-cal",
           "section": "sports",
           "name": "2026 Panini Prizm Football retail",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -994,17 +1319,18 @@
           "photoAlt": "Air Jordan 1 High OG \"Royal\" Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-jordan-1-high-og-royal",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-iq5495-005",
           "section": "sneakers",
           "name": "Air Jordan 1 High OG \"Royal\"",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1019,17 +1345,18 @@
           "photoAlt": "Nike SB Zoom Air Paul Rodriguez Low Skate Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/paul-rodriguez-zoom-air-low-ale-brown",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-iq6827-200",
           "section": "sneakers",
           "name": "Nike SB Zoom Air Paul Rodriguez Low",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1044,17 +1371,18 @@
           "photoAlt": "Nike Cryoshot Mercurial Vapor 1 OG Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/cryoshot-mercurial-chrome-02-og-chrome-and-hot-lime-1",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-iq8161-001",
           "section": "sneakers",
           "name": "Nike Cryoshot Mercurial Vapor 1 OG",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1069,17 +1397,18 @@
           "photoAlt": "Nike Blazy Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/blazy-varsity-red",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-im2523-600",
           "section": "sneakers",
           "name": "Nike Blazy",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1094,17 +1423,18 @@
           "photoAlt": "Nike Air Max Goadome Low  Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-max-goadome-low-black",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-iv4517-001",
           "section": "sneakers",
           "name": "Nike Air Max Goadome Low ",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1119,17 +1449,18 @@
           "photoAlt": "Nike Air Foamposite Pro Premium Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-foamposite-pro-premium-summit-white",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-iv6246-100",
           "section": "sneakers",
           "name": "Nike Air Foamposite Pro Premium",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1144,17 +1475,18 @@
           "photoAlt": "Air Jordan 5 Retro \"Halloween\" Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-jordan-5-halloween-black-and-picante-red",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-hq7978-001",
           "section": "sneakers",
           "name": "Air Jordan 5 Retro \"Halloween\"",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1169,17 +1501,18 @@
           "photoAlt": "Nike Air Force 1 '01  Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-force-1-01-nigo-j-hope-burnt-sunrise-and-metallic-gold-us",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-io8766-800",
           "section": "sneakers",
           "name": "Nike Air Force 1 '01 ",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1194,17 +1527,18 @@
           "photoAlt": "Nike Air Force 1 '01 Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-force-1-01-nightmare-black-and-gym-red",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-ix0104-001",
           "section": "sneakers",
           "name": "Nike Air Force 1 '01",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -1219,17 +1553,18 @@
           "photoAlt": "Air Jordan 12 Retro \"Fireside\" Men's Shoes",
           "photoCredit": "Nike",
           "photoPage": "https://www.nike.com/launch/t/air-jordan-12-fireside-light-orewood-brown-and-cacao-wow",
-          "streetNote": "No verified StockX or GOAT average. Those sites did not return a public sold.",
+          "streetNote": "No verified StockX or GOAT average. Asks were not stored as a sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No verified resale average.",
+          "soldSource": "No verified resale average. StockX did not return a sold. KicksCrew and Flight Club prices are asks and were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "nike-ct8013-105",
           "section": "sneakers",
           "name": "Air Jordan 12 Retro \"Fireside\"",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -1237,7 +1572,7 @@
       "id": "lego",
       "title": "LEGO",
       "group": "Brands",
-      "note": "LEGO.com retiring-soon assortment. Prices are LEGO's own. No secondary sold.",
+      "note": "LEGO.com retiring-soon assortment. Prices are LEGO's own. 22 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -1253,16 +1588,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/vincent-van-gogh-the-starry-night-21333",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 133.21,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 25 times sold, average $133.21, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=214518&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 110.89,
           "street": null,
           "id": "lego-21333",
           "section": "lego",
           "name": "21333 Vincent van Gogh - The Starry Night",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1278,16 +1614,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/disney-tim-burtons-the-nightmare-before-christmas-21351",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 161.43,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 7 times sold, average $161.43, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=243335&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 135.44,
           "street": null,
           "id": "lego-21351",
           "section": "lego",
           "name": "21351 Disney Tim Burton's The Nightmare Before Christmas",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1303,16 +1640,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/the-botanical-garden-21353",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 296.99,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 16 times sold, average $296.99, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=245572&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 253.38,
           "street": null,
           "id": "lego-21353",
           "section": "lego",
           "name": "21353 The Botanical Garden",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1328,16 +1666,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/natural-history-museum-10326",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 282.9,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 19 times sold, average $282.90, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=232241&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 241.12,
           "street": null,
           "id": "lego-10326",
           "section": "lego",
           "name": "10326 Natural History Museum",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1353,16 +1692,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/beauty-and-the-beast-castle-43263",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 222.03,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 5 times sold, average $222.03, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=251424&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 188.17,
           "street": null,
           "id": "lego-43263",
           "section": "lego",
           "name": "43263 Beauty and the Beast Castle",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1378,16 +1718,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/the-endurance-10335",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 280.29,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 12 times sold, average $280.29, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=246151&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 238.85,
           "street": null,
           "id": "lego-10335",
           "section": "lego",
           "name": "10335 The Endurance",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1403,16 +1744,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/arcade-machine-40805",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 47.49,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 3 times sold, average $47.49, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=255827&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 36.32,
           "street": null,
           "id": "lego-40805",
           "section": "lego",
           "name": "40805 Arcade Machine",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1428,16 +1770,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/everyone-is-awesome-40516",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 33.97,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 31 times sold, average $33.97, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=202097&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 24.55,
           "street": null,
           "id": "lego-40516",
           "section": "lego",
           "name": "40516 Everyone Is Awesome",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1453,16 +1796,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/nasa-artemis-space-launch-system-10341",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 287.14,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 11 times sold, average $287.14, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=238867&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 244.81,
           "street": null,
           "id": "lego-10341",
           "section": "lego",
           "name": "10341 NASA Artemis Space Launch System",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1478,16 +1822,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/millennium-falcon-75192",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 699.9,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 40 times sold, average $699.90, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=157691&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 603.91,
           "street": null,
           "id": "lego-75192",
           "section": "lego",
           "name": "75192 Millennium Falcon™",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1503,16 +1848,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/flower-arrangement-10345",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 74.75,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 3 times sold, average $74.75, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=246718&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 60.03,
           "street": null,
           "id": "lego-10345",
           "section": "lego",
           "name": "10345 Flower Arrangement",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1528,16 +1874,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/willy-wonka-the-chocolate-factory-21360",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 156.18,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 3 times sold, average $156.18, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=257761&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 130.88,
           "street": null,
           "id": "lego-21360",
           "section": "lego",
           "name": "21360 Willy Wonka & the Chocolate Factory",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1547,22 +1894,23 @@
           "retailUrl": "https://www.lego.com/en-us/product/optimus-prime-10302",
           "release": "",
           "releaseLabel": "",
-          "spot": "LEGO® Icons · 1508 pieces · Exclusives, Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
+          "spot": "Creator Expert · 1508 pieces · Exclusives, Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
           "photo": "https://www.lego.com/cdn/cs/set/assets/blt36fb03cdeb25ad1a/10302.png?fit=bounds&format=jpg&quality=80&width=320&height=320&dpr=1",
           "photoAlt": "Optimus Prime",
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/optimus-prime-10302",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 133.4,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 33 times sold, average $133.40, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=214847&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 111.06,
           "street": null,
           "id": "lego-10302",
           "section": "lego",
           "name": "10302 Optimus Prime",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1578,16 +1926,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/yellow-taxi-40468",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 11.91,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 10 times sold, average $11.91, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=195291&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 5.36,
           "street": null,
           "id": "lego-40468",
           "section": "lego",
           "name": "40468 Yellow Taxi",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1603,16 +1952,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/river-steamboat-21356",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 294.53,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 8 times sold, average $294.53, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=251310&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 251.24,
           "street": null,
           "id": "lego-21356",
           "section": "lego",
           "name": "21356 River Steamboat",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1628,16 +1978,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/up-house-43217",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 42.44,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 25 times sold, average $42.44, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=223690&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 31.92,
           "street": null,
           "id": "lego-43217",
           "section": "lego",
           "name": "43217 ‘Up’ House​",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1647,22 +1998,23 @@
           "retailUrl": "https://www.lego.com/en-us/product/nike-dunk-trickshot-43021",
           "release": "",
           "releaseLabel": "",
-          "spot": "Nike · 454 pieces · Exclusives, Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
+          "spot": "LEGO® Editions  · 454 pieces · Exclusives, Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
           "photo": "https://www.lego.com/cdn/cs/set/assets/blt139bc01311d3f7a8/43021_Prod_en-gb.png?fit=bounds&format=jpg&quality=80&width=320&height=320&dpr=1",
           "photoAlt": "Nike Dunk Trickshot",
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/nike-dunk-trickshot-43021",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 101.87,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 1 times sold, average $101.87, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=258003&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 83.63,
           "street": null,
           "id": "lego-43021",
           "section": "lego",
           "name": "43021 Nike Dunk Trickshot",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1678,16 +2030,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/heihei-43272",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 22.62,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 4 times sold, average $22.62, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=248024&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 14.68,
           "street": null,
           "id": "lego-43272",
           "section": "lego",
           "name": "43272 Heihei",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1697,22 +2050,23 @@
           "retailUrl": "https://www.lego.com/en-us/product/cherry-blossoms-40725",
           "release": "",
           "releaseLabel": "",
-          "spot": "Other · 430 pieces · Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
+          "spot": "Botanicals · 430 pieces · Retiring soon. Retiring-soon list on LEGO.com. Confirm the set number.",
           "photo": "https://www.lego.com/cdn/cs/set/assets/bltf876ca701fbacd4a/40725.png?fit=bounds&format=jpg&quality=80&width=320&height=320&dpr=1",
           "photoAlt": "Cherry Blossoms",
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/cherry-blossoms-40725",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 10.28,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 22 times sold, average $10.28, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=233979&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 3.94,
           "street": null,
           "id": "lego-40725",
           "section": "lego",
           "name": "40725 Cherry Blossoms",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1728,16 +2082,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/maersk-dual-fuel-container-vessel-40955",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 156.03,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 5 times sold, average $156.03, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=264534&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 130.75,
           "street": null,
           "id": "lego-40955",
           "section": "lego",
           "name": "40955 Maersk Dual-Fuel Container Vessel",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1753,16 +2108,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/the-mandalorian-helmet-75328",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 44.25,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 28 times sold, average $44.25, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=210929&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 33.5,
           "street": null,
           "id": "lego-75328",
           "section": "lego",
           "name": "75328 The Mandalorian™ Helmet",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1778,16 +2134,17 @@
           "photoCredit": "LEGO.com",
           "photoPage": "https://www.lego.com/en-us/product/kylo-rens-command-shuttle-75406",
           "streetNote": "No verified secondary sold. LEGO's price is the shelf price, not a sold comp.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 49.44,
+          "soldDate": "2026-10-11",
+          "soldSource": "BrickLink new sales, last 6 months, 16 times sold, average $49.44, observed 2026-10-11. Current asks were not used.",
+          "soldUrl": "https://www.bricklink.com/v2/catalog/catalogitem_pgtab.page?idItem=252848&idColor=0&st=2&gm=1&gc=0&ei=0&prec=2",
+          "net": 38.01,
           "street": null,
           "id": "lego-75406",
           "section": "lego",
           "name": "75406 Kylo Ren's Command Shuttle",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         }
       ]
     },
@@ -1795,64 +2152,259 @@
       "id": "funko",
       "title": "Funko",
       "group": "Brands",
-      "note": "Funko exclusives did not return a product list (403 https://funko.com/new-featured/exclusives/). No exclusive or chase was invented.",
-      "items": []
+      "note": "Funko.com exclusives did not return a list. These exclusives and chases are named on TCGplayer. A sold is stored only when that product has sales in the last month.",
+      "items": [
+        {
+          "id": "funko-138728",
+          "section": "funko",
+          "name": "TrollHunters: Jim with Gnome (Amulet) (Limited Edition Chase) (Funko/Target Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/138728_200w.jpg",
+          "photoAlt": "TrollHunters: Jim with Gnome (Amulet) (Limited Edition Chase) (Funko/Target Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/138728",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/138728",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-136248",
+          "section": "funko",
+          "name": "Street Fighter: Gold Ryu (Chase) (SDCC Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/136248_200w.jpg",
+          "photoAlt": "Street Fighter: Gold Ryu (Chase) (SDCC Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/136248",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/136248",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-146791",
+          "section": "funko",
+          "name": "Krampus (Flocked) (Limited Edition Chase) (Hot Topic Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/146791_200w.jpg",
+          "photoAlt": "Krampus (Flocked) (Limited Edition Chase) (Hot Topic Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/146791",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/146791",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-159348",
+          "section": "funko",
+          "name": "The Joker (8-Bit) (Metallic) (Limited Edition Chase) (GameStop Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/159348_200w.jpg",
+          "photoAlt": "The Joker (8-Bit) (Metallic) (Limited Edition Chase) (GameStop Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/159348",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/159348",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-524236",
+          "section": "funko",
+          "name": "One Piece: Trafalgar Law (AAA Anime Exclusive) (Limited Edition Chase)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/524236_200w.jpg",
+          "photoAlt": "One Piece: Trafalgar Law (AAA Anime Exclusive) (Limited Edition Chase)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/524236",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/524236",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-154140",
+          "section": "funko",
+          "name": "Stranger Things: Demogorgon (Closed-Mouth) (8-Bit) (Limited Edition Chase) (Target Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/154140_200w.jpg",
+          "photoAlt": "Stranger Things: Demogorgon (Closed-Mouth) (8-Bit) (Limited Edition Chase) (Target Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/154140",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/154140",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-167490",
+          "section": "funko",
+          "name": "Pandapool (Bobble-Head) (Flocked) (Limited Edition Chase) (Hot Topic Exclusive)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/167490_200w.jpg",
+          "photoAlt": "Pandapool (Bobble-Head) (Flocked) (Limited Edition Chase) (Hot Topic Exclusive)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/167490",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/167490",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        },
+        {
+          "id": "funko-524000",
+          "section": "funko",
+          "name": "My Hero Academia: Tomura Shigaraki (Entertainment Earth Exclusive)(Limited Edition Chase)",
+          "photo": "https://tcgplayer-cdn.tcgplayer.com/product/524000_200w.jpg",
+          "photoAlt": "My Hero Academia: Tomura Shigaraki (Entertainment Earth Exclusive)(Limited Edition Chase)",
+          "photoCredit": "TCGplayer",
+          "photoPage": "https://www.tcgplayer.com/product/524000",
+          "spot": "Funko exclusive or chase named on TCGplayer. Funko.com exclusives did not return a product list.",
+          "retail": null,
+          "retailLabel": "MSRP not on the source",
+          "retailSource": "TCGplayer",
+          "retailUrl": "https://www.tcgplayer.com/product/524000",
+          "feed": false,
+          "street": null,
+          "streetNote": "No sale in the last month, so the market price was not stored as a sold.",
+          "sold": null,
+          "soldDate": "",
+          "soldSource": "TCGplayer lists this exclusive. No sale in the last month.",
+          "soldUrl": "",
+          "liquid": false,
+          "net": null,
+          "verdict": "CHECK"
+        }
+      ]
     },
     {
       "id": "apple",
       "title": "Apple / Beats",
       "group": "Brands",
-      "note": "Apple's own refurbished prices. Not a resale comp. The Beats refurbished path returned 404, so no Beats SKU was added.",
+      "note": "Apple's own refurbished prices. Not a resale comp. The Beats refurbished path returned 404, so no Beats SKU was added. 2 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
           "retail": 459,
           "retailLabel": "$459.00",
           "retailSource": "Apple Refurbished",
-          "retailUrl": "https://www.apple.com/shop/product/flwl3ll/a/refurbished-ipad-mini-6-wi-fi-64gb-pink",
+          "retailUrl": "https://www.apple.com/shop/product/fk7m3ll/a/refurbished-ipad-mini-6-wi-fi-64gb-space-gray",
           "release": "",
           "releaseLabel": "",
           "spot": "Apple Refurbished listing. The price is Apple's current ask, not a sold comp on a secondary market.",
-          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-ipad-mini-wifi-pink-gallery-2022?wid=2300&hei=2300&fmt=jpeg&qlt=90&.v=1674165788377",
-          "photoAlt": "Refurbished iPad mini 6 Wi-Fi 64GB - Pink",
+          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-ipad-mini-wifi-space-gray-gallery-2022?wid=2300&hei=2300&fmt=jpeg&qlt=90&.v=1674165788881",
+          "photoAlt": "Refurbished iPad mini 6 Wi-Fi 64GB - Space Gray",
           "photoCredit": "Apple Refurbished",
-          "photoPage": "https://www.apple.com/shop/product/flwl3ll/a/refurbished-ipad-mini-6-wi-fi-64gb-pink",
+          "photoPage": "https://www.apple.com/shop/product/fk7m3ll/a/refurbished-ipad-mini-6-wi-fi-64gb-space-gray",
           "streetNote": "No verified secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 288.91,
+          "soldDate": "2026-10-10",
+          "soldSource": "Swappa recent sales, 11 rows (Good, Mint, Fair), average $288.91, newest 2026-10-10. Listing asks were not used.",
+          "soldUrl": "https://swappa.com/xui/product/apple-ipad-mini-6/sales",
+          "net": 246.35,
           "street": null,
-          "id": "apple-refurbished-ipad-mini-6-wi-fi-64gb-pink",
+          "id": "apple-refurbished-ipad-mini-6-wi-fi-64gb-space-gray",
           "section": "apple",
-          "name": "Refurbished iPad mini 6 Wi-Fi 64GB - Pink",
-          "verdict": "CHECK"
+          "name": "Refurbished iPad mini 6 Wi-Fi 64GB - Space Gray",
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
           "retail": 509,
           "retailLabel": "$509.00",
           "retailSource": "Apple Refurbished",
-          "retailUrl": "https://www.apple.com/shop/product/fxn83ll/a/refurbished-ipad-mini-a17-pro-wi-fi-128gb-starlight",
+          "retailUrl": "https://www.apple.com/shop/product/fxn93ll/a/refurbished-ipad-mini-a17-pro-wi-fi-128gb-purple",
           "release": "",
           "releaseLabel": "",
           "spot": "Apple Refurbished listing. The price is Apple's current ask, not a sold comp on a secondary market.",
-          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-ipad-mini-7th-gen-wifi-starlight-202603?wid=4000&hei=4000&fmt=jpeg&qlt=90&.v=1775163203010",
-          "photoAlt": "Refurbished iPad Mini (A17 Pro) Wi-Fi 128GB - Starlight",
+          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-ipad-mini-7th-gen-wifi-purple-202603?wid=4000&hei=4000&fmt=jpeg&qlt=90&.v=1775163204611",
+          "photoAlt": "Refurbished iPad Mini (A17 Pro) Wi-Fi 128GB - Purple",
           "photoCredit": "Apple Refurbished",
-          "photoPage": "https://www.apple.com/shop/product/fxn83ll/a/refurbished-ipad-mini-a17-pro-wi-fi-128gb-starlight",
+          "photoPage": "https://www.apple.com/shop/product/fxn93ll/a/refurbished-ipad-mini-a17-pro-wi-fi-128gb-purple",
           "streetNote": "No verified secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 404.75,
+          "soldDate": "2026-10-10",
+          "soldSource": "Swappa recent sales, 12 rows (Mint, New, Good), average $404.75, newest 2026-10-10. Listing asks were not used.",
+          "soldUrl": "https://swappa.com/xui/product/apple-ipad-mini-7/sales",
+          "net": 347.13,
           "street": null,
-          "id": "apple-refurbished-ipad-mini-a17-pro-wi-fi-128gb-starlight",
+          "id": "apple-refurbished-ipad-mini-a17-pro-wi-fi-128gb-purple",
           "section": "apple",
-          "name": "Refurbished iPad Mini (A17 Pro) Wi-Fi 128GB - Starlight",
-          "verdict": "CHECK"
+          "name": "Refurbished iPad Mini (A17 Pro) Wi-Fi 128GB - Purple",
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -1870,14 +2422,15 @@
           "streetNote": "No verified secondary sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale fetched.",
+          "soldSource": "No Swappa sales page matched this refurbished listing. Listing asks were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "apple-refurbished-ipad-a16-wi-fi-cellular-128gb-pink",
           "section": "apple",
           "name": "Refurbished iPad (A16) Wi-Fi + Cellular 128GB - Pink",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1895,14 +2448,15 @@
           "streetNote": "No verified secondary sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale fetched.",
+          "soldSource": "No Swappa sales page matched this refurbished listing. Listing asks were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "apple-refurbished-macbook-neo-apple-a18-pro-chip-with-touch-id-cit",
           "section": "apple",
           "name": "Refurbished MacBook Neo Apple A18 Pro chip with Touch ID - Citrus",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -1920,39 +2474,41 @@
           "streetNote": "No verified secondary sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale fetched.",
+          "soldSource": "No Swappa sales page matched this refurbished listing. Listing asks were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "apple-refurbished-14-inch-macbook-pro-apple-m5-chip-with-10-core-c",
           "section": "apple",
           "name": "Refurbished 14-inch MacBook Pro Apple M5 chip with 10‑Core CPU and 10‑Core GPU - Silver",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
           "retail": 1829,
           "retailLabel": "$1829.00",
           "retailSource": "Apple Refurbished",
-          "retailUrl": "https://www.apple.com/shop/product/g1km2ll/a/Refurbished-14-inch-MacBook-Pro-Apple-M5-chip-with-10‑Core-CPU-and-10‑Core-GPU-Nano-texture-display-Silver",
+          "retailUrl": "https://www.apple.com/shop/product/g1kj2ll/a/Refurbished-14-inch-MacBook-Pro-Apple-M5-chip-with-10‑Core-CPU-and-10‑Core-GPU-Nano-texture-display-Space-Black",
           "release": "",
           "releaseLabel": "",
           "spot": "Apple Refurbished listing. The price is Apple's current ask, not a sold comp on a secondary market.",
-          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-mbp14-m5-silver-202511?wid=4000&hei=3074&fmt=jpeg&qlt=90&.v=1762542707549",
-          "photoAlt": "Refurbished 14-inch MacBook Pro Apple M5 chip with 10‑Core CPU and 10‑Core GPU, Nano-texture display - Silver",
+          "photo": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-mbp14-m5-spaceblack-202511?wid=4000&hei=3074&fmt=jpeg&qlt=90&.v=1762542707612",
+          "photoAlt": "Refurbished 14-inch MacBook Pro Apple M5 chip with 10‑Core CPU and 10‑Core GPU, Nano-texture display - Space Black",
           "photoCredit": "Apple Refurbished",
-          "photoPage": "https://www.apple.com/shop/product/g1km2ll/a/Refurbished-14-inch-MacBook-Pro-Apple-M5-chip-with-10‑Core-CPU-and-10‑Core-GPU-Nano-texture-display-Silver",
+          "photoPage": "https://www.apple.com/shop/product/g1kj2ll/a/Refurbished-14-inch-MacBook-Pro-Apple-M5-chip-with-10‑Core-CPU-and-10‑Core-GPU-Nano-texture-display-Space-Black",
           "streetNote": "No verified secondary sold.",
           "sold": null,
           "soldDate": "",
-          "soldSource": "No settled sale fetched.",
+          "soldSource": "No Swappa sales page matched this refurbished listing. Listing asks were not used.",
           "soldUrl": "",
           "net": null,
           "street": null,
           "id": "apple-refurbished-14-inch-macbook-pro-apple-m5-chip-with-10-core-c",
           "section": "apple",
-          "name": "Refurbished 14-inch MacBook Pro Apple M5 chip with 10‑Core CPU and 10‑Core GPU, Nano-texture display - Silver",
-          "verdict": "CHECK"
+          "name": "Refurbished 14-inch MacBook Pro Apple M5 chip with 10‑Core CPU and 10‑Core GPU, Nano-texture display - Space Black",
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -1960,7 +2516,7 @@
       "id": "consoles",
       "title": "Consoles",
       "group": "Brands",
-      "note": "Nintendo store hardware JSON. Official price only.",
+      "note": "Nintendo store hardware JSON. Official price only. 1 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -1976,16 +2532,17 @@
           "photoCredit": "Nintendo",
           "photoPage": "https://www.nintendo.com/us/store/hardware/",
           "streetNote": "No verified secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 471.33,
+          "soldDate": "2026-10-03",
+          "soldSource": "Swappa recent sales, 3 rows (New), average $471.33, newest 2026-10-03. Listing asks were not used.",
+          "soldUrl": "https://swappa.com/xui/product/nintendo-switch-2/sales",
+          "net": 405.06,
           "street": null,
           "id": "nsw-nintendo-switch-2-system",
           "section": "consoles",
           "name": "Nintendo Switch™ 2 System",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2010,7 +2567,8 @@
           "id": "nsw-nintendo-switch-2-mario-kart-world-bundle",
           "section": "consoles",
           "name": "Nintendo Switch™ 2 + Mario Kart™ World Bundle",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -2035,7 +2593,8 @@
           "id": "nsw-nintendo-switch-2-nintendo-switch-sports-resort-bundle",
           "section": "consoles",
           "name": "Nintendo Switch™ 2 + Nintendo Switch Sports Resort™ Bundle",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": true,
@@ -2060,7 +2619,8 @@
           "id": "nsw-nintendo-switch-2-the-legend-of-zelda-40th-anniversary-edition",
           "section": "consoles",
           "name": "Nintendo Switch™ 2 - The Legend of Zelda™ – 40th Anniversary Edition",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -2068,7 +2628,7 @@
       "id": "matchbox",
       "title": "Matchbox",
       "group": "Brands",
-      "note": "Matchbox Super Chase rows already on the hunt sheet. Sold figures are the sheet comps, not new fetches.",
+      "note": "Matchbox Super Chase rows from the hunt sheet. HWPriceGuide did not list these cars. hotwheelstreasure.com publishes Hot Wheels carded estimates, not these solds, so no sold was stored.",
       "items": [
         {
           "feed": false,
@@ -2093,7 +2653,8 @@
           "id": "mb-mb-911",
           "section": "matchbox",
           "name": "'85 Porsche 911 Rally Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2118,7 +2679,8 @@
           "id": "mb-mb-jag",
           "section": "matchbox",
           "name": "'77 Jaguar XJ6C Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2143,7 +2705,8 @@
           "id": "mb-mb-integra",
           "section": "matchbox",
           "name": "Acura Integra Type R Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2168,7 +2731,8 @@
           "id": "mb-hw26-041",
           "section": "matchbox",
           "name": "1968 Ford Mustang Fastback — Super Chase 4/4 (black w/ yellow, #37)",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2193,7 +2757,8 @@
           "id": "mb-mb-356",
           "section": "matchbox",
           "name": "Porsche 356A Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2218,7 +2783,8 @@
           "id": "mb-hw26-043",
           "section": "matchbox",
           "name": "1984 Rover SD1 Vitesse — Moving Parts Super Chase (white)",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2243,7 +2809,8 @@
           "id": "mb-mb-bronco",
           "section": "matchbox",
           "name": "'78 Ford Bronco Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2268,7 +2835,8 @@
           "id": "mb-mb-gtr",
           "section": "matchbox",
           "name": "Nissan GT-R NISMO Super Chase",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     },
@@ -2276,7 +2844,7 @@
       "id": "mattel",
       "title": "Mattel Creations",
       "group": "Brands",
-      "note": "Read-only Mattel Creations product JSON. No cart or checkout. No secondary sold.",
+      "note": "Read-only Mattel Creations product JSON. No cart or checkout. 9 cards have a verified sold comp with a source URL and date.",
       "items": [
         {
           "feed": false,
@@ -2301,7 +2869,8 @@
           "id": "mattel-JKC06",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1993 Mazda RX-7 R1",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2326,7 +2895,8 @@
           "id": "mattel-JJY69",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive RWB Porsche 930",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2351,7 +2921,8 @@
           "id": "mattel-JJY71",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1985 Pontiac J2000",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2367,16 +2938,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1989-nissan-skyline-r32-jjy54",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 61,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $61.00 from 119 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-nissan-skyline-gt-r-bnr32/",
+          "net": 48.07,
           "street": null,
           "id": "mattel-JJY54",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive Nissan Skyline GT-R (BNR32)",
-          "verdict": "CHECK"
+          "verdict": "BUY",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2401,7 +2973,8 @@
           "id": "mattel-JNF06",
           "section": "mattel",
           "name": "Hot Wheels Elite 64 Pandem Datsun 280ZX",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2426,7 +2999,8 @@
           "id": "mattel-JLX18",
           "section": "mattel",
           "name": "RLC Exclusive sELECTIONs Porsche 959",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2451,7 +3025,8 @@
           "id": "mattel-HWG05",
           "section": "mattel",
           "name": "Elite 64 Premium Cars",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2467,16 +3042,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-rlc-2022-ford-mustang-shelby-gt500-code-red-jjy59",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 59,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $59.00 from 3 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-2022-ford-mustang-shelby-gt500-code-red/",
+          "net": 46.33,
           "street": null,
           "id": "mattel-JJY59",
           "section": "mattel",
           "name": "Hot Wheels RLC 2022 Ford Mustang Shelby GT500 Code Red",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2501,7 +3077,8 @@
           "id": "mattel-JCP45",
           "section": "mattel",
           "name": "Hot Wheels Elite 64 Mercedes-Benz G 63 AMG 6x6",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2517,16 +3094,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-ferrari-f40-jjy72",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 68,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $68.00 from 70 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-ferrari-f40/",
+          "net": 54.16,
           "street": null,
           "id": "mattel-JJY72",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive Ferrari F40",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2551,7 +3129,8 @@
           "id": "mattel-JJY74",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive ’21 Ford Bronco With CHASE Version",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2567,16 +3146,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-elite-64-mazda-rx-7-liberty-walk-jcp43",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 23,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $23.00 from 10 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/elite-64-mazda-rx-7-liberty-walk/",
+          "net": 15.01,
           "street": null,
           "id": "mattel-JCP43",
           "section": "mattel",
           "name": "Hot Wheels Elite 64 Mazda RX-7 Liberty Walk",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2592,16 +3172,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1985-audi-sport-quattro-s1-jjy70",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 35,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $35.00 from 17 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-1985-audi-sport-quattro-s1/",
+          "net": 25.45,
           "street": null,
           "id": "mattel-JJY70",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1985 Audi Sport quattro S1",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2617,16 +3198,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1986-c-nissan-720-king-cab-jjy64",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 39,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $39.00 from 10 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-1986-nissan-720-king-cab/",
+          "net": 28.93,
           "street": null,
           "id": "mattel-JJY64",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1986 Nissan 720 King Cab",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2642,16 +3224,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/rlc-exclusive-volkswagen-golf-jjy63",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 37,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $37.00 from 17 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-1976-volkswagen-golf-mk1-gti/",
+          "net": 27.19,
           "street": null,
           "id": "mattel-JJY63",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1976 Volkswagen Golf Mk1 GTI",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2667,16 +3250,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/hot-wheels-elite-64-mod-shop-nissan-stagea-hwr92",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 42,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $42.00 from 8 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/elite-64-mod-shop-nissan-stagea/",
+          "net": 31.54,
           "street": null,
           "id": "mattel-HWR92",
           "section": "mattel",
           "name": "Hot Wheels Elite 64 Mod Shop Nissan Stagea",
-          "verdict": "CHECK"
+          "verdict": "PASS",
+          "liquid": true
         },
         {
           "feed": false,
@@ -2692,16 +3276,17 @@
           "photoCredit": "Mattel Creations",
           "photoPage": "https://creations.mattel.com/products/rlc-exclusive-ford-f100-jjy60",
           "streetNote": "Mattel's price is the ask on their shop, not a secondary sold.",
-          "sold": null,
-          "soldDate": "",
-          "soldSource": "No settled sale fetched.",
-          "soldUrl": "",
-          "net": null,
+          "sold": 39,
+          "soldDate": "2026-10-11",
+          "soldSource": "HWPriceGuide last 30 days average $39.00 from 2 recent sales, observed 2026-10-11.",
+          "soldUrl": "https://hwpriceguide.com/item/2026-red-line-club-1962-ford-f-100/",
+          "net": 28.93,
           "street": null,
           "id": "mattel-JJY60",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1962 Ford F-100",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         },
         {
           "feed": false,
@@ -2726,7 +3311,8 @@
           "id": "mattel-JJY66",
           "section": "mattel",
           "name": "Hot Wheels RLC Exclusive 1948 Chevy Fleetline With CHASE Version",
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "liquid": false
         }
       ]
     }
@@ -2735,32 +3321,32 @@
     {
       "id": "pokemon",
       "ok": true,
-      "count": 7,
-      "note": "Sealed rows are the hunt book's printed prices. No sold was added. Upcoming set names are from the Pokémon TCG API and have no MSRP. Mega Evolution, Worlds, and League Battle decks are included only when a public page names them. None of those prices were invented."
+      "count": 19,
+      "note": "Sealed rows are the hunt book's printed prices. The set feed failed (500 https://api.pokemontcg.io/v2/sets?pageSize=250). Mega Evolution, Worlds, and League Battle decks are included only when a public page names them. None of those prices were invented. Mega Evolution ETBs, League Battle decks, and Worlds decks were added from TCGplayer when the product was named there. 13 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "magic",
       "ok": true,
       "count": 8,
-      "note": "Release dates from Scryfall. No sealed MSRP and no sold price."
+      "note": "Release dates from Scryfall. No sealed MSRP and 2 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "onepiece",
       "ok": true,
       "count": 12,
-      "note": "Official One Piece Card Game MSRP. No street price."
+      "note": "Official One Piece Card Game MSRP. 1 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "lorcana",
       "ok": true,
       "count": 1,
-      "note": "Release dates from Disney Lorcana product pages. No MSRP and no street price."
+      "note": "Release dates from Disney Lorcana product pages. No MSRP and 1 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "yugioh",
       "ok": true,
       "count": 3,
-      "note": "Yu-Gi-Oh release dates from the official product index. No MSRP and no street price."
+      "note": "Yu-Gi-Oh release dates from the official product index. No MSRP and 2 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "sports",
@@ -2778,37 +3364,37 @@
       "id": "lego",
       "ok": true,
       "count": 22,
-      "note": "LEGO.com retiring-soon assortment. Prices are LEGO's own. No secondary sold."
+      "note": "LEGO.com retiring-soon assortment. Prices are LEGO's own. 22 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "funko",
       "ok": true,
-      "count": 0,
-      "note": "Funko exclusives did not return a product list (403 https://funko.com/new-featured/exclusives/). No exclusive or chase was invented."
+      "count": 8,
+      "note": "Funko.com exclusives did not return a list. These exclusives and chases are named on TCGplayer. A sold is stored only when that product has sales in the last month."
     },
     {
       "id": "apple",
       "ok": true,
       "count": 6,
-      "note": "Apple's own refurbished prices. Not a resale comp. The Beats refurbished path returned 404, so no Beats SKU was added."
+      "note": "Apple's own refurbished prices. Not a resale comp. The Beats refurbished path returned 404, so no Beats SKU was added. 2 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "consoles",
       "ok": true,
       "count": 4,
-      "note": "Nintendo store hardware JSON. Official price only."
+      "note": "Nintendo store hardware JSON. Official price only. 1 cards have a verified sold comp with a source URL and date."
     },
     {
       "id": "matchbox",
       "ok": true,
       "count": 8,
-      "note": "Matchbox Super Chase rows already on the hunt sheet. Sold figures are the sheet comps, not new fetches."
+      "note": "Matchbox Super Chase rows from the hunt sheet. HWPriceGuide did not list these cars. hotwheelstreasure.com publishes Hot Wheels carded estimates, not these solds, so no sold was stored."
     },
     {
       "id": "mattel",
       "ok": true,
       "count": 18,
-      "note": "Read-only Mattel Creations product JSON. No cart or checkout. No secondary sold."
+      "note": "Read-only Mattel Creations product JSON. No cart or checkout. 9 cards have a verified sold comp with a source URL and date."
     }
   ]
 }

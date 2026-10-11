@@ -49,7 +49,7 @@ npm run market
 
 `npm run catalog` rebuilds `data/hw/` from the Hot Wheels Wiki and Mattel Creations. It only reads public product JSON and the read-only catalog search. It does not create a cart or a checkout, and it does not download image files.
 
-`npm run market` rebuilds `data/market.json` from public retail pages. A sold price is copied only from a verified comp already in this repo. StockX, GOAT, and shop asks are not guessed. A feed that fails keeps the last copy of that section. GitHub Actions runs this daily and commits the file only after `npm test` passes.
+`npm run market` rebuilds `data/market.json` from public retail pages, then attaches sold comps from TCGplayer sales history, BrickLink, HWPriceGuide, and Swappa. Each comp keeps a source URL and a date. Net is sold × 0.87 − $5. BUY means that net beats retail × 1.09 by at least $15 on a liquid comp. PASS means the net is under retail. CHECK is everything else, including an ask. A feed that fails keeps the last copy of that section. GitHub Actions runs this daily and commits the file only after `npm test` passes.
 
 ## Deploy
 

@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { applyMarketComps } from "./market-comps.mjs";
 
 const require = createRequire(import.meta.url);
 const Market = require("../lib/market.js");
@@ -781,9 +782,16 @@ async function main() {
     sources.push(loaded.source);
     process.stdout.write(spec[0] + " " + loaded.source.ok + " " + loaded.source.count + " " + (loaded.source.note || "").slice(0, 100) + "\n");
   }
+  await applyMarketComps(sections, prev, Market);
+  sections.forEach((section) => {
+    const source = sources.find((row) => row.id === section.id);
+    if (!source) return;
+    source.count = section.items.length;
+    if (section.note) source.note = section.note;
+  });
   const file = {
     generatedAt: new Date().toISOString(),
-    formula: "net = sold × 0.87 − 5. CHECK when there is no verified sold URL.",
+    formula: "net = sold × 0.87 − 5. BUY when that net beats retail × 1.09 by at least $15 and the comp is liquid. PASS when the net is under retail. CHECK otherwise.",
     sections,
     sources,
   };
