@@ -107,8 +107,9 @@ async function main() {
   assert(worth >= 40, "hunt list cars are flagged in the catalog");
   const shell = fs.readFileSync(path.join(root, "sw.js"), "utf8");
   const precache = shell.slice(shell.indexOf("var SHELL"), shell.indexOf("self.addEventListener"));
-  assert(!precache.includes("data/hw/"), "year files stay out of the precache");
-  assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files are runtime-cached stale-while-revalidate");
+  assert(precache.includes("./data/hw/index.json"), "catalog index is precached");
+  assert(precache.includes("./data/hw/manifest.json"), "catalog manifest is precached");
+  assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files refresh after the precache");
   assert(fs.readFileSync(path.join(root, "app.js"), "utf8").includes('data-tab="archive"') || fs.readFileSync(path.join(root, "index.html"), "utf8").includes('data-tab="archive"'), "catalog tab");
   console.log("hw-catalog.test.js OK", count, "photos", manifest.totals.photoPct + "%", "mattel", manifest.totals.mattelPct + "%", "worth", worth);
 }

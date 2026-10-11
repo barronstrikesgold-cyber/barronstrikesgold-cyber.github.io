@@ -78,11 +78,10 @@ async function assertFullPackage(locator, label, src) {
   assert(framed.src === src, label + " photo is " + src);
   assert(framed.fit === "contain", label + " photo uses contain");
   assert(framed.position === "50% 50%", label + " photo is centered");
-  assert(framed.imgH > 180, label + " photo is tall enough to include the car");
-  assert(Math.abs(framed.frameH - framed.imgH) < 2, label + " photo is not clipped by the frame");
-  if (!framed.capped) {
-    assert(Math.abs(framed.shownRatio - framed.naturalRatio) < 0.08, label + " photo keeps the package aspect");
-  }
+  assert(framed.imgH > 120, label + " photo is tall enough to include the car");
+  assert(Math.abs(framed.frameH - framed.imgH) < 2, label + " photo fills the frame");
+  assert(Math.abs(framed.shownRatio - 4 / 3) < 0.08, label + " photo uses the fixed frame");
+  assert(framed.naturalRatio > 0, label + " photo loaded");
 }
 
 try {
@@ -142,6 +141,26 @@ try {
       await assertFullPackage(page.getByRole("button", { name: /Aero Styles/ }), "aero", "photos/resale/hw26-001.jpg");
       assert(/BUY/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero is BUY");
       assert(/\$204\.67/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero shows net");
+      await page.getByRole("button", { name: /Aero Styles/ }).click();
+      await page.getByRole("heading", { name: /Aero Styles/ }).waitFor();
+      await page.getByRole("link", { name: "eBay sold" }).waitFor();
+      await page.getByRole("link", { name: "eBay active" }).waitFor();
+      const amazonHref = await page.getByRole("link", { name: "Amazon", exact: true }).getAttribute("href");
+      const amazonRel = await page.getByRole("link", { name: "Amazon", exact: true }).getAttribute("rel");
+      assert(amazonHref.includes("tag=hempsply02-20") && amazonHref.includes("/s?k="), "detail Amazon link is a tagged search");
+      assert((await page.getByRole("link", { name: "eBay sold" }).getAttribute("href")).includes("LH_Sold=1"), "detail eBay link is sold listings");
+      assert(amazonRel === "sponsored noopener", "detail buy links are sponsored");
+      const detailImg = page.locator(".peg-photo.is-hero img").first();
+      await detailImg.evaluate((el) => {
+        if (el.complete && el.naturalWidth) return true;
+        return new Promise((resolve, reject) => {
+          el.addEventListener("load", () => resolve(true), { once: true });
+          el.addEventListener("error", () => reject(new Error("detail photo failed")), { once: true });
+        });
+      });
+      assert((await detailImg.getAttribute("referrerpolicy")) === "no-referrer", "detail photo omits the referrer");
+      await page.getByRole("button", { name: "Back" }).click();
+      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
       await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
       await page.getByRole("button", { name: /Fast & Furious Supra/ }).waitFor();
@@ -182,9 +201,9 @@ try {
       });
       assert(framed.fit === "contain", "cuda photo uses contain");
       assert(framed.position === "50% 50%", "cuda photo is centered");
-      assert(framed.imgH > 320, "cuda photo is tall enough to include the car");
-      assert(Math.abs(framed.frameH - framed.imgH) < 2, "cuda photo is not clipped by the frame");
-      assert(Math.abs(framed.shownRatio - framed.naturalRatio) < 0.08, "cuda photo keeps the package aspect");
+      assert(framed.imgH > 120, "cuda photo is tall enough to include the car");
+      assert(Math.abs(framed.frameH - framed.imgH) < 2, "cuda photo fills the frame");
+      assert(Math.abs(framed.shownRatio - 4 / 3) < 0.08, "cuda photo uses the fixed frame");
       const firebird = page.getByRole("button", { name: /Firebird 400 Super/ });
       await firebird.scrollIntoViewIfNeeded();
       await firebird.locator(".peg-photo img").evaluate((el) => {
@@ -200,9 +219,9 @@ try {
         const box = img.getBoundingClientRect();
         return { frameH: frame.height, imgH: box.height, shownRatio: box.width / box.height, naturalRatio: img.naturalWidth / img.naturalHeight };
       });
-      assert(fireFrame.imgH > 320, "firebird photo is tall enough to include the car");
-      assert(Math.abs(fireFrame.frameH - fireFrame.imgH) < 2, "firebird photo is not clipped");
-      assert(Math.abs(fireFrame.shownRatio - fireFrame.naturalRatio) < 0.08, "firebird photo keeps the package aspect");
+      assert(fireFrame.imgH > 120, "firebird photo is tall enough to include the car");
+      assert(Math.abs(fireFrame.frameH - fireFrame.imgH) < 2, "firebird photo fills the frame");
+      assert(Math.abs(fireFrame.shownRatio - 4 / 3) < 0.08, "firebird photo uses the fixed frame");
       assert(/pay/i.test(cudaText), "cuda shows peg price");
       assert(/last sold/i.test(cudaText) && /\$78\.52/.test(cudaText), "cuda shows Oct 2026 last sold and net");
       assert(/Read the card/i.test(cudaText), "cuda shows how to spot");

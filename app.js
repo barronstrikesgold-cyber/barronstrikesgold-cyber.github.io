@@ -104,6 +104,117 @@
     return '<div class="link-row">' + externalAnchor(href, "Buy on Amazon") + "</div>";
   }
 
+  function tagAmazonHref(href) {
+    var raw = String(href || "");
+    if (!window.ResellerAmazon) return raw;
+    if (ResellerAmazon.isProductUrl(raw)) return ResellerAmazon.tagUrl(raw);
+    try {
+      var url = new URL(raw);
+      if (/(^|\.)amazon\.com$/i.test(url.hostname)) {
+        url.protocol = "https:";
+        url.hostname = "www.amazon.com";
+        if (url.searchParams.get("tag") !== ResellerAmazon.TAG) url.searchParams.set("tag", ResellerAmazon.TAG);
+        return url.toString();
+      }
+    } catch (err) {
+      return raw;
+    }
+    return raw;
+  }
+
+  function buyAnchor(href, label) {
+    return '<a href="' + esc(tagAmazonHref(href)) + '" target="_blank" rel="sponsored noopener">' + esc(label) + "</a>";
+  }
+
+  function shopHref(item) {
+    if (!item) return "";
+    if (item.buyUrl && /^https:\/\//.test(item.buyUrl)) return item.buyUrl;
+    if (item.amazonUrl && /^https:\/\//.test(item.amazonUrl)) return item.amazonUrl;
+    var retail = item.retailUrl || "";
+    if (/^https:\/\//.test(retail) && /target\.com|walmart\.com|lego\.com|nike\.com|apple\.com|mattel\.com|nintendo\.com|bestbuy\.com|amazon\.com|funko\.com|pokemoncenter\.com|tcgplayer\.com\/product/i.test(retail)) return retail;
+    return "";
+  }
+
+  function shopLabel(item, href) {
+    if (item && item.buyLabel) return item.buyLabel;
+    if (window.ResellerAmazon && ResellerAmazon.isProductUrl(href)) return "Buy on Amazon";
+    try {
+      var host = new URL(href).hostname.replace(/^www\./, "");
+      if (host.indexOf("target.com") !== -1) return "Buy at Target";
+      if (host.indexOf("walmart.com") !== -1) return "Buy at Walmart";
+      if (host.indexOf("lego.com") !== -1) return "LEGO";
+      if (host.indexOf("nike.com") !== -1) return "Nike";
+      if (host.indexOf("apple.com") !== -1) return "Apple";
+      if (host.indexOf("mattel.com") !== -1) return "Mattel";
+      if (host.indexOf("nintendo.com") !== -1) return "Nintendo";
+      if (host.indexOf("bestbuy.com") !== -1) return "Best Buy";
+      if (host.indexOf("amazon.com") !== -1) return "Amazon";
+      if (host.indexOf("tcgplayer.com") !== -1) return "TCGplayer";
+    } catch (err) {
+      return "Retailer";
+    }
+    return "Retailer";
+  }
+
+  function detailSubject(item) {
+    var subject = typeof item === "string" ? { name: item } : Object.assign({}, item || {});
+    if (subject.catalogId) {
+      var cat = findCatalog(subject.catalogId);
+      if (cat) {
+        if (!subject.buyUrl && cat.buyUrl) subject.buyUrl = cat.buyUrl;
+        if (!subject.buyLabel && cat.buyLabel) subject.buyLabel = cat.buyLabel;
+        if (!subject.retailUrl && cat.retailUrl) subject.retailUrl = cat.retailUrl;
+        if (!subject.name) subject.name = cat.name;
+      }
+    }
+    return subject;
+  }
+
+  function detailBuyLinks(item) {
+    var subject = detailSubject(item);
+    var name = subject.name || subject.id || "";
+    var links = [];
+    var shop = shopHref(subject);
+    if (shop) links.push(buyAnchor(shop, shopLabel(subject, shop)));
+    if (window.ResellerAmazon) {
+      links.push(buyAnchor(ResellerAmazon.ebayUrl(name, true), "eBay sold"));
+      links.push(buyAnchor(ResellerAmazon.ebayUrl(name, false), "eBay active"));
+      links.push(buyAnchor(ResellerAmazon.searchUrl(name), "Amazon"));
+    }
+    if (!links.length) return "";
+    return '<section class="tool"><p class="kicker">Buy</p><div class="link-row">' + links.join("") + "</div></section>";
+  }
+
+  function catalogSrc(url) {
+    var value = String(url || "").trim();
+    if (/^http:\/\//i.test(value)) value = "https://" + value.slice(7);
+    if (/^https:\/\//.test(value)) return value;
+    if (value.indexOf("assets/hw/thumbs/") === 0) return value;
+    if (value.indexOf("assets/hosted/") === 0) return value;
+    if (value.indexOf("photos/") === 0) return value;
+    if (value.indexOf("assets/") === 0) return value;
+    return "";
+  }
+
+  function frameHtml(src, opts) {
+    opts = opts || {};
+    var resolved = catalogSrc(src);
+    var shown = resolved || "assets/states/photo-needed.svg";
+    var kind = opts.kind || "hero";
+    var classes = "photo-frame photo-frame-" + kind;
+    if (kind === "hero") classes += " peg-photo is-hero hero-photo";
+    else if (kind === "card") classes += " peg-photo";
+    else if (kind === "market") classes += " market-photo";
+    else if (kind === "catalog") classes += " hw-photo";
+    if (!resolved) classes += " is-empty";
+    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer" src="' + esc(shown) + '"' + (resolved ? "" : ' data-fallback="1"') + ">";
+    if (opts.zoom && resolved) {
+      return '<button type="button" class="' + classes + '" data-zoom="' + esc(resolved) + '" data-alt="' + esc(opts.alt || "") + '">' + img + (opts.hint ? '<span class="zoom-hint">Full photo</span>' : "") + "</button>";
+    }
+    var note = !resolved && opts.note ? "<em>Photo needed</em>" : "";
+    return '<span class="' + classes + '">' + img + note + "</span>";
+  }
+
   function readJson(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
@@ -220,14 +331,8 @@
 
   function pegPhoto(item, large) {
     var shot = photoFor(item);
-    if (shot) {
-      var w = item && Number(item.photoWidth);
-      var h = item && Number(item.photoHeight);
-      var dims = w && h ? ' width="' + w + '" height="' + h + '" style="aspect-ratio:' + w + " / " + h + '"' : "";
-      return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""' + dims + ' loading="lazy" decoding="async"></span>';
-    }
-    if (!large) return "";
-    return '<span class="peg-photo is-empty is-hero"><em>Photo needed</em></span>';
+    if (!shot) return frameHtml("", { kind: large ? "hero" : "card", note: !!large });
+    return frameHtml(shot.src, { alt: shot.alt, kind: large ? "hero" : "card" });
   }
 
   function decisionBar(verdict, resaleVerdict) {
@@ -611,10 +716,9 @@
 
   function heroPhoto(item) {
     var shot = photoFor(item);
-    if (shot) {
-      return '<button class="hero-photo" type="button" data-zoom="' + esc(shot.src) + '" data-alt="' + esc(shot.alt) + '"><img src="' + esc(shot.src) + '" alt="' + esc(shot.alt) + '"><span class="zoom-hint">Full photo</span></button>';
-    }
-    return '<div class="photo-needed" role="img" aria-label="Photo needed"><img src="assets/states/photo-needed.svg" alt=""><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
+    if (shot) return frameHtml(shot.src, { alt: shot.alt, kind: "hero", zoom: true, hint: true });
+    return frameHtml("", { kind: "hero", note: true }) +
+      '<div class="photo-needed" role="img" aria-label="Photo needed"><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
   }
 
   function renderCatalogDetail() {
@@ -639,8 +743,8 @@
       "<p>" + esc(Rules.payFor(item) || ("Shelf · " + shelfLabel(item))) + "</p>" +
       "<p>" + esc(priceDetail(item, comp)) + "</p>" +
       priceNote(item, comp) +
-      amazonBuyRow(item, badge, []) +
       "</section>" +
+      detailBuyLinks(item) +
       '<section class="tool"><p class="kicker">Grade</p>' + chips(gradesFor(item.category), gradeOfCatalog(item), "data-grade") + "</section>" +
       (sizeKind ? '<section class="tool"><p class="kicker">Size</p><p class="fine">' + esc(item.sizing || "") + "</p>" + chips(sizes, sizeMap()[item.id] || "", "data-size", sizeKind === "shoe" ? FAST_SHOES : FAST_CLOTHES) + "</section>" : "") +
       '<section class="tool"><p class="kicker">What you saw</p><label class="field"><span>Store</span><select id="stock-store">' + STORE_NAMES.map(function (name) {
@@ -664,9 +768,8 @@
     return "$" + Number(value).toFixed(2);
   }
 
-  function marketPhoto(item) {
-    if (!item || !item.photo) return "";
-    return '<span class="market-photo"><img src="' + esc(item.photo) + '" alt="" width="640" height="480" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>';
+  function marketPhoto(item, zoom) {
+    return frameHtml(item && item.photo, { alt: (item && (item.photoAlt || item.name)) || "", kind: "market", zoom: !!zoom });
   }
 
   function marketFoot(item) {
@@ -756,18 +859,19 @@
         (item.soldSource ? "<p>" + esc(item.soldSource) + "</p>" : "") +
         (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
-    var retailLabel = window.ResellerAmazon && ResellerAmazon.isProductUrl(item.retailUrl) ? "Buy on Amazon" : (item.retailSource || "Retail source");
-    var retailLink = item.retailUrl
-      ? '<div class="link-row">' + externalAnchor(item.retailUrl, retailLabel) + "</div>"
+    var shop = shopHref(item);
+    var retailLink = item.retailUrl && item.retailUrl !== shop
+      ? '<div class="link-row">' + externalAnchor(item.retailUrl, item.retailSource || "Retail source") + "</div>"
       : "";
     var photoCredit = item.photoPage
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
     return '<button class="back" type="button" data-back>Drops</button>' +
-      marketPhoto(item) +
+      marketPhoto(item, true) +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
-      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + amazonBuyRow(item, item.verdict, [item.retailUrl]) + "</section>" +
+      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      detailBuyLinks(item) +
       (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
@@ -822,7 +926,7 @@
       "<p>Format · " + esc(item.format) + "</p>" +
       "<p>Printed · " + esc(item.printed || "unknown") + "</p>" +
       "<p>No sold data</p>" +
-      amazonBuyRow(item, rule.verdict, []) +
+      detailBuyLinks(item) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + "</section>";
   }
 
@@ -885,6 +989,7 @@
       "<p>Status · " + esc(item.status || "On hand") + ". STH and Verify are statuses, not a buy button.</p>" +
       "<p>Grade · " + esc(item.grade || "Not set") + "</p>" +
       "<p>Photo · " + (shot ? "Package photo from the buy list." : "Photo needed") + "</p></section>" +
+      detailBuyLinks(item) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + '<p class="fine">Search only. Not a shelf count.</p></section>' +
       '<div class="actions"><button class="solid" type="button" data-action="keep">Keep</button><button class="solid" type="button" data-action="sold">Sold</button><button class="ghost" type="button" data-action="estimate">Estimate</button><button class="ghost" type="button" data-action="edit-inv">Edit</button><button class="danger" type="button" data-action="remove-inv">Remove</button></div>';
   }
@@ -930,6 +1035,7 @@
       '<section class="call call-buy"><strong>Buy</strong><p>Name-brand club only. No sold data, so do not invent a price.</p></section>' +
       '<p class="digest">' + esc(golf.note || "") + "</p>" +
       "<p>No sold data</p>" +
+      detailBuyLinks(state.itemId + " golf") +
       '<section class="tool"><p class="kicker">Check</p>' + allCheckLinks(state.itemId + " golf") + "</section>";
   }
 
@@ -1037,14 +1143,6 @@
     return (yearMap && yearMap[hit.id]) || null;
   }
 
-  function catalogSrc(url) {
-    var value = String(url || "");
-    if (/^http:\/\//i.test(value)) value = "https://" + value.slice(7);
-    if (/^https:\/\//.test(value)) return value;
-    if (value.indexOf("assets/hw/thumbs/") === 0) return value;
-    return "";
-  }
-
   function hwCardsHtml(page, total) {
     if (!page.length) {
       return stateCard("no-results", "No matches", "Try another name, toy number, year, or line.");
@@ -1053,9 +1151,7 @@
       var item = hwRecord(hit);
       var name = item ? item.name : hit.n;
       var image = item && item.image ? item.image : "";
-      var photo = catalogSrc(image)
-        ? '<button type="button" class="hw-photo" data-zoom="' + esc(catalogSrc(image)) + '" data-alt="' + esc(name) + '"><img alt="" width="144" height="108" decoding="async" referrerpolicy="no-referrer" src="' + esc(catalogSrc(image)) + '"></button>'
-        : '<div class="hw-photo" aria-hidden="true"><img alt="" width="144" height="108" src="assets/states/photo-needed.svg"></div>';
+      var photo = frameHtml(image, { alt: name, kind: "catalog", zoom: true });
       var bits = [String(hit.y), hwLineLabel(item ? item.line : hit.l)];
       if (item && item.series) bits.push(item.series);
       else if (hit.s) bits.push(hit.s);
@@ -1528,16 +1624,7 @@
   document.addEventListener("error", function (event) {
     var img = event.target;
     if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
-    var market = img.closest && img.closest(".market-photo");
-    if (market) {
-      img.setAttribute("data-fallback", "1");
-      var open = market.closest(".peg-open");
-      market.remove();
-      if (open) open.classList.add("no-photo");
-      return;
-    }
-    var catalog = img.closest && img.closest(".hw-photo");
-    if (!catalog && img.id !== "zoom-img") return;
+    if (img.closest && !img.closest("#screen, .lightbox, .sheet")) return;
     img.setAttribute("data-fallback", "1");
     img.removeAttribute("srcset");
     img.src = "assets/states/photo-needed.svg";
