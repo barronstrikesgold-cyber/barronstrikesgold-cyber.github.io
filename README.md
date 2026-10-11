@@ -15,6 +15,7 @@ Cards use a black, flame-orange, and gold layout with large tap targets, Buy / P
 | Tab | What it is |
 | --- | --- |
 | Hunt | Every peg line is on this screen: Super TH, Premium chase, F&F, Matchbox Super Chase, Exclusives, Premium, Multipacks, Mainline, Leave on peg, Selective, and Pokémon. A store chip opens that store’s copy. Search still finds the book, including both Subarus. |
+| Catalog | Every Hot Wheels release the wiki lists from 1968 on, one year file at a time. Search name, toy number, or series. Filter by year, line, and worth reselling (the hunt list). Photos hotlink to Mattel Creations when the toy number matches, otherwise to the Hot Wheels Wiki. |
 | Stores | That store’s buy list, plus a search link for the store, Google, and Google Shopping. A link is not a shelf count. |
 | Drops | The dates that change a hunt. Other releases stay under Other dates. |
 | Inventory | The 78-package book, with sell-first and verify flags. |
@@ -42,7 +43,13 @@ Local storage key: `reseller-inventory-v2`. An empty store is seeded. A later vi
 npm test
 npm run smoke
 npx serve .
+npm run catalog
+npm run market
 ```
+
+`npm run catalog` rebuilds `data/hw/` from the Hot Wheels Wiki and Mattel Creations. It only reads public product JSON and the read-only catalog search. It does not create a cart or a checkout, and it does not download image files.
+
+`npm run market` rebuilds `data/market.json` from public retail pages. A sold price is copied only from a verified comp already in this repo. StockX, GOAT, and shop asks are not guessed. A feed that fails keeps the last copy of that section. GitHub Actions runs this daily and commits the file only after `npm test` passes.
 
 ## Deploy
 

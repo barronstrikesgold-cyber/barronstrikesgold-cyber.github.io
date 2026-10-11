@@ -1,0 +1,97 @@
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+const Market = require("../lib/market.js");
+
+function assert(cond, msg) {
+  if (!cond) {
+    console.error("FAIL:", msg);
+    process.exit(1);
+  }
+}
+
+const root = path.join(__dirname, "..");
+const file = JSON.parse(fs.readFileSync(path.join(root, "data", "market.json"), "utf8"));
+const sw = fs.readFileSync(path.join(root, "sw.js"), "utf8");
+const workflow = fs.readFileSync(path.join(root, ".github/workflows/refresh-market.yml"), "utf8");
+const publish = fs.readFileSync(path.join(root, ".github/workflows/publish.yml"), "utf8");
+
+assert(Market.netOf(100) === 82, "100 sold nets to 82");
+assert(Market.netOf(null) === null, "a missing sold has no net");
+const unverified = Market.finalize({ sold: 40, soldUrl: "", soldSource: "shop ask", retail: 10, name: "x" });
+assert(unverified.verdict === "CHECK" && unverified.sold === null && unverified.net === null, "an unverified sold stays CHECK");
+const verified = Market.finalize({
+  sold: 100,
+  soldUrl: "https://example.com/sold",
+  soldSource: "eBay sold listing",
+  retail: 20,
+});
+assert(verified.verdict === "BUY" && verified.net === 82, "a verified sold can be BUY");
+const thin = Market.finalize({
+  sold: 20,
+  soldUrl: "https://example.com/sold",
+  soldSource: "eBay sold listing",
+  retail: 50,
+});
+assert(thin.verdict === "LOT ONLY", "a thin verified net is LOT ONLY");
+const feed = Market.latestFeed([
+  { name: "b", feed: true, release: "2026-10-20" },
+  { name: "a", feed: true, release: "2026-10-13" },
+  { name: "old", feed: true, release: "2026-10-01" },
+  { name: "nofeed", feed: false, release: "2026-10-12" },
+], "2026-10-11");
+assert(feed.map((item) => item.name).join(",") === "a,b", "latest feed is soonest first");
+
+const ids = file.sections.map((section) => section.id);
+["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "lego", "funko", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
+  assert(ids.indexOf(id) !== -1, "section " + id);
+});
+["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "lego", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
+  const section = file.sections.find((row) => row.id === id);
+  assert(section.items.length > 0, id + " has rows from a public source");
+});
+const funko = file.sections.find((row) => row.id === "funko");
+assert(funko.items.length === 0 && /invent/i.test(funko.note), "Funko stays empty when the page is blocked");
+
+const all = [];
+file.sections.forEach((section) => section.items.forEach((item) => all.push(item)));
+all.forEach((item) => {
+  assert(item.verdict === "BUY" || item.verdict === "CHECK" || item.verdict === "LOT ONLY", item.id + " verdict");
+  assert(item.street == null, item.id + " has no invented street price");
+  if (item.sold == null) {
+    assert(item.net == null, item.id + " net stays blank without a sold");
+    assert(item.verdict === "CHECK", item.id + " is CHECK without a sold");
+  } else {
+    assert(/^https:\/\//.test(item.soldUrl || ""), item.id + " sold has a source URL");
+    assert(String(item.soldSource || "").trim().length > 3, item.id + " sold names a source");
+  }
+  if (item.verdict === "BUY" || item.verdict === "LOT ONLY") {
+    assert(/^https:\/\//.test(item.soldUrl || ""), item.id + " verdict needs a verified sold URL");
+  }
+});
+
+file.sections.find((row) => row.id === "consoles").items.forEach((item) => {
+  assert(/switch/i.test(item.name) && /system|bundle|edition/i.test(item.name), "console is a Switch 2 edition: " + item.name);
+  assert(Number(item.retail) >= 400, "console price is a system price");
+});
+file.sections.find((row) => row.id === "sneakers").items.forEach((item) => {
+  assert(Number(item.retail) > 0 && item.sold == null, "sneaker retail is Nike's and the resale average was not invented");
+});
+file.sections.find((row) => row.id === "onepiece").items.forEach((item) => {
+  assert(Number(item.retail) > 0 && item.sold == null, "One Piece row is an official MSRP");
+});
+file.sections.find((row) => row.id === "lego").items.forEach((item) => {
+  assert(Number(item.retail) > 0 && item.sold == null, "LEGO price is the shelf price");
+});
+
+const latest = Market.latestFeed(all, "2026-10-11");
+assert(latest.length > 0, "latest feed has rows on 2026-10-11");
+for (let i = 1; i < latest.length; i += 1) {
+  assert(String(latest[i].release) >= String(latest[i - 1].release), "latest feed stays sorted");
+}
+assert(!sw.includes("data/market.json"), "market json is not precached");
+assert(workflow.includes("cron:") && workflow.includes("npm test") && workflow.includes("data/market.json"), "daily workflow tests before it commits");
+assert(!publish.includes("refresh-market"), "Pages publish does not run the market refresh");
+
+console.log("market.test.js OK");

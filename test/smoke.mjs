@@ -92,11 +92,17 @@ try {
     await page.getByRole("tab", { name: "Hunt" }).waitFor();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert(!overflow, `horizontal overflow at ${width}`);
-    const tabs = ["Hunt", "Stores", "Drops", "Inventory", "Profit"];
+    const tabs = ["Hunt", "Catalog", "Stores", "Drops", "Inventory", "Profit"];
     for (const name of tabs) {
       const tab = page.getByRole("tab", { name });
       await tab.click();
       assert(await tab.getAttribute("aria-selected") === "true", `${name} selected at ${width}`);
+      if (name === "Drops") {
+        await page.getByText("Latest drops", { exact: true }).waitFor();
+        await page.getByText("On the buy list", { exact: true }).waitFor();
+        const dropsOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+        assert(!dropsOverflow, `drops overflow at ${width}`);
+      }
     }
     await page.getByRole("tab", { name: "Inventory" }).click();
     await page.getByRole("heading", { name: "Inventory" }).waitFor();
@@ -262,6 +268,18 @@ try {
       assert(href && href.includes("google.com/search"), "Google check is a search link");
       await page.screenshot({ path: path.join(shots, "stores-390.png"), fullPage: false });
       await page.getByRole("tab", { name: "Drops" }).click();
+      await page.getByText("Latest drops", { exact: true }).waitFor();
+      await page.getByText("On the buy list", { exact: true }).waitFor();
+      const sneakers = page.getByRole("button", { name: "Sneakers", exact: true });
+      await sneakers.scrollIntoViewIfNeeded();
+      await sneakers.click();
+      await page.locator("[data-market]").first().waitFor();
+      assert(/CHECK/.test(await page.locator("[data-market]").first().innerText()), "sneaker card is CHECK without a verified sold");
+      assert(/No sold data/.test(await page.locator("[data-market]").first().innerText()), "sneaker card does not invent a sold");
+      await page.locator("[data-market]").first().click();
+      await page.getByText("No sold data", { exact: true }).waitFor();
+      await page.getByText("Net is sold × 0.87 − $5.", { exact: true }).waitFor();
+      await page.locator("button.back").click();
       await page.getByText("On the buy list", { exact: true }).waitFor();
       await page.getByText("Released").first().waitFor();
       await page.screenshot({ path: path.join(shots, "drops-390.png"), fullPage: false });
@@ -284,6 +302,28 @@ try {
         return pad >= tab.getBoundingClientRect().height + 24;
       });
       assert(clears, "screen padding clears the tab bar");
+      await page.getByRole("tab", { name: "Catalog" }).click();
+      await page.getByRole("heading", { name: "Catalog" }).waitFor();
+      await page.waitForFunction(() => {
+        const img = document.querySelector(".hw-card img");
+        return img && /^https:/.test(img.getAttribute("src") || "");
+      }, null, { timeout: 20000 });
+      await page.locator("#archive-year").selectOption("1968");
+      await page.locator("#archive-q").fill("Cougar");
+      await page.locator(".hw-card h2", { hasText: "Custom Cougar" }).waitFor();
+      await page.waitForFunction(() => {
+        const img = document.querySelector(".hw-card img");
+        return img && /^https:/.test(img.getAttribute("src") || "");
+      });
+      await page.getByRole("button", { name: "Worth reselling" }).click();
+      assert(await page.getByRole("button", { name: "Worth reselling" }).getAttribute("aria-pressed") === "true", "worth filter toggles");
+      await page.locator("#archive-q").fill("");
+      await page.locator("#archive-year").selectOption("all");
+      await page.locator(".hw-card, .state-card").first().waitFor();
+      const overflowCatalog = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+      assert(!overflowCatalog, "catalog has no horizontal overflow");
+      await page.getByRole("tab", { name: "Hunt" }).click();
+      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
       const refresh = page.waitForRequest((req) => req.url().includes("data/drops.json"));
       await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
       const came = await refresh;
