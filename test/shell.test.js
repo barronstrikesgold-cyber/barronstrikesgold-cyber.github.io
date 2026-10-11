@@ -18,8 +18,13 @@ const css = fs.readFileSync(path.join(root, "styles.css"), "utf8");
 const manifest = fs.readFileSync(path.join(root, "manifest.webmanifest"), "utf8");
 const first = html.split(/<script[\s>]/i)[0];
 
-assert(html.includes("<title>Reseller</title>"), "title");
-assert(first.includes("Reseller"), "wordmark on the shell");
+assert(html.includes("<title>Hunt</title>"), "title");
+assert(html.includes('<meta name="description" content="Hunt: find it, check the profit after fees, track it, get alerted." />'), "description");
+assert(/<h1 class="wordmark">Hunt<\/h1>/.test(first), "wordmark on the shell");
+assert(html.includes('id="status-live"'), "status hook");
+assert(html.includes('id="checked-line"'), "checked hook");
+assert(html.includes('data-action="refresh"'), "refresh hook");
+assert(css.includes("height: calc(56px + env(safe-area-inset-top))"), "compact header");
 ["Hunt", "Catalog", "Stores", "Drops", "Inventory", "Profit"].forEach((name) => {
   assert(first.includes(">" + name + "<"), "tab " + name);
 });
