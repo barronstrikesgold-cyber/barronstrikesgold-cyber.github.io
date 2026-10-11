@@ -2,7 +2,7 @@
   "name": "reseller",
   "private": true,
   "scripts": {
-    "test": "node test/cash.test.js && node test/flow.test.js && node test/inventory.test.js && node test/search.test.js && node test/prices.test.js && node test/dates.test.js && node test/rules.test.js && node test/hunt-drops.test.js && node test/shell.test.js && node test/catalog.test.js && node test/resale.test.js && node test/hw-catalog.test.js && node test/market-comps.test.mjs && node test/amazon.test.js && node test/market.test.js",
+    "test": "node test/cash.test.js && node test/flow.test.js && node test/marks.test.js && node test/inventory.test.js && node test/search.test.js && node test/prices.test.js && node test/dates.test.js && node test/rules.test.js && node test/hunt-drops.test.js && node test/shell.test.js && node test/catalog.test.js && node test/resale.test.js && node test/hw-catalog.test.js && node test/market-comps.test.mjs && node test/amazon.test.js && node test/market.test.js",
     "catalog": "node scripts/build-hw-catalog.mjs",
     "market": "node scripts/refresh-market.mjs",
     "smoke": "node test/smoke.mjs"

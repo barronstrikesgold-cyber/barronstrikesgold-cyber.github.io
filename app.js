@@ -18,6 +18,8 @@
   var drops = [];
   var market = { sections: [], generatedAt: "", formula: "" };
   var stores = [];
+  var coupons = [];
+  var sources = { licenses: [] };
   var golf = { look: [], note: "" };
   var seedFile = null;
   var invState = null;
@@ -85,6 +87,26 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function brandWordHtml(label) {
+    var name = window.HuntMarks ? HuntMarks.brandWord(label) : String(label || "");
+    return '<span class="brand-word">' + esc(name) + "</span>";
+  }
+
+  function licensedShot(id) {
+    if (!window.HuntMarks) return null;
+    return HuntMarks.licensedProduct(sources, id);
+  }
+
+  function surfacePhoto(id, item) {
+    var shot = licensedShot(id);
+    var alt = (item && (item.photoAlt || item.brand || item.name)) || "Photo needed";
+    if (shot) {
+      return '<span class="hw-photo"><img alt="' + esc(shot.alt || alt) + '" width="' + shot.width + '" height="' + shot.height + '" loading="lazy" decoding="async" src="' + esc(shot.src) + '"></span>';
+    }
+    var note = (item && (item.photoSource || item.photoNote || item.detail)) || "No written photo license is on file.";
+    return '<div class="photo-needed" role="img" aria-label="Photo needed"><img class="mark-slot" src="assets/states/photo-needed.svg" alt="" width="88" height="64" loading="lazy" decoding="async"><strong>Photo needed</strong><p>' + esc(note) + "</p></div>";
   }
 
   function externalAnchor(href, label, className) {
@@ -501,13 +523,22 @@
     }).join("") + "</nav>";
   }
 
+  function renderCoupons() {
+    var rows = Array.isArray(coupons) ? coupons : [];
+    if (!rows.length) return "";
+    return '<h2 class="section-label">Coupons</h2><div class="list">' + rows.map(function (row) {
+      return '<article class="card coupon-card">' + brandWordHtml(row.brand) + surfacePhoto(row.id, row) + "</article>";
+    }).join("") + "</div>";
+  }
+
   function renderDropsStrip() {
     var picked = window.ResellerHuntDrops.pickHuntDrops(drops, D.APP_TODAY, function (row) {
       return Rules.dropVerdict(row.id).verdict;
     });
     function line(label, row) {
       if (!row) return "<p><b>" + label + "</b> Nothing dated</p>";
-      return "<p><b>" + label + "</b> " + esc(row.name) + " · " + esc(D.releaseState(row.iso)) + "</p>";
+      var brand = window.HuntMarks ? HuntMarks.dropBrand(row) : "";
+      return "<p><b>" + label + "</b> " + brandWordHtml(brand) + " " + esc(row.name) + " · " + esc(D.releaseState(row.iso)) + "</p>";
     }
     return '<button class="drops-strip" type="button" data-action="open-drops">' +
       '<span class="kicker">Drops</span>' +
@@ -518,7 +549,7 @@
 
   function renderHunt() {
     var body = state.query.trim() ? huntResults() : '<div class="store-row">' + stores.map(function (store) {
-      return '<button class="store-chip" type="button" data-store="' + esc(store.id) + '">' + esc(store.name) + "</button>";
+      return '<button class="store-chip" type="button" data-store="' + esc(store.id) + '">' + brandWordHtml(store.name) + "</button>";
     }).join("") + "</div>" +
       '<button class="ghost" type="button" data-action="scan">Scan a code</button>' +
       aisleJump() +
@@ -724,10 +755,11 @@
   function renderMarketList() {
     var sections = market.sections || [];
     var chips = '<div class="hw-lines" role="group" aria-label="Brands">' +
-      '<button type="button" data-market-brand="latest"' + (state.marketBrand === "latest" ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">Latest</button>" +
+      '<button type="button" data-market-brand="latest"' + (state.marketBrand === "latest" ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + brandWordHtml(window.HuntMarks ? HuntMarks.chipWord("latest") : "Latest") + "</button>" +
       sections.map(function (section) {
         var on = state.marketBrand === section.id;
-        return '<button type="button" data-market-brand="' + esc(section.id) + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + esc(section.title) + "</button>";
+        var word = window.HuntMarks ? HuntMarks.chipWord(section.id, section.title) : section.title;
+        return '<button type="button" data-market-brand="' + esc(section.id) + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + brandWordHtml(word) + "</button>";
       }).join("") + "</div>";
     var current = sections.filter(function (row) { return row.id === state.marketBrand; })[0];
     var kicker = state.marketBrand === "latest" ? "Latest drops" : (current ? current.title : "Drops");
@@ -790,21 +822,19 @@
     function block(row) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
-      var photo = row.photoMatched && row.photo ? pegPhoto(row, true) : "";
-      if (rule.verdict === "Buy") {
-        return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
-          photo +
-          '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span></span>" +
-          decisionBar("Buy") +
-          '<span class="peg-foot"><span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
-          '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
-      }
-      return '<article class="peg"><button class="peg-open no-photo" type="button" data-drop="' + esc(row.id) + '">' +
-        '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
-        '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
+      var brand = window.HuntMarks ? HuntMarks.dropBrand(row) : (row.category || "");
+      var buy = rule.verdict === "Buy";
+      return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
+        surfacePhoto(row.id, row) +
+        '<span class="peg-copy">' + brandWordHtml(brand) + '<span class="peg-name">' + esc(row.name) + "</span>" +
+        (buy ? "" : '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>") +
+        "</span>" +
+        (buy ? decisionBar("Buy") : "") +
+        '<span class="peg-foot"><span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
     return "<h1>Drops</h1>" + offlineBanner() +
+      renderCoupons() +
       renderMarketList() +
       '<p class="digest">The dates that change a hunt. Other releases stay folded. Buy marks the dates that matter.</p>' +
       restockNote() +
@@ -817,10 +847,8 @@
     if (!item) return stateCard("error", "Missing drop", "That release is not on the calendar.");
     var status = D.releaseState(item.iso);
     var rule = Rules.dropVerdict(item.id);
-    var photo = item.photoMatched && item.photo
-      ? heroPhoto(item)
-      : '<div class="photo-needed" role="img" aria-label="Photo needed"><img src="assets/calendar/release.svg" alt=""><strong>Photo needed</strong><p>' + esc(item.photoSource || item.photoNote || "No exact photo is bundled for this release.") + "</p></div>";
-    return '<button class="back" type="button" data-back>Drops</button>' + photo +
+    var brand = window.HuntMarks ? HuntMarks.dropBrand(item) : (item.category || "");
+    return '<button class="back" type="button" data-back>Drops</button>' + brandWordHtml(brand) + surfacePhoto(item.id, item) +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + (rule.verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(rule.verdict) + "</strong><p>" + esc(rule.tells) + "</p></section>" +
       "<p>" + esc(item.dateLabel) + " · " + esc(status) + "</p>" +
@@ -1297,6 +1325,7 @@
     return recentHtml() +
       '<h2 class="section-label">Dropping soon</h2>' +
       renderDropsStrip() +
+      renderCoupons() +
       '<button class="ghost" type="button" data-action="open-catalog">Full catalog</button>';
   }
 
@@ -1307,7 +1336,8 @@
       '<div class="search-row"><label class="search" for="hunt-q"><span class="sr-only">Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search name, casting, or UPC" value="' + esc(state.query) + '"></label>' +
       '<button class="scan" type="button" data-action="scan" aria-label="Scan barcode" title="Scan barcode"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg></button></div>' +
       '<div class="chips" role="group" aria-label="Category">' + chips.map(function (chip) {
-        return '<button class="chip' + (state.category === chip[0] ? " is-on" : "") + '" type="button" data-category="' + chip[0] + '">' + chip[1] + "</button>";
+        var word = window.HuntMarks ? HuntMarks.chipWord(chip[0], chip[1]) : chip[1];
+        return '<button class="chip' + (state.category === chip[0] ? " is-on" : "") + '" type="button" data-category="' + chip[0] + '">' + brandWordHtml(word) + "</button>";
       }).join("") + "</div>" +
       '<div id="hunt-body">' + homeBody() + "</div>";
   }
@@ -1559,7 +1589,7 @@
       '<p class="digest">Store choice is a filter for stock alerts. Pick a store to open that peg list.</p>' +
       '<div class="chips" role="group" aria-label="Stores for stock alerts">' + stores.map(function (store) {
         var on = storeIds.indexOf(store.id) !== -1;
-        return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-store-toggle="' + esc(store.id) + '" aria-pressed="' + (on ? "true" : "false") + '">' + esc(store.name) + "</button>";
+        return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-store-toggle="' + esc(store.id) + '" aria-pressed="' + (on ? "true" : "false") + '">' + brandWordHtml(store.name) + "</button>";
       }).join("") + "</div>" +
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
       '<section class="tool"><p class="kicker">Data freshness</p><p>' + esc(fresh || "Not checked yet") + "</p><p>" +
@@ -2555,6 +2585,8 @@
     stores = parts[3].data;
     golf = parts[4].data;
     market = parts[5].data || { sections: [], generatedAt: "", formula: "" };
+    coupons = Array.isArray(parts[6].data) ? parts[6].data : [];
+    sources = parts[7].data || { licenses: [] };
     var loaded = Inv.load(localStorage, seedFile);
     if (!loaded.ok) {
       bootError = "Saved inventory could not be read. It was not replaced. Clear site data only if you have a backup.";
@@ -2584,6 +2616,8 @@
       "data/stores.json",
       "data/golf.json",
       "data/market.json",
+      "data/coupons.json",
+      "images/SOURCES.json",
     ].map(fetchFreshJson)).then(function (parts) {
       applyHuntParts(parts);
       huntLoaded = true;
