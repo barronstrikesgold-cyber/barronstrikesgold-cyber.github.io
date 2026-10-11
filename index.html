@@ -20,6 +20,14 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="styles.css" />
+    <script defer src="lib/dates.js"></script>
+    <script defer src="lib/resale-cards.js"></script>
+    <script defer src="lib/rules.js"></script>
+    <script defer src="lib/hunt-drops.js"></script>
+    <script defer src="lib/flow.js"></script>
+    <script defer src="lib/amazon.js"></script>
+    <script defer src="lib/market.js"></script>
+    <script defer src="app.js"></script>
   </head>
   <body>
     <a class="skip" href="#screen">Skip to content</a>
@@ -44,10 +52,12 @@
         <button type="button" id="apply-update">Update</button>
       </div>
       <main id="screen" class="screen" tabindex="-1">
-        <div class="state-card">
-          <img src="assets/states/scene-loading.svg" alt="" />
-          <strong>Loading</strong>
-          <p>Opening your hunt.</p>
+        <h1>What did you find?</h1>
+        <div class="skeleton-list" aria-busy="true" aria-label="Loading your hunt">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
         </div>
       </main>
       <footer class="site-footer">
@@ -77,20 +87,6 @@
       <button type="button" class="lightbox-close" data-action="close-zoom">Close</button>
       <img id="zoom-img" alt="" referrerpolicy="no-referrer" />
     </dialog>
-    <script src="cash.js"></script>
-    <script src="lib/dates.js"></script>
-    <script src="lib/prices.js"></script>
-    <script src="lib/search.js"></script>
-    <script src="lib/providers.js"></script>
-    <script src="lib/inventory.js"></script>
-    <script src="lib/resale-cards.js"></script>
-    <script src="lib/rules.js"></script>
-    <script src="lib/hunt-drops.js"></script>
-    <script src="lib/market.js"></script>
-    <script src="lib/amazon.js"></script>
-    <script src="lib/flow.js"></script>
-    <script src="lib/scan.js"></script>
-    <script src="app.js"></script>
     <noscript>Hunt needs JavaScript for the hunt, inventory, and profit math.</noscript>
   </body>
 </html>

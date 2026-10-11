@@ -464,6 +464,23 @@ h2 {
   object-fit: contain;
   object-position: center center;
 }
+.photo-frame img:not([src]),
+.peg-photo img:not([src]),
+.hw-photo img:not([src]) {
+  opacity: 0;
+}
+.skeleton-list { display: grid; gap: 12px; }
+.skeleton-card {
+  height: 96px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--card) 25%, var(--ghost) 37%, var(--card) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.2s ease infinite;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
 .peg-photo.is-empty {
   display: grid;
   place-items: center;

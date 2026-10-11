@@ -56,13 +56,14 @@
     archiveYear: "",
     archiveLine: "all",
     archiveWorth: false,
-    archiveLimit: 36,
+    archiveLimit: 24,
+    invLimit: 24,
     marketBrand: "latest",
     marketLimit: 24,
     marketId: "",
   };
 
-  var hwBook = { manifest: null, index: null, years: {}, error: "", flight: null };
+  var hwBook = { manifest: null, chunks: {}, pending: {}, years: {}, error: "", flight: null };
   var HW_PREMIUM = { premium: 1, boulevard: 1, "car-culture": 1, "pop-culture": 1, rlc: 1, elite: 1, "team-transport": 1, ff: 1 };
   var HW_LINE = {
     mainline: "Mainline",
@@ -205,24 +206,98 @@
     return "";
   }
 
+  function thumbSources(url, kind) {
+    var value = catalogSrc(url);
+    if (!value) return null;
+    var card = kind !== "hero";
+    var sizes = card ? "112px" : "(min-width: 720px) 420px, 92vw";
+    var photo = value.match(/^photos\/([^/]+)\.(jpe?g|png)$/i);
+    if (photo) {
+      var thumb = "photos/thumbs/" + photo[1] + ".webp";
+      if (card) return { src: thumb, srcset: thumb + " 360w", sizes: "112px", zoom: value };
+      return { src: thumb, srcset: thumb + " 360w, " + value + " 1200w", sizes: sizes, zoom: value };
+    }
+    if (value.indexOf("assets/hw/thumbs/") === 0) {
+      return { src: value, srcset: value + " 240w", sizes: sizes, zoom: value };
+    }
+    if (/cdn\.shopify\.com/i.test(value) && /[?&]width=\d+/.test(value)) {
+      var small = value.replace(/([?&]width=)\d+/, "$1192");
+      var mid = value.replace(/([?&]width=)\d+/, "$1384");
+      return { src: card ? small : mid, srcset: small + " 192w, " + mid + " 384w", sizes: sizes, zoom: mid };
+    }
+    return { src: value, srcset: "", sizes: "", zoom: value };
+  }
+
   function frameHtml(src, opts) {
     opts = opts || {};
-    var resolved = catalogSrc(src);
-    var shown = resolved || "assets/states/photo-needed.svg";
     var kind = opts.kind || "hero";
+    var pack = thumbSources(src, kind);
+    var resolved = pack ? pack.zoom : "";
+    var shown = pack ? pack.src : "assets/states/photo-needed.svg";
+    var lazy = !!(pack && opts.index >= 8);
     var classes = "photo-frame photo-frame-" + kind;
     if (kind === "hero") classes += " peg-photo is-hero hero-photo";
     else if (kind === "card") classes += " peg-photo";
     else if (kind === "market") classes += " market-photo";
     else if (kind === "catalog") classes += " hw-photo";
     else if (kind === "flow") classes += " flow-thumb";
-    if (!resolved) classes += " is-empty";
-    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer" src="' + esc(shown) + '"' + (resolved ? "" : ' data-fallback="1"') + ">";
+    if (!pack) classes += " is-empty";
+    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer"';
+    if (lazy) {
+      img += ' data-src="' + esc(shown) + '"';
+      if (pack.srcset) img += ' data-srcset="' + esc(pack.srcset) + '" data-sizes="' + esc(pack.sizes) + '"';
+    } else {
+      img += ' src="' + esc(shown) + '"';
+      if (pack) img += ' loading="eager"';
+      if (pack && pack.srcset) img += ' srcset="' + esc(pack.srcset) + '" sizes="' + esc(pack.sizes) + '"';
+    }
+    if (!pack) img += ' data-fallback="1"';
+    img += ">";
     if (opts.zoom && resolved) {
       return '<button type="button" class="' + classes + '" data-zoom="' + esc(resolved) + '" data-alt="' + esc(opts.alt || "") + '">' + img + (opts.hint ? '<span class="zoom-hint">Full photo</span>' : "") + "</button>";
     }
-    var note = !resolved && opts.note ? "<em>Photo needed</em>" : "";
+    var note = !pack && opts.note ? "<em>Photo needed</em>" : "";
     return '<span class="' + classes + '">' + img + note + "</span>";
+  }
+
+  var lazyObserver = null;
+
+  function promoteLazy(img) {
+    if (!img || img.getAttribute("src")) return;
+    var src = img.getAttribute("data-src");
+    if (!src) return;
+    var srcset = img.getAttribute("data-srcset");
+    var sizes = img.getAttribute("data-sizes");
+    if (srcset) img.setAttribute("srcset", srcset);
+    if (sizes) img.setAttribute("sizes", sizes);
+    img.setAttribute("src", src);
+    img.removeAttribute("data-src");
+  }
+
+  function observeLazy(root) {
+    var scope = root || document;
+    var nodes = scope.querySelectorAll ? scope.querySelectorAll("img[data-src]") : [];
+    if (!nodes.length) return;
+    if (!("IntersectionObserver" in window)) {
+      Array.prototype.forEach.call(nodes, promoteLazy);
+      return;
+    }
+    if (!lazyObserver) {
+      lazyObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          promoteLazy(entry.target);
+          lazyObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: "200px" });
+    }
+    Array.prototype.forEach.call(nodes, function (img) { lazyObserver.observe(img); });
+  }
+
+  function skeletonList(count) {
+    var cards = "";
+    for (var i = 0; i < (count || 4); i++) cards += '<div class="skeleton-card"></div>';
+    return '<div class="skeleton-list" aria-hidden="true">' + cards + "</div>";
   }
 
   function readJson(key, fallback) {
@@ -339,10 +414,10 @@
     return null;
   }
 
-  function pegPhoto(item, large) {
+  function pegPhoto(item, large, index) {
     var shot = photoFor(item);
-    if (!shot) return frameHtml("", { kind: large ? "hero" : "card", note: !!large });
-    return frameHtml(shot.src, { alt: shot.alt, kind: large ? "hero" : "card" });
+    if (!shot) return frameHtml("", { kind: large ? "hero" : "card", note: !!large, index: index });
+    return frameHtml(shot.src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
   }
 
   function decisionBar(verdict, resaleVerdict) {
@@ -512,10 +587,10 @@
     return "";
   }
 
-  function invRow(item) {
+  function invRow(item, index) {
     var hint = sellHint(item);
     var flag = flagLabel(item);
-    var photo = pegPhoto(item, false);
+    var photo = pegPhoto(item, false, index);
     var shot = photoFor(item);
     return '<article class="peg"><button class="peg-open' + (photo ? "" : " no-photo") + '" type="button" data-inv="' + esc(item.id) + '">' +
       photo +
@@ -778,8 +853,8 @@
     return "$" + Number(value).toFixed(2);
   }
 
-  function marketPhoto(item, zoom) {
-    return frameHtml(item && item.photo, { alt: (item && (item.photoAlt || item.name)) || "", kind: "market", zoom: !!zoom });
+  function marketPhoto(item, zoom, index) {
+    return frameHtml(item && item.photo, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
   }
 
   function marketFoot(item) {
@@ -814,9 +889,9 @@
     return section && section.items ? section.items : [];
   }
 
-  function marketCard(item) {
+  function marketCard(item, index) {
     var when = item.releaseLabel || "";
-    var photo = marketPhoto(item);
+    var photo = marketPhoto(item, false, index);
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
       '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
@@ -1084,20 +1159,46 @@
     return state.view === "archive" || (state.tab === "archive" && state.view === "root");
   }
 
-  function loadHwBook() {
-    if (hwBook.index) return Promise.resolve(hwBook);
+  function loadIndexChunk(year) {
+    year = String(year);
+    if (hwBook.chunks[year]) return Promise.resolve(hwBook.chunks[year]);
+    if (hwBook.pending[year]) return hwBook.pending[year];
+    hwBook.pending[year] = fetchFreshJson("data/hw/idx/" + year + ".json").then(function (part) {
+      hwBook.chunks[year] = (part.data && part.data.items) || [];
+      delete hwBook.pending[year];
+      return hwBook.chunks[year];
+    }).catch(function (err) {
+      delete hwBook.pending[year];
+      throw err;
+    });
+    return hwBook.pending[year];
+  }
+
+  function ensureArchiveChunks() {
+    if (!hwBook.manifest) return loadHwManifest();
+    if (state.archiveYear && state.archiveYear !== "all") return loadIndexChunk(state.archiveYear);
+    return Promise.all((hwBook.manifest.years || []).map(function (row) { return loadIndexChunk(row.year); }));
+  }
+
+  function archiveChunksReady() {
+    if (!hwBook.manifest) return false;
+    if (state.archiveYear && state.archiveYear !== "all") return !!hwBook.chunks[String(state.archiveYear)];
+    return (hwBook.manifest.years || []).every(function (row) { return !!hwBook.chunks[String(row.year)]; });
+  }
+
+  function loadHwManifest() {
+    if (hwBook.manifest) return ensureArchiveChunks();
     if (hwBook.flight) return hwBook.flight;
-    hwBook.flight = Promise.all([
-      fetchFreshJson("data/hw/manifest.json"),
-      fetchFreshJson("data/hw/index.json"),
-    ]).then(function (parts) {
-      hwBook.manifest = parts[0].data;
-      hwBook.index = parts[1].data;
+    hwBook.flight = fetchFreshJson("data/hw/manifest.json").then(function (part) {
+      hwBook.manifest = part.data;
       hwBook.error = "";
       if (!state.archiveYear) {
         var years = (hwBook.manifest.years || []).map(function (row) { return row.year; });
         state.archiveYear = years.length ? String(years[years.length - 1]) : "all";
       }
+      return ensureArchiveChunks();
+    }).then(function () {
+      hwBook.flight = null;
       if (catalogShowing() && canRepaint()) render();
     }).catch(function () {
       hwBook.error = navigator.onLine ? "The catalog did not load." : "Offline. The catalog is not on this phone yet.";
@@ -1108,12 +1209,13 @@
   }
 
   function reloadHwBook() {
-    hwBook.index = null;
     hwBook.manifest = null;
+    hwBook.chunks = {};
+    hwBook.pending = {};
     hwBook.years = {};
     hwBook.error = "";
     hwBook.flight = null;
-    return loadHwBook();
+    return loadHwManifest();
   }
 
   function loadHwYears(years) {
@@ -1129,13 +1231,22 @@
       if (!list || !catalogShowing()) return;
       var hits = filterHw();
       list.innerHTML = hwCardsHtml(hits.slice(0, state.archiveLimit), hits.length);
+      observeLazy(list);
     }).catch(function () {
       hwBook.error = "A year file did not load.";
     });
   }
 
   function filterHw() {
-    var items = (hwBook.index && hwBook.index.items) || [];
+    var items = [];
+    if (state.archiveYear && state.archiveYear !== "all") {
+      items = hwBook.chunks[String(state.archiveYear)] || [];
+    } else {
+      (hwBook.manifest && hwBook.manifest.years || []).forEach(function (row) {
+        var chunk = hwBook.chunks[String(row.year)];
+        if (chunk) items = items.concat(chunk);
+      });
+    }
     var q = state.archiveQuery.trim().toLowerCase();
     var parts = q ? q.split(/\s+/) : [];
     return items.filter(function (item) {
@@ -1147,7 +1258,7 @@
       if (state.archiveLine === "premium" && !HW_PREMIUM[item.l]) return false;
       if (state.archiveWorth && !item.w) return false;
       if (!parts.length) return true;
-      var blob = (item.n + " " + item.t + " " + item.s + " " + item.c).toLowerCase();
+      var blob = ((item.n || "") + " " + (item.t || "") + " " + (item.s || "") + " " + (item.c || "")).toLowerCase();
       return parts.every(function (part) { return blob.indexOf(part) !== -1; });
     });
   }
@@ -1161,11 +1272,11 @@
     if (!page.length) {
       return stateCard("no-results", "No matches", "Try another name, toy number, year, or line.");
     }
-    var cards = page.map(function (hit) {
+    var cards = page.map(function (hit, index) {
       var item = hwRecord(hit);
       var name = item ? item.name : hit.n;
-      var image = item && item.image ? item.image : "";
-      var photo = frameHtml(image, { alt: name, kind: "catalog", zoom: true });
+      var image = (item && item.image) || hit.i || "";
+      var photo = frameHtml(image, { alt: name, kind: "catalog", zoom: true, index: index });
       var bits = [String(hit.y), hwLineLabel(item ? item.line : hit.l)];
       if (item && item.series) bits.push(item.series);
       else if (hit.s) bits.push(hit.s);
@@ -1206,12 +1317,12 @@
   }
 
   function renderArchive() {
-    if (hwBook.error && !hwBook.index) {
+    if (hwBook.error && !hwBook.manifest) {
       return "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
     }
-    if (!hwBook.index) {
-      loadHwBook();
-      return "<h1>Catalog</h1>" + stateCard("loading", "Loading", "Opening the Hot Wheels book.");
+    if (!hwBook.manifest || !archiveChunksReady()) {
+      loadHwManifest();
+      return "<h1>Catalog</h1><p class=\"fine\">Opening the Hot Wheels book.</p>" + skeletonList(4);
     }
     var manifest = hwBook.manifest || { totals: {}, years: [] };
     var hits = filterHw();
@@ -1413,7 +1524,11 @@
   }
 
   function homeBody() {
-    if (state.query.trim()) return homeResults();
+    if (!huntLoaded && !drops.length) return skeletonList(4);
+    if (state.query.trim()) {
+      if (!window.ResellerSearch) return skeletonList(4);
+      return homeResults();
+    }
     return recentHtml() +
       '<h2 class="section-label">Dropping soon</h2>' +
       renderDropsStrip() +
@@ -1515,11 +1630,16 @@
       var extra = trackedList().filter(function (row) { return row.bought; }).map(function (row) {
         return watchRow(row);
       }).join("");
+      var invPage = book.slice(0, state.invLimit);
+      var invMore = book.length > invPage.length
+        ? '<button class="ghost hw-more" type="button" data-inv-more>Show more · ' + invPage.length + " of " + book.length + "</button>"
+        : "";
       body = boughtSummary(book) +
         '<p class="fine">Realized profit uses a sold price you entered. Book targets are not live solds.</p>' +
         (extra ? '<div class="list">' + extra + "</div>" : "") +
         '<div class="actions"><button class="solid" type="button" data-action="add-purchase">Add</button><button class="ghost" type="button" data-action="export-json">Export JSON</button><button class="ghost" type="button" data-action="export-csv">Export CSV</button><button class="ghost" type="button" data-action="import-json">Import JSON</button></div>' +
-        '<div class="list" id="inventory-list">' + (book.length ? book.map(invRow).join("") : "") + "</div>";
+        '<div class="list" id="inventory-list">' + invPage.map(function (item, index) { return invRow(item, index); }).join("") + "</div>" +
+        invMore;
     } else if (!watching.length) {
       body = stateCard("empty", "Nothing tracked yet", "Open an item and tap Track this item.") +
         '<p class="fine">Swipe left on a row to stop tracking.</p>';
@@ -1822,6 +1942,7 @@
       }
       state.moveFocus = false;
     }
+    observeLazy(screen);
   }
 
   function formatWhen(iso) {
@@ -2038,7 +2159,7 @@
     state.note = "Checking what this page is allowed to reach…";
     render({ keepScroll: true });
     var dataPromise = loadHuntData(false);
-    var bookPromise = hwBook.index ? reloadHwBook() : null;
+    var bookPromise = hwBook.manifest ? reloadHwBook() : null;
     var results = [];
     for (var i = 0; i < R.PROVIDERS.length; i++) {
       var plan = R.refreshPlan(R.PROVIDERS[i]);
@@ -2132,7 +2253,7 @@
 
   document.addEventListener("error", function (event) {
     var img = event.target;
-    if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
+    if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1" || !img.getAttribute("src")) return;
     if (img.closest && !img.closest("#screen, .lightbox, .sheet")) return;
     img.setAttribute("data-fallback", "1");
     img.removeAttribute("srcset");
@@ -2195,19 +2316,24 @@
     var archiveLine = event.target.closest("[data-archive-line]");
     if (archiveLine) {
       state.archiveLine = archiveLine.getAttribute("data-archive-line");
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       render();
       return;
     }
     if (event.target.closest("[data-archive-worth]")) {
       state.archiveWorth = !state.archiveWorth;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       render();
       return;
     }
     if (event.target.closest("[data-archive-more]")) {
-      state.archiveLimit += 36;
+      state.archiveLimit += 24;
       paintArchiveList();
+      return;
+    }
+    if (event.target.closest("[data-inv-more]")) {
+      state.invLimit += 24;
+      render({ keepScroll: true });
       return;
     }
     var catBtn = event.target.closest("[data-category]");
@@ -2525,7 +2651,7 @@
     }
     if (event.target.id === "archive-q") {
       state.archiveQuery = event.target.value;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       paintArchiveList();
     }
   });
@@ -2533,7 +2659,17 @@
   function paintArchiveList() {
     var list = document.getElementById("archive-list");
     var count = document.getElementById("archive-count");
-    if (!list || !hwBook.index) return;
+    if (!list || !hwBook.manifest) return;
+    if (!archiveChunksReady()) {
+      list.innerHTML = skeletonList(4);
+      ensureArchiveChunks().then(function () {
+        if (catalogShowing()) paintArchiveList();
+      }).catch(function () {
+        hwBook.error = "A year file did not load.";
+        if (catalogShowing()) render();
+      });
+      return;
+    }
     var hits = filterHw();
     var page = hits.slice(0, state.archiveLimit);
     var needed = [];
@@ -2543,12 +2679,13 @@
     if (needed.length) loadHwYears(needed);
     if (count) count.textContent = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
     list.innerHTML = hwCardsHtml(page, hits.length);
+    observeLazy(list);
   }
 
   document.addEventListener("change", function (event) {
     if (event.target.id === "archive-year") {
       state.archiveYear = event.target.value;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       paintArchiveList();
       return;
     }
@@ -2737,10 +2874,34 @@
     paintScanChoices(parsed, rows);
   }
 
+  var scanScript = null;
+
+  function ensureScan() {
+    if (window.ResellerScan) {
+      Scan = window.ResellerScan;
+      return Promise.resolve(Scan);
+    }
+    if (scanScript) return scanScript;
+    scanScript = loadScript("lib/scan.js").then(function () {
+      Scan = window.ResellerScan;
+      if (!Scan) throw new Error("scan");
+      return Scan;
+    }).catch(function (err) {
+      scanScript = null;
+      throw err;
+    });
+    return scanScript;
+  }
+
   function lookupTypedCode() {
     var typed = document.getElementById("scan-q");
-    scanHit = false;
-    presentScan(typed ? typed.value : "");
+    var raw = typed ? typed.value : "";
+    ensureScan().then(function () {
+      scanHit = false;
+      presentScan(raw);
+    }).catch(function () {
+      setScanMessage("The scanner did not load. Check the connection and try again.", true);
+    });
   }
 
   function attachScanStream(media) {
@@ -2852,7 +3013,9 @@
     scanHit = false;
     openSheet(scanSheetHtml());
     var gen = scanGen;
-    requestCamera().then(function (media) {
+    ensureScan().then(function () {
+      return requestCamera();
+    }).then(function (media) {
       if (gen !== scanGen) {
         media.getTracks().forEach(function (track) { track.stop(); });
         return;
@@ -2879,6 +3042,10 @@
     }).catch(function (err) {
       if (gen !== scanGen) return;
       hideScanVideo();
+      if (!Scan) {
+        setScanMessage("The scanner did not load. Check the connection and try again.", true);
+        return;
+      }
       var kind = err && err.kind ? err.kind : Scan.cameraErrorKind(err);
       setScanMessage(Scan.MESSAGES[kind] || Scan.MESSAGES["no-camera"], true);
     });
@@ -2939,26 +3106,85 @@
     }
   }
 
-  function loadHuntData(isBoot) {
+  function bindLibs() {
+    if (window.ResellerCash) C = window.ResellerCash;
+    if (window.ResellerDates) D = window.ResellerDates;
+    if (window.ResellerPrices) P = window.ResellerPrices;
+    if (window.ResellerSearch) S = window.ResellerSearch;
+    if (window.ResellerProviders) R = window.ResellerProviders;
+    if (window.ResellerInventory) Inv = window.ResellerInventory;
+    if (window.ResellerRules) Rules = window.ResellerRules;
+    if (window.ResellerScan) Scan = window.ResellerScan;
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if (existing && existing.getAttribute("data-loaded") === "1") {
+        resolve();
+        return;
+      }
+      if (existing && existing.getAttribute("data-loading") === "1") {
+        existing.addEventListener("load", function () { resolve(); });
+        existing.addEventListener("error", function () { reject(new Error(src)); });
+        return;
+      }
+      var el = document.createElement("script");
+      el.src = src;
+      el.async = false;
+      el.setAttribute("data-loading", "1");
+      el.onload = function () {
+        el.setAttribute("data-loaded", "1");
+        resolve();
+      };
+      el.onerror = function () { reject(new Error(src)); };
+      document.head.appendChild(el);
+    });
+  }
+
+  function loadScriptsInOrder(list) {
+    var pending = list.map(loadScript);
+    return Promise.all(pending).then(function () { bindLibs(); });
+  }
+
+  var libsPromise = null;
+
+  function ensureLibs() {
+    if (!libsPromise) {
+      libsPromise = loadScriptsInOrder([
+        "cash.js",
+        "lib/prices.js",
+        "lib/search.js",
+        "lib/providers.js",
+        "lib/inventory.js",
+      ]);
+    }
+    return libsPromise;
+  }
+
+  function loadHuntData(isBoot, dropsPromise) {
     if (huntFlight) return huntFlight;
     state.dataPhase = "checking";
-    if (isBoot) {
-      paintDataStatus();
-      screen.innerHTML = stateCard("loading", "Loading", "Opening the hunt.");
-    } else {
-      paintDataStatus();
-    }
+    paintDataStatus();
+    if (!dropsPromise) dropsPromise = fetchFreshJson("data/drops.json");
+    dropsPromise = dropsPromise.then(function (part) {
+      drops = part.data || [];
+      if (!huntLoaded && canRepaint() && state.view === "root" && state.tab === "home") render();
+      return part;
+    });
     huntFlight = Promise.all([
-      "data/catalog.json",
-      "data/drops.json",
-      "data/inventory-seed.json",
-      "data/stores.json",
-      "data/golf.json",
-      "data/market.json",
-    ].map(fetchFreshJson)).then(function (parts) {
+      fetchFreshJson("data/catalog.json"),
+      dropsPromise,
+      fetchFreshJson("data/inventory-seed.json"),
+      fetchFreshJson("data/stores.json"),
+      fetchFreshJson("data/golf.json"),
+      fetchFreshJson("data/market.json"),
+      ensureLibs(),
+    ]).then(function (parts) {
+      bindLibs();
       applyHuntParts(parts);
       huntLoaded = true;
-      state.dataPhase = parts.some(function (part) { return part.fromCache; }) ? "error" : "fresh";
+      state.dataPhase = parts.slice(0, 6).some(function (part) { return part && part.fromCache; }) ? "error" : "fresh";
       if (isBoot || canRepaint()) render({ keepScroll: !isBoot });
       else paintDataStatus();
     }).catch(function () {
@@ -3036,7 +3262,12 @@
     bootError = "";
     quietUntil = Date.now() + 1200;
     bindReturns();
-    loadHuntData(true);
+    render();
+    var dropsPromise = fetchFreshJson("data/drops.json");
+    ensureLibs();
+    loadHuntData(false, dropsPromise).then(function () {
+      setTimeout(watchShellUpdates, 1200);
+    });
   }
 
   applyTheme(themeChoice());
@@ -3063,6 +3294,5 @@
     if (remove) remove.click();
   });
 
-  watchShellUpdates();
   boot();
 })();

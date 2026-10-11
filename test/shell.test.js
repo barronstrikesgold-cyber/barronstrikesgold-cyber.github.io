@@ -87,8 +87,8 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261011i"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261011h"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261011j"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261011i"), "previous shell cache is retired");
 assert(html.includes("lib/amazon.js"), "amazon helper is on the page");
 assert(sw.includes("./lib/amazon.js"), "amazon helper is in the shell");
 assert(html.includes("As an Amazon Associate I earn from qualifying purchases."), "associates disclosure is in the footer");

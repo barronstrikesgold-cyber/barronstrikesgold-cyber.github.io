@@ -101,6 +101,9 @@ try {
     await page.getByRole("tab", { name: "Tracked", exact: true }).click();
     await page.getByRole("tab", { name: /Bought/ }).click();
     await page.locator("[data-inv]").first().waitFor();
+    for (let step = 0; step < 6 && (await page.locator("[data-inv]").count()) < 78; step++) {
+      await page.locator("[data-inv-more]").click();
+    }
     const rows = await page.locator("[data-inv]").count();
     assert(rows === 78, `expected 78 inventory rows at ${width}, saw ${rows}`);
     await page.getByRole("button", { name: /Lotus Sport Elise STH/ }).waitFor();

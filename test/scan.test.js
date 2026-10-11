@@ -59,13 +59,15 @@ const app = fs.readFileSync(path.join(__dirname, "../app.js"), "utf8");
 const html = fs.readFileSync(path.join(__dirname, "../index.html"), "utf8");
 const sw = fs.readFileSync(path.join(__dirname, "../sw.js"), "utf8");
 const scanSrc = fs.readFileSync(path.join(__dirname, "../lib/scan.js"), "utf8");
-assert(html.includes("lib/scan.js"), "scan helper is on the page");
+assert(app.includes('loadScript("lib/scan.js")'), "scan helper loads when the scanner opens");
+assert(!html.includes('src="lib/scan.js"'), "scan helper stays off the first paint");
 assert(scanSrc.includes('facingMode: "environment"'), "camera asks for the back camera in the helper");
 assert(app.includes("playsinline") && app.includes('setAttribute("muted"'), "the camera element is inline and muted");
 assert(app.includes("BarcodeDetector") && app.includes("vendor/zxing.min.js"), "BarcodeDetector is preferred and ZXing is the fallback");
 assert(app.includes("Scan.MESSAGES"), "denied permission and the other camera errors use the scan copy");
 assert(app.includes("add-scan-code") && app.includes("data-scan-catalog"), "a scan can add a catalog match or an unknown code");
-assert(sw.includes("reseller-shell-20261011i"), "service worker cache is bumped for the scanner");
-assert(sw.includes("./vendor/zxing.min.js") && sw.includes("./lib/scan.js"), "the scanner is precached");
+assert(sw.includes("reseller-shell-20261011j"), "service worker cache is bumped for the scanner");
+assert(sw.includes("./lib/scan.js"), "scan helper is precached");
+assert(!sw.includes("./vendor/zxing.min.js"), "zxing loads with the scanner, not the first install");
 
 console.log("scan.test.js OK");
