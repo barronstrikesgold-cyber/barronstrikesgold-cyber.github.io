@@ -16,6 +16,7 @@
 
   var catalog = {};
   var drops = [];
+  var market = { sections: [], generatedAt: "", formula: "" };
   var stores = [];
   var golf = { look: [], note: "" };
   var seedFile = null;
@@ -47,6 +48,9 @@
     archiveLine: "all",
     archiveWorth: false,
     archiveLimit: 36,
+    marketBrand: "latest",
+    marketLimit: 24,
+    marketId: "",
   };
 
   var hwBook = { manifest: null, index: null, years: {}, error: "", flight: null };
@@ -631,6 +635,117 @@
     return Inv.visible(invState).filter(function (row) { return row.catalogId === item.id; })[0] || null;
   }
 
+  function marketMoneyText(value) {
+    return "$" + Number(value).toFixed(2);
+  }
+
+  function marketPhoto(item) {
+    if (!item || !item.photo) return '<span class="market-photo"><em>Photo needed</em></span>';
+    return '<span class="market-photo"><img src="' + esc(item.photo) + '" alt="" width="640" height="480" loading="lazy" decoding="async"></span>';
+  }
+
+  function marketFoot(item) {
+    var retail = item.retailLabel || "MSRP not on the source";
+    var sold = item.sold == null ? "No sold data" : "Sold " + marketMoneyText(item.sold);
+    var net = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
+    return "Retail · " + retail + " · " + sold + " · " + net;
+  }
+
+  function findMarket(id) {
+    var found = null;
+    (market.sections || []).forEach(function (section) {
+      (section.items || []).forEach(function (item) {
+        if (item.id === id) found = item;
+      });
+    });
+    return found;
+  }
+
+  function marketPool() {
+    var sections = market.sections || [];
+    if (state.marketBrand === "latest") {
+      var all = [];
+      sections.forEach(function (section) {
+        (section.items || []).forEach(function (item) { all.push(item); });
+      });
+      var today = "";
+      try { today = new Date().toISOString().slice(0, 10); } catch (err) { today = D.APP_TODAY; }
+      return window.ResellerMarket ? window.ResellerMarket.latestFeed(all, today) : [];
+    }
+    var section = sections.filter(function (row) { return row.id === state.marketBrand; })[0];
+    return section && section.items ? section.items : [];
+  }
+
+  function marketCard(item) {
+    var when = item.releaseLabel || "";
+    return '<article class="peg"><button class="peg-open is-stack" type="button" data-market="' + esc(item.id) + '">' +
+      marketPhoto(item) +
+      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
+      (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
+      "</span>" +
+      decisionBar("", item.verdict) +
+      '<span class="peg-foot"><span class="peg-tell">' + esc(item.spot || "") + "</span>" +
+      '<span class="peg-meta">' + esc(marketFoot(item)) + "</span></span></button></article>";
+  }
+
+  function renderMarketList() {
+    var sections = market.sections || [];
+    var chips = '<div class="hw-lines" role="group" aria-label="Brands">' +
+      '<button type="button" data-market-brand="latest"' + (state.marketBrand === "latest" ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">Latest</button>" +
+      sections.map(function (section) {
+        var on = state.marketBrand === section.id;
+        return '<button type="button" data-market-brand="' + esc(section.id) + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + esc(section.title) + "</button>";
+      }).join("") + "</div>";
+    var current = sections.filter(function (row) { return row.id === state.marketBrand; })[0];
+    var kicker = state.marketBrand === "latest" ? "Latest drops" : (current ? current.title : "Drops");
+    var note = state.marketBrand === "latest"
+      ? "Soonest release or restock from today forward. CHECK means there is no verified sold."
+      : ((current && current.note) || "");
+    var items = marketPool();
+    var page = items.slice(0, state.marketLimit);
+    var body = page.length
+      ? '<div class="list">' + page.map(marketCard).join("") + "</div>"
+      : '<p class="market-note">No products on this feed. Nothing was invented.</p>';
+    var more = items.length > page.length
+      ? '<button class="ghost hw-more" type="button" data-market-more>Show more</button>'
+      : "";
+    var checked = market.generatedAt ? '<p class="fine">Market file · ' + esc(formatWhen(market.generatedAt)) + "</p>" : "";
+    return '<p class="kicker">' + esc(kicker) + "</p>" +
+      '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. A missing sold stays CHECK.</p>' +
+      chips +
+      (note ? '<p class="fine">' + esc(note) + "</p>" : "") +
+      checked +
+      body + more;
+  }
+
+  function renderMarketDetail() {
+    var item = findMarket(state.marketId);
+    if (!item) return stateCard("error", "Missing drop", "That product is not on the market list.");
+    var callClass = item.verdict === "BUY" ? "buy" : item.verdict === "LOT ONLY" ? "lot" : "check";
+    var soldBlock = item.sold == null
+      ? "<p>No sold data</p>" + (item.soldSource ? '<p class="fine">' + esc(item.soldSource) + "</p>" : "")
+      : "<p>Sold " + esc(marketMoneyText(item.sold)) + (item.soldDate ? " · " + esc(item.soldDate) : "") + "</p>" +
+        (item.soldSource ? "<p>" + esc(item.soldSource) + "</p>" : "") +
+        (item.soldUrl ? '<div class="link-row"><a href="' + esc(item.soldUrl) + '" target="_blank" rel="noopener noreferrer">Sold source</a></div>' : "");
+    var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
+    var retailLink = item.retailUrl
+      ? '<div class="link-row"><a href="' + esc(item.retailUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(item.retailSource || "Retail source") + "</a></div>"
+      : "";
+    var photoCredit = item.photoPage
+      ? '<p class="fine"><a class="text-link" href="' + esc(item.photoPage) + '" target="_blank" rel="noopener noreferrer">' + esc(item.photoCredit || "Photo source") + "</a></p>"
+      : "";
+    return '<button class="back" type="button" data-back>Drops</button>' +
+      marketPhoto(item) +
+      "<h1>" + esc(item.name) + "</h1>" +
+      '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
+      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
+      '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
+      '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
+      '<section class="tool"><p class="kicker">Street</p><p>' + esc(item.streetNote || "No verified street price.") + "</p></section>" +
+      photoCredit;
+  }
+
   function renderDrops() {
     var featured = [];
     var rest = [];
@@ -656,6 +771,7 @@
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
     return "<h1>Drops</h1>" + offlineBanner() +
+      renderMarketList() +
       '<p class="digest">The dates that change a hunt. Other releases stay folded. Buy marks the dates that matter.</p>' +
       restockNote() +
       '<p class="kicker">On the buy list</p><div class="list">' + featured.map(block).join("") + "</div>" +
@@ -998,6 +1114,7 @@
     if (state.view === "lane") return renderLane();
     if (state.view === "store") return renderStore();
     if (state.view === "catalog") return renderCatalogDetail();
+    if (state.view === "market") return renderMarketDetail();
     if (state.view === "drop") return renderDrop();
     if (state.view === "inv") return renderInvDetail();
     if (state.view === "inv-form") return invForm(state.invId ? findInv(state.invId) : null);
@@ -1091,6 +1208,8 @@
       itemId: state.itemId,
       invId: state.invId,
       dropId: state.dropId,
+      marketId: state.marketId,
+      marketBrand: state.marketBrand,
       query: state.query,
       from: state.from,
     });
@@ -1395,6 +1514,24 @@
     if (invBtn) {
       state.profitId = "i:" + invBtn.getAttribute("data-inv");
       push({ tab: state.tab === "hunt" ? "inventory" : state.tab, view: "inv", invId: invBtn.getAttribute("data-inv") });
+      return;
+    }
+    var marketMore = event.target.closest("[data-market-more]");
+    if (marketMore) {
+      state.marketLimit += 24;
+      render({ keepScroll: true });
+      return;
+    }
+    var marketBrand = event.target.closest("[data-market-brand]");
+    if (marketBrand) {
+      state.marketBrand = marketBrand.getAttribute("data-market-brand");
+      state.marketLimit = 24;
+      render();
+      return;
+    }
+    var marketBtn = event.target.closest("[data-market]");
+    if (marketBtn) {
+      push({ view: "market", marketId: marketBtn.getAttribute("data-market") });
       return;
     }
     var dropBtn = event.target.closest("[data-drop]");
@@ -1718,6 +1855,7 @@
     seedFile = parts[2].data;
     stores = parts[3].data;
     golf = parts[4].data;
+    market = parts[5].data || { sections: [], generatedAt: "", formula: "" };
     var loaded = Inv.load(localStorage, seedFile);
     if (!loaded.ok) {
       bootError = "Saved inventory could not be read. It was not replaced. Clear site data only if you have a backup.";
@@ -1746,6 +1884,7 @@
       "data/inventory-seed.json",
       "data/stores.json",
       "data/golf.json",
+      "data/market.json",
     ].map(fetchFreshJson)).then(function (parts) {
       applyHuntParts(parts);
       huntLoaded = true;

@@ -44,9 +44,12 @@ npm test
 npm run smoke
 npx serve .
 npm run catalog
+npm run market
 ```
 
 `npm run catalog` rebuilds `data/hw/` from the Hot Wheels Wiki and Mattel Creations. It only reads public product JSON and the read-only catalog search. It does not create a cart or a checkout, and it does not download image files.
+
+`npm run market` rebuilds `data/market.json` from public retail pages. A sold price is copied only from a verified comp already in this repo. StockX, GOAT, and shop asks are not guessed. A feed that fails keeps the last copy of that section. GitHub Actions runs this daily and commits the file only after `npm test` passes.
 
 ## Deploy
 

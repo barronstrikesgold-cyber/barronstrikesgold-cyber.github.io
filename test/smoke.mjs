@@ -97,6 +97,12 @@ try {
       const tab = page.getByRole("tab", { name });
       await tab.click();
       assert(await tab.getAttribute("aria-selected") === "true", `${name} selected at ${width}`);
+      if (name === "Drops") {
+        await page.getByText("Latest drops", { exact: true }).waitFor();
+        await page.getByText("On the buy list", { exact: true }).waitFor();
+        const dropsOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+        assert(!dropsOverflow, `drops overflow at ${width}`);
+      }
     }
     await page.getByRole("tab", { name: "Inventory" }).click();
     await page.getByRole("heading", { name: "Inventory" }).waitFor();
@@ -262,6 +268,18 @@ try {
       assert(href && href.includes("google.com/search"), "Google check is a search link");
       await page.screenshot({ path: path.join(shots, "stores-390.png"), fullPage: false });
       await page.getByRole("tab", { name: "Drops" }).click();
+      await page.getByText("Latest drops", { exact: true }).waitFor();
+      await page.getByText("On the buy list", { exact: true }).waitFor();
+      const sneakers = page.getByRole("button", { name: "Sneakers", exact: true });
+      await sneakers.scrollIntoViewIfNeeded();
+      await sneakers.click();
+      await page.locator("[data-market]").first().waitFor();
+      assert(/CHECK/.test(await page.locator("[data-market]").first().innerText()), "sneaker card is CHECK without a verified sold");
+      assert(/No sold data/.test(await page.locator("[data-market]").first().innerText()), "sneaker card does not invent a sold");
+      await page.locator("[data-market]").first().click();
+      await page.getByText("No sold data", { exact: true }).waitFor();
+      await page.getByText("Net is sold × 0.87 − $5.", { exact: true }).waitFor();
+      await page.locator("button.back").click();
       await page.getByText("On the buy list", { exact: true }).waitFor();
       await page.getByText("Released").first().waitFor();
       await page.screenshot({ path: path.join(shots, "drops-390.png"), fullPage: false });
