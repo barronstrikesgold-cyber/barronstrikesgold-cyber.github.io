@@ -38,7 +38,9 @@
         "nRecentSales": 24,
         "note": "",
         "guideName": "Super Treasure Hunts ’70 Plymouth AAR Cuda"
-      }
+      },
+      "photoWidth": 656,
+      "photoHeight": 1000
     },
     {
       "id": "firebird",
@@ -78,7 +80,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Super Treasure Hunts ’67 Pontiac Firebird 400"
-      }
+      },
+      "photoWidth": 708,
+      "photoHeight": 1068
     },
     {
       "id": "skyline",
@@ -118,7 +122,9 @@
         "nRecentSales": 33,
         "note": "",
         "guideName": "Treasure Hunts Nissan Skyline HT 2000GT-X"
-      }
+      },
+      "photoWidth": 800,
+      "photoHeight": 1000
     },
     {
       "id": "etb",
@@ -140,7 +146,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "Pokémon 30th Celebration Elite Trainer Box",
-      "photoSource": "Local photograph bundled with this app. Package text matches this exact item."
+      "photoSource": "Local photograph bundled with this app. Package text matches this exact item.",
+      "photoWidth": 550,
+      "photoHeight": 412
     },
     {
       "id": "f40",
@@ -182,7 +190,9 @@
         "nRecentSales": 21,
         "note": "",
         "guideName": "Super Treasure Hunts Ferrari F40 Competizione"
-      }
+      },
+      "photoWidth": 649,
+      "photoHeight": 1000
     },
     {
       "id": "civic",
@@ -223,7 +233,9 @@
         "nRecentSales": 42,
         "note": "",
         "guideName": "Super Treasure Hunts Honda Civic Custom"
-      }
+      },
+      "photoWidth": 679,
+      "photoHeight": 1000
     },
     {
       "id": "lotus",
@@ -264,7 +276,9 @@
         "nRecentSales": 42,
         "note": "",
         "guideName": "Super Treasure Hunts Lotus Sport Elise"
-      }
+      },
+      "photoWidth": 694,
+      "photoHeight": 1000
     },
     {
       "id": "impala",
@@ -305,7 +319,9 @@
         "nRecentSales": 29,
         "note": "",
         "guideName": "Super Treasure Hunts ’64 Impala"
-      }
+      },
+      "photoWidth": 677,
+      "photoHeight": 1000
     },
     {
       "id": "mustang",
@@ -346,7 +362,9 @@
         "nRecentSales": 24,
         "note": "",
         "guideName": "Super Treasure Hunts Ford Mustang GTD"
-      }
+      },
+      "photoWidth": 685,
+      "photoHeight": 1000
     },
     {
       "id": "porsche",
@@ -386,7 +404,9 @@
         "nRecentSales": 44,
         "note": "",
         "guideName": "Super Treasure Hunts Porsche 911 Carrera RS 2.7"
-      }
+      },
+      "photoWidth": 665,
+      "photoHeight": 1000
     },
     {
       "id": "matchbox",
@@ -445,7 +465,9 @@
         "nRecentSales": 56,
         "note": "",
         "guideName": "Super Treasure Hunts Subaru Impreza"
-      }
+      },
+      "photoWidth": 661,
+      "photoHeight": 1000
     },
     {
       "id": "drift",
@@ -485,7 +507,9 @@
         "nRecentSales": 30,
         "note": "",
         "guideName": "Super Treasure Hunts Drift-Ender"
-      }
+      },
+      "photoWidth": 672,
+      "photoHeight": 1000
     },
     {
       "id": "sierra",
@@ -525,7 +549,9 @@
         "nRecentSales": 12,
         "note": "",
         "guideName": "Super Treasure Hunts ’87 Ford Sierra Cosworth"
-      }
+      },
+      "photoWidth": 689,
+      "photoHeight": 1000
     },
     {
       "id": "otto",
@@ -565,7 +591,9 @@
         "nRecentSales": 49,
         "note": "",
         "guideName": "Super Treasure Hunts Custom Otto"
-      }
+      },
+      "photoWidth": 663,
+      "photoHeight": 1000
     },
     {
       "id": "supra-tooned",
@@ -605,7 +633,9 @@
         "nRecentSales": 40,
         "note": "",
         "guideName": "Super Treasure Hunts ’94 Toyota Supra"
-      }
+      },
+      "photoWidth": 666,
+      "photoHeight": 1000
     },
     {
       "id": "maxima",
@@ -645,7 +675,9 @@
         "nRecentSales": 49,
         "note": "",
         "guideName": "Super Treasure Hunts Nissan Maxima Drift Car"
-      }
+      },
+      "photoWidth": 655,
+      "photoHeight": 1000
     },
     {
       "id": "ram",
@@ -685,7 +717,9 @@
         "nRecentSales": 55,
         "note": "",
         "guideName": "Super Treasure Hunts ’23 Ram 1500"
-      }
+      },
+      "photoWidth": 651,
+      "photoHeight": 1000
     },
     {
       "id": "lincoln",
@@ -705,7 +739,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "'64 Lincoln Continental Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 800,
+      "photoHeight": 1000
     },
     {
       "id": "m4",
@@ -725,7 +761,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "BMW M4 GT3 Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 1000,
+      "photoHeight": 550
     },
     {
       "id": "d100",
@@ -745,7 +783,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "'87 Dodge D100 Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 1448,
+      "photoHeight": 735
     },
     {
       "id": "starion",
@@ -765,7 +805,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "'88 Mitsubishi Starion Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 1000,
+      "photoHeight": 482
     },
     {
       "id": "db5",
@@ -785,7 +827,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "Aston Martin DB5 Safari Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 1200,
+      "photoHeight": 681
     },
     {
       "id": "ferrari12",
@@ -805,7 +849,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "Ferrari 12Cilindri Super on its card",
-      "photoSource": "Attached package photo for this casting."
+      "photoSource": "Attached package photo for this casting.",
+      "photoWidth": 1200,
+      "photoHeight": 557
     },
     {
       "id": "belair",
@@ -845,7 +891,9 @@
         "nRecentSales": 7,
         "note": "",
         "guideName": "Thrill Climbers '55 Chevy Bel Air Gasser (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 779,
+      "photoHeight": 960
     },
     {
       "id": "datsun",
@@ -885,7 +933,9 @@
         "nRecentSales": 14,
         "note": "",
         "guideName": "Japan Historics 5 Datsun 510 Wagon (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 830,
+      "photoHeight": 1000
     },
     {
       "id": "ff-supra",
@@ -925,7 +975,9 @@
         "nRecentSales": 60,
         "note": "",
         "guideName": "Fast & Furious Premium Toyota Supra (Spectraflame Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "mb-integra",
@@ -965,7 +1017,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1997 Acura Integra Type R — Super Chase 3/4 (metallic gold/yellow; LHD & RHD variants)"
-      }
+      },
+      "photoWidth": 1200,
+      "photoHeight": 900
     },
     {
       "id": "mb-911",
@@ -1005,7 +1059,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1985 Porsche 911 Rally — Super Chase 1/4 (black)"
-      }
+      },
+      "photoWidth": 1050,
+      "photoHeight": 1400
     },
     {
       "id": "mb-jag",
@@ -1045,7 +1101,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1977 Jaguar XJ6C — Super Chase 2/4 (red/orange)"
-      }
+      },
+      "photoWidth": 1024,
+      "photoHeight": 1024
     },
     {
       "id": "mb-bronco",
@@ -1085,7 +1143,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1978 Ford Bronco — Moving Parts Super Chase (copper/gold)"
-      }
+      },
+      "photoWidth": 532,
+      "photoHeight": 800
     },
     {
       "id": "mb-gtr",
@@ -1125,7 +1185,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "Nissan GT-R NISMO (R35) — Moving Parts Super Chase (teal)"
-      }
+      },
+      "photoWidth": 544,
+      "photoHeight": 800
     },
     {
       "id": "mb-356",
@@ -1165,7 +1227,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "Porsche 356A — Moving Parts Super Chase (silver)"
-      }
+      },
+      "photoWidth": 486,
+      "photoHeight": 640
     },
     {
       "id": "mb-vanquish",
@@ -1185,7 +1249,9 @@
       "category": "cars",
       "photoMatched": true,
       "photoAlt": "Silver Aston Martin Vanquish Super Chase from the 2027 preview",
-      "photoSource": "2027 Matchbox line-preview photo of the silver Super Chase. A retail card photo is not out yet."
+      "photoSource": "2027 Matchbox line-preview photo of the silver Super Chase. A retail card photo is not out yet.",
+      "photoWidth": 935,
+      "photoHeight": 526
     },
     {
       "id": "mb-defender",
@@ -1345,7 +1411,9 @@
         "nRecentSales": 19,
         "note": "",
         "guideName": "Target Red Edition '20 Toyota GR Supra"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "tt-under",
@@ -1465,7 +1533,9 @@
         "nRecentSales": 18,
         "note": "",
         "guideName": "Aero Styles LB-ER34 Super Silhouette Nissan Skyline (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 556,
+      "photoHeight": 640
     },
     {
       "id": "hw26-002",
@@ -1505,7 +1575,9 @@
         "nRecentSales": 24,
         "note": "",
         "guideName": "Vintage Racing Nissan Skyline GT-R (BNR32) (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-004",
@@ -1545,7 +1617,9 @@
         "nRecentSales": 105,
         "note": "",
         "guideName": "Road Trip ’18 Toyota 4Runner (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-005",
@@ -1585,7 +1659,9 @@
         "nRecentSales": 18,
         "note": "",
         "guideName": "Modern Classics Mercedes-Benz 190 E 2.5-16 EVO II (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-006",
@@ -1625,7 +1701,9 @@
         "nRecentSales": 11,
         "note": "",
         "guideName": "Power Trip '92 BMW M3 (Gold 0/5 Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-008",
@@ -1665,7 +1743,9 @@
         "nRecentSales": 0,
         "note": "Every other 2026 gold 0/5 has 30-day avg $68–$241; buy on sight at retail.",
         "guideName": "Porsche 911 GT3 R (992) — Gold 0/5 Chase"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-009",
@@ -1705,7 +1785,9 @@
         "nRecentSales": 0,
         "note": "Early 2027; may not be on STL pegs yet.",
         "guideName": "Ferrari F40 — Black 0/5 Chase"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-010",
@@ -1745,7 +1827,9 @@
         "nRecentSales": 0,
         "note": "Early 2027 first Car Culture set.",
         "guideName": "LB-Kaido Works Nissan R32 Skyline GT-R — Matte Black 0/5 Chase"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-011",
@@ -1785,7 +1869,9 @@
         "nRecentSales": 0,
         "note": "",
         "guideName": "Corvette Stingray — Chrome Gold Chase"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-012",
@@ -1825,7 +1911,9 @@
         "nRecentSales": 0,
         "note": "",
         "guideName": "Track Dwagon — Chrome Gold Chase"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-013",
@@ -1865,7 +1953,9 @@
         "nRecentSales": 0,
         "note": "",
         "guideName": "Scania Rally Truck — Metalflake Blue Chase"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-015",
@@ -1905,7 +1995,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Fast & Furious Premium ’70 Dodge Charger R/T (Spectraflame Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-016",
@@ -1945,7 +2037,9 @@
         "nRecentSales": 17,
         "note": "",
         "guideName": "Fast & Furious Premium ’95 Mazda RX-7 (Spectraflame Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-017",
@@ -1985,7 +2079,9 @@
         "nRecentSales": 33,
         "note": "",
         "guideName": "Fast & Furious Premium 1995 Mitsubishi Eclipse (Spectraflame Chase)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-034",
@@ -2025,7 +2121,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Monster Trucks Treasure Hunt Duck N' Roll"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-035",
@@ -2065,7 +2163,9 @@
         "nRecentSales": 6,
         "note": "",
         "guideName": "Monster Trucks Treasure Hunt Will Trash It All"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-036",
@@ -2105,7 +2205,9 @@
         "nRecentSales": 17,
         "note": "",
         "guideName": "Treasure Hunts ’87 Buick Regal GNX"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-037",
@@ -2145,7 +2247,9 @@
         "nRecentSales": 12,
         "note": "",
         "guideName": "Treasure Hunts Ford Model A Custom ’31"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-041",
@@ -2185,7 +2289,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1968 Ford Mustang Fastback — Super Chase 4/4 (black w/ yellow, #37)"
-      }
+      },
+      "photoWidth": 589,
+      "photoHeight": 640
     },
     {
       "id": "hw26-043",
@@ -2225,7 +2331,9 @@
         "nRecentSales": 0,
         "note": "Low-risk buy at retail; verify eBay solds before listing.",
         "guideName": "1984 Rover SD1 Vitesse — Moving Parts Super Chase (white)"
-      }
+      },
+      "photoWidth": 470,
+      "photoHeight": 640
     },
     {
       "id": "hw26-046",
@@ -2265,7 +2373,9 @@
         "nRecentSales": 49,
         "note": "",
         "guideName": "Boulevard ’03 Enzo Ferrari"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-047",
@@ -2305,7 +2415,9 @@
         "nRecentSales": 21,
         "note": "",
         "guideName": "Boulevard BMW M3 GTR"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-048",
@@ -2345,7 +2457,9 @@
         "nRecentSales": 0,
         "note": "Conflicting sources — lot only.",
         "guideName": "'59 Chevy Impala — ZAMAC (Walmart exclusive)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-050",
@@ -2385,7 +2499,9 @@
         "nRecentSales": 5,
         "note": "",
         "guideName": "Target Red Edition Honda Odyssey"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-051",
@@ -2425,7 +2541,9 @@
         "nRecentSales": 6,
         "note": "",
         "guideName": "ZAMAC Pagani Zonda Cinque"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-052",
@@ -2465,7 +2583,9 @@
         "nRecentSales": 20,
         "note": "",
         "guideName": "ZAMAC Porsche 911 Carrera T"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-053",
@@ -2505,7 +2625,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Target Red Edition '20 Jeep Gladiator"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-054",
@@ -2545,7 +2667,9 @@
         "nRecentSales": 15,
         "note": "",
         "guideName": "Target Red Edition Pass'n Gasser"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-055",
@@ -2585,7 +2709,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Target Red Edition Porsche 911 Turbo Cabriolet"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-056",
@@ -2625,7 +2751,9 @@
         "nRecentSales": 25,
         "note": "",
         "guideName": "Pop Culture Nissan Skyline GT-R (BNR34) (Godzilla)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-057",
@@ -2665,7 +2793,9 @@
         "nRecentSales": 104,
         "note": "",
         "guideName": "Car Culture Team Transport Porsche 911 GT3 R (992) & Fleet Flyer"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-058",
@@ -2705,7 +2835,9 @@
         "nRecentSales": 5,
         "note": "",
         "guideName": "Premium Collector Display Toyota ’90s Garage"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-059",
@@ -2745,7 +2877,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Track Fleet Chevy Silverado Driftcation"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-060",
@@ -2785,7 +2919,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Premium Collector Display Gulf Racing"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-061",
@@ -2825,7 +2961,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Car Culture Team Transport Rob'N Pinks & '17 Ford F150-Raptor"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-062",
@@ -2865,7 +3003,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Car Culture Team Transport '89 Porsche 944 Turbo & 2008 Porsche Cayenne"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-063",
@@ -2905,7 +3045,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Car Culture 2-Packs Back To The Future Time Machine & ’87 Toyota Pickup Truck"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-064",
@@ -2945,7 +3087,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Car Culture 2-Packs ’05 Mitsubishi Lancer Evolution IX Wagon & ’04 Subaru Forester STi"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-065",
@@ -2985,7 +3129,9 @@
         "nRecentSales": 4,
         "note": "",
         "guideName": "Car Culture Team Transport '24 Honda Civic Type-R & Kousoku Hauler"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-066",
@@ -3025,7 +3171,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Car Culture 2-Packs ’04 Volkswagen Golf R32 & Volkswagen Golf Mk7"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-067",
@@ -3065,7 +3213,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "XL Donut Drifter"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-068",
@@ -3105,7 +3255,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Power Trip ’99 Ford F150 SVT Lightning"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-069",
@@ -3145,7 +3297,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "Pop Culture ’83 BMW 733i (Stranger Things)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-070",
@@ -3185,7 +3339,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "The Hot Ones ’32 Ford"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-071",
@@ -3225,7 +3381,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "Pop Culture Cobra H.I.S.S. (GI Joe)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-072",
@@ -3265,7 +3423,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Vintage Racing Porsche 917 K"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-073",
@@ -3305,7 +3465,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "The Hot Ones ’69 Camaro"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-074",
@@ -3345,7 +3507,9 @@
         "nRecentSales": 4,
         "note": "",
         "guideName": "The Hot Ones Volkswagen Caddy"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-075",
@@ -3385,7 +3549,9 @@
         "nRecentSales": 4,
         "note": "",
         "guideName": "5-Packs HW Hot Rods"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-076",
@@ -3425,7 +3591,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "5-Packs HW Motor Show"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 633
     },
     {
       "id": "hw26-077",
@@ -3465,7 +3633,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "Color Shifters GT-Scorcher"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-078",
@@ -3505,7 +3675,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "XL Toyota Supra"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-079",
@@ -3545,7 +3717,9 @@
         "nRecentSales": 3,
         "note": "",
         "guideName": "Anniversary Series Corvette Stingray"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-080",
@@ -3585,7 +3759,9 @@
         "nRecentSales": 6,
         "note": "",
         "guideName": "Automotive - Compact Kings '99 Honda Civic Type R (EK9)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-081",
@@ -3625,7 +3801,9 @@
         "nRecentSales": 39,
         "note": "",
         "guideName": "Entertainment - Universal Monsters ’55 Chevy Panel"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-082",
@@ -3665,7 +3843,9 @@
         "nRecentSales": 2,
         "note": "",
         "guideName": "Superstar Speeders 2-Packs The Mandalorian & Grogu 2-Pack"
-      }
+      },
+      "photoWidth": 500,
+      "photoHeight": 500
     },
     {
       "id": "hw26-083",
@@ -3705,7 +3885,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Mainline '83 Chevy Silverado (Pink Black Widow)"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-084",
@@ -3745,7 +3927,9 @@
         "nRecentSales": 0,
         "note": "Confirm the exact black/PR5 variation before buying multiples.",
         "guideName": "Ferrari F40 Competizione — black w/ silver PR5 wheels"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-085",
@@ -3785,7 +3969,9 @@
         "nRecentSales": 1,
         "note": "",
         "guideName": "Mainline Ferrari 12Cilindri"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-086",
@@ -3825,7 +4011,9 @@
         "nRecentSales": 40,
         "note": "",
         "guideName": "Mainline The Simpsons Family Car"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     },
     {
       "id": "hw26-087",
@@ -3865,7 +4053,9 @@
         "nRecentSales": 0,
         "note": "",
         "guideName": "McLaren Formula 1 Team — black"
-      }
+      },
+      "photoWidth": 640,
+      "photoHeight": 640
     }
   ],
   "sports": [
@@ -4472,7 +4662,9 @@
       "category": "pokemon",
       "photoMatched": true,
       "photoAlt": "Japanese Pokémon MEGA 30th CELEBRATION booster box, set M6a",
-      "photoSource": "Product photo of the Japanese M6a 30th CELEBRATION booster box."
+      "photoSource": "Product photo of the Japanese M6a 30th CELEBRATION booster box.",
+      "photoWidth": 1120,
+      "photoHeight": 1400
     },
     {
       "id": "knockout",
@@ -4492,7 +4684,9 @@
       "category": "pokemon",
       "photoMatched": true,
       "photoAlt": "Pokémon TCG 30th Celebration Knock Out Collection box",
-      "photoSource": "Official Pokémon product image of the 30th Celebration Knock Out Collection."
+      "photoSource": "Official Pokémon product image of the 30th Celebration Knock Out Collection.",
+      "photoWidth": 580,
+      "photoHeight": 800
     },
     {
       "id": "tech-sticker",
@@ -4512,7 +4706,9 @@
       "category": "pokemon",
       "photoMatched": true,
       "photoAlt": "Pokémon TCG 30th Celebration Tech Sticker Collection box",
-      "photoSource": "Official Pokémon product image of the 30th Celebration Tech Sticker Collection."
+      "photoSource": "Official Pokémon product image of the 30th Celebration Tech Sticker Collection.",
+      "photoWidth": 720,
+      "photoHeight": 965
     },
     {
       "id": "bundle",

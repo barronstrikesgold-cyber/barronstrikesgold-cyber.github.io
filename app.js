@@ -172,7 +172,12 @@
 
   function pegPhoto(item, large) {
     var shot = photoFor(item);
-    if (shot) return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt="" loading="lazy" decoding="async"></span>';
+    if (shot) {
+      var w = item && Number(item.photoWidth);
+      var h = item && Number(item.photoHeight);
+      var dims = w && h ? ' width="' + w + '" height="' + h + '" style="aspect-ratio:' + w + " / " + h + '"' : "";
+      return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""' + dims + ' loading="lazy" decoding="async"></span>';
+    }
     if (!large) return "";
     return '<span class="peg-photo is-empty is-hero"><em>Photo needed</em></span>';
   }

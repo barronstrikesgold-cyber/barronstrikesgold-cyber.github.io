@@ -144,7 +144,7 @@ try {
       await page.getByRole("button", { name: /Booster Bundle/ }).waitFor();
       await page.getByRole("button", { name: /Wave 2/ }).waitFor();
       await page.screenshot({ path: path.join(shots, "hunt-lines-390.png"), fullPage: false });
-      await page.getByRole("button", { name: /Walmart/ }).click();
+      await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.getByRole("heading", { name: "Walmart" }).waitFor();
       await page.getByRole("button", { name: /Super TH/ }).click();
       await page.getByRole("heading", { name: "Super TH" }).waitFor();
@@ -242,7 +242,7 @@ try {
       await bundle.waitFor();
       assert(/photo needed/i.test(await bundle.innerText()), "bundle stays Photo needed");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Hot Wheels/ }).click();
+      await page.getByRole("button", { name: /Super TH/ }).click();
       await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).click();
       await page.getByRole("link", { name: "Google", exact: true }).waitFor();
       await page.getByRole("link", { name: "Google Shopping", exact: true }).waitFor();
