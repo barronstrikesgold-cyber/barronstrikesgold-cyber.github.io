@@ -20,7 +20,7 @@ const first = html.split(/<script[\s>]/i)[0];
 
 assert(html.includes("<title>Reseller</title>"), "title");
 assert(first.includes("Reseller"), "wordmark on the shell");
-["Hunt", "Stores", "Drops", "Inventory", "Profit"].forEach((name) => {
+["Hunt", "Catalog", "Stores", "Drops", "Inventory", "Profit"].forEach((name) => {
   assert(first.includes(">" + name + "<"), "tab " + name);
 });
 assert(!/>Dates</.test(first), "Dates is not a tab");
@@ -64,8 +64,8 @@ assert(html.includes("Update available"), "update banner names the new shell");
 assert(html.includes("lib/hunt-drops.js"), "drops helper is on the page");
 assert(css.includes(".drops-strip"), "drops strip is styled");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261011a"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261001d"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261011b"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261011a"), "previous shell cache is retired");
 assert(html.includes("lib/resale-cards.js"), "resale cards script is on the page");
 assert(sw.includes("SKIP_WAITING"), "one tap applies the waiting worker");
 assert(sw.includes('cache: "no-store"'), "service worker fetches hunt json from the network");

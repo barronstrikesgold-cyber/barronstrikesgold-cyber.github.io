@@ -42,6 +42,28 @@
     stack: [],
     moveFocus: false,
     profitId: "c:cuda",
+    archiveQuery: "",
+    archiveYear: "",
+    archiveLine: "all",
+    archiveWorth: false,
+    archiveLimit: 36,
+  };
+
+  var hwBook = { manifest: null, index: null, years: {}, error: "", flight: null };
+  var HW_PREMIUM = { premium: 1, boulevard: 1, "car-culture": 1, "pop-culture": 1, rlc: 1, elite: 1, "team-transport": 1, ff: 1 };
+  var HW_LINE = {
+    mainline: "Mainline",
+    th: "Treasure Hunt",
+    sth: "Super TH",
+    redline: "Red Line",
+    premium: "Premium",
+    boulevard: "Boulevard",
+    "car-culture": "Car Culture",
+    "pop-culture": "Pop Culture",
+    rlc: "RLC",
+    elite: "Elite 64",
+    "team-transport": "Team Transport",
+    ff: "Fast & Furious",
   };
 
   var screen = document.getElementById("screen");
@@ -785,8 +807,191 @@
       "</form>";
   }
 
+  function hwLineLabel(line) {
+    return HW_LINE[line] || line || "Mainline";
+  }
+
+  function hwVerdict(code) {
+    if (code === "BUY" || code === "Buy") return { label: "BUY", cls: "verdict verdict-buy" };
+    if (code === "CHECK" || code === "Check") return { label: "CHECK", cls: "verdict verdict-check" };
+    if (code === "LOT ONLY" || code === "Lot" || code === "LOT") return { label: "LOT ONLY", cls: "verdict verdict-lot" };
+    return { label: "Worth reselling", cls: "verdict verdict-check" };
+  }
+
+  function loadHwBook() {
+    if (hwBook.index) return Promise.resolve(hwBook);
+    if (hwBook.flight) return hwBook.flight;
+    hwBook.flight = Promise.all([
+      fetchFreshJson("data/hw/manifest.json"),
+      fetchFreshJson("data/hw/index.json"),
+    ]).then(function (parts) {
+      hwBook.manifest = parts[0].data;
+      hwBook.index = parts[1].data;
+      hwBook.error = "";
+      if (!state.archiveYear) {
+        var years = (hwBook.manifest.years || []).map(function (row) { return row.year; });
+        state.archiveYear = years.length ? String(years[years.length - 1]) : "all";
+      }
+      if (state.tab === "archive" && state.view === "root" && canRepaint()) render();
+    }).catch(function () {
+      hwBook.error = navigator.onLine ? "The catalog did not load." : "Offline. The catalog is not on this phone yet.";
+      hwBook.flight = null;
+      if (state.tab === "archive" && state.view === "root") render();
+    });
+    return hwBook.flight;
+  }
+
+  function reloadHwBook() {
+    hwBook.index = null;
+    hwBook.manifest = null;
+    hwBook.years = {};
+    hwBook.error = "";
+    hwBook.flight = null;
+    return loadHwBook();
+  }
+
+  function loadHwYears(years) {
+    return Promise.all(years.map(function (year) {
+      if (hwBook.years[year]) return Promise.resolve();
+      return fetchFreshJson("data/hw/" + year + ".json").then(function (part) {
+        var map = {};
+        (part.data.items || []).forEach(function (item) { map[item.id] = item; });
+        hwBook.years[year] = map;
+      });
+    })).then(function () {
+      var list = document.getElementById("archive-list");
+      if (!list || state.tab !== "archive" || state.view !== "root") return;
+      var hits = filterHw();
+      list.innerHTML = hwCardsHtml(hits.slice(0, state.archiveLimit), hits.length);
+    }).catch(function () {
+      hwBook.error = "A year file did not load.";
+    });
+  }
+
+  function filterHw() {
+    var items = (hwBook.index && hwBook.index.items) || [];
+    var q = state.archiveQuery.trim().toLowerCase();
+    var parts = q ? q.split(/\s+/) : [];
+    return items.filter(function (item) {
+      if (state.archiveYear && state.archiveYear !== "all" && String(item.y) !== String(state.archiveYear)) return false;
+      if (state.archiveLine === "mainline" && item.l !== "mainline") return false;
+      if (state.archiveLine === "th" && item.l !== "th") return false;
+      if (state.archiveLine === "sth" && item.l !== "sth") return false;
+      if (state.archiveLine === "redline" && item.l !== "redline") return false;
+      if (state.archiveLine === "premium" && !HW_PREMIUM[item.l]) return false;
+      if (state.archiveWorth && !item.w) return false;
+      if (!parts.length) return true;
+      var blob = (item.n + " " + item.t + " " + item.s + " " + item.c).toLowerCase();
+      return parts.every(function (part) { return blob.indexOf(part) !== -1; });
+    });
+  }
+
+  function hwRecord(hit) {
+    var yearMap = hwBook.years[hit.y];
+    return (yearMap && yearMap[hit.id]) || null;
+  }
+
+  function hwCardsHtml(page, total) {
+    if (!page.length) {
+      return stateCard("no-results", "No matches", "Try another name, toy number, year, or line.");
+    }
+    var cards = page.map(function (hit) {
+      var item = hwRecord(hit);
+      var name = item ? item.name : hit.n;
+      var image = item && item.image ? item.image : "";
+      var photo = image
+        ? '<button type="button" class="hw-photo" data-zoom="' + esc(image) + '" data-alt="' + esc(name) + '"><img alt="" width="144" height="108" loading="lazy" decoding="async" src="' + esc(image) + '"></button>'
+        : '<div class="hw-photo" aria-hidden="true"><img alt="" width="144" height="108" src="assets/states/photo-needed.svg"></div>';
+      var bits = [String(hit.y), hwLineLabel(item ? item.line : hit.l)];
+      if (item && item.series) bits.push(item.series);
+      else if (hit.s) bits.push(hit.s);
+      if (item && item.col) bits.push("#" + item.col);
+      else if (hit.c) bits.push("#" + hit.c);
+      if (item && item.toy) bits.push(item.toy);
+      else if (hit.t) bits.push(hit.t);
+      var extra = "";
+      if (item && item.variation) extra += '<p class="hw-meta">' + esc(item.variation) + "</p>";
+      if (item && item.mix) extra += '<p class="hw-meta">Series ' + esc(item.mix) + (item.caseCode ? " · Case " + esc(item.caseCode) : "") + "</p>";
+      else if (item && item.caseCode) extra += '<p class="hw-meta">Case ' + esc(item.caseCode) + "</p>";
+      var worth = item && item.worth ? item.worth : (hit.w ? { id: "", verdict: hit.v } : null);
+      var flag = "";
+      if (worth) {
+        var badge = hwVerdict(worth.verdict);
+        flag = '<p><span class="' + badge.cls + '">' + esc(badge.label) + "</span></p>";
+        if (worth.id && findCatalog(worth.id)) {
+          flag += '<button type="button" class="ghost" data-item="' + esc(worth.id) + '">Open hunt card</button>';
+        }
+      }
+      var credit = "";
+      if (item && item.image) {
+        var creditHref = item.imagePage || item.wiki || "";
+        var creditName = item.imageCredit || (item.imageSource === "mattel" ? "Mattel Creations" : "Hot Wheels Wiki");
+        credit = '<p class="hw-credit">Photo · ' + (creditHref
+          ? '<a href="' + esc(creditHref) + '" rel="noopener noreferrer">' + esc(creditName) + "</a>"
+          : esc(creditName)) + "</p>";
+      } else if (item && item.wiki) {
+        credit = '<p class="hw-credit"><a href="' + esc(item.wiki) + '" rel="noopener noreferrer">Hot Wheels Wiki</a></p>';
+      }
+      return '<article class="hw-card">' + photo + '<div class="hw-copy"><h2>' + esc(name) + "</h2><p class=\"hw-meta\">" + esc(bits.join(" · ")) + "</p>" + extra + flag + credit + "</div></article>";
+    }).join("");
+    var more = total > page.length
+      ? '<button type="button" class="ghost hw-more" data-archive-more>Show more · ' + page.length + " of " + total + "</button>"
+      : "";
+    return cards + more;
+  }
+
+  function renderArchive() {
+    if (hwBook.error && !hwBook.index) {
+      return "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
+    }
+    if (!hwBook.index) {
+      loadHwBook();
+      return "<h1>Catalog</h1>" + stateCard("loading", "Loading", "Opening the Hot Wheels book.");
+    }
+    var manifest = hwBook.manifest || { totals: {}, years: [] };
+    var hits = filterHw();
+    var page = hits.slice(0, state.archiveLimit);
+    var needed = [];
+    page.forEach(function (hit) {
+      if (!hwBook.years[hit.y] && needed.indexOf(hit.y) === -1) needed.push(hit.y);
+    });
+    if (needed.length) loadHwYears(needed);
+    var years = manifest.years || [];
+    var options = '<option value="all"' + (state.archiveYear === "all" ? " selected" : "") + ">All years</option>" + years.map(function (row) {
+      return '<option value="' + row.year + '"' + (String(state.archiveYear) === String(row.year) ? " selected" : "") + ">" + row.year + " · " + row.count + "</option>";
+    }).join("");
+    var lines = [
+      ["all", "All"],
+      ["mainline", "Mainline"],
+      ["th", "Treasure Hunt"],
+      ["sth", "Super TH"],
+      ["redline", "Red Line"],
+      ["premium", "Premium"],
+    ];
+    var lineButtons = lines.map(function (pair) {
+      var on = state.archiveLine === pair[0];
+      return '<button type="button" data-archive-line="' + pair[0] + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + pair[1] + "</button>";
+    }).join("");
+    var totals = manifest.totals || {};
+    var digest = (totals.count || 0).toLocaleString("en-US") + " releases";
+    if (totals.photoPct != null) digest += " · " + totals.photoPct + "% with a photo";
+    if (totals.mattelPct != null) digest += " · " + totals.mattelPct + "% official Mattel photos";
+    digest += ". Lists from the Hot Wheels Wiki. Photos hotlink to Mattel Creations when the toy number matches, and to the wiki otherwise.";
+    var countLabel = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
+    return "<h1>Catalog</h1>" +
+      '<p class="digest">' + esc(digest) + "</p>" +
+      '<div class="hw-tools">' +
+      '<label class="field"><span>Search</span><input id="archive-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Name, toy #, or series" value="' + esc(state.archiveQuery) + '"></label>' +
+      '<label class="field"><span>Year</span><select id="archive-year">' + options + "</select></label>" +
+      '<div class="hw-lines" role="group" aria-label="Line">' + lineButtons + "</div>" +
+      '<button type="button" class="hw-worth' + (state.archiveWorth ? " is-on" : "") + '" data-archive-worth aria-pressed="' + (state.archiveWorth ? "true" : "false") + '">Worth reselling</button>' +
+      "</div>" +
+      '<p class="hw-meta" id="archive-count">' + esc(countLabel) + "</p>" +
+      '<div id="archive-list" class="hw-list">' + hwCardsHtml(page, hits.length) + "</div>";
+  }
+
   function screenHtml() {
-    if (bootError && state.tab !== "inventory") {
+    if (bootError && state.tab !== "inventory" && state.tab !== "archive") {
       return stateCard("error", "Reseller hit a problem", bootError) + '<button class="solid" type="button" data-action="retry">Try again</button>';
     }
     if (state.view === "lanes") return renderLanes();
@@ -797,6 +1002,7 @@
     if (state.view === "inv") return renderInvDetail();
     if (state.view === "inv-form") return invForm(state.invId ? findInv(state.invId) : null);
     if (state.view === "golf") return renderGolfDetail();
+    if (state.tab === "archive" && state.view === "root") return renderArchive();
     if (state.tab === "stores") return renderStores();
     if (state.tab === "drops") return renderDrops();
     if (state.tab === "inventory") return renderInventory();
@@ -845,6 +1051,12 @@
       invQ.focus();
       var iq = state.invQuery.length;
       invQ.setSelectionRange(iq, iq);
+    }
+    var archiveQ = document.getElementById("archive-q");
+    if (archiveQ && document.activeElement && document.activeElement.id === "archive-q") {
+      archiveQ.focus();
+      var aq = state.archiveQuery.length;
+      archiveQ.setSelectionRange(aq, aq);
     }
     if (state.moveFocus) {
       var heading = screen.querySelector("h1");
@@ -1066,6 +1278,7 @@
     state.note = "Checking what this page is allowed to reach…";
     render({ keepScroll: true });
     var dataPromise = loadHuntData(false);
+    var bookPromise = hwBook.index ? reloadHwBook() : null;
     var results = [];
     for (var i = 0; i < R.PROVIDERS.length; i++) {
       var plan = R.refreshPlan(R.PROVIDERS[i]);
@@ -1073,6 +1286,7 @@
       else results.push(plan);
     }
     await dataPromise;
+    if (bookPromise) await bookPromise;
     results.forEach(function (result) { R.applyRefreshResult(null, result); });
     var when = new Date().toISOString();
     localStorage.setItem("reseller-checked-at", when);
@@ -1187,6 +1401,24 @@
     if (dropBtn) { push({ view: "drop", dropId: dropBtn.getAttribute("data-drop") }); return; }
     var golfBtn = event.target.closest("[data-golf]");
     if (golfBtn) { push({ view: "golf", itemId: golfBtn.getAttribute("data-golf") }); return; }
+    var archiveLine = event.target.closest("[data-archive-line]");
+    if (archiveLine) {
+      state.archiveLine = archiveLine.getAttribute("data-archive-line");
+      state.archiveLimit = 36;
+      render();
+      return;
+    }
+    if (event.target.closest("[data-archive-worth]")) {
+      state.archiveWorth = !state.archiveWorth;
+      state.archiveLimit = 36;
+      render();
+      return;
+    }
+    if (event.target.closest("[data-archive-more]")) {
+      state.archiveLimit += 36;
+      paintArchiveList();
+      return;
+    }
     var filterBtn = event.target.closest("[data-filter]");
     if (filterBtn) {
       state.invFilter = filterBtn.getAttribute("data-filter");
@@ -1227,6 +1459,7 @@
     if (actionName === "close-sheet") { closeSheet(); return; }
     if (actionName === "close-zoom") { closeZoom(); return; }
     if (actionName === "retry") { boot(); return; }
+    if (actionName === "archive-retry") { reloadHwBook(); return; }
     if (actionName === "scan") { openScan(); return; }
     if (actionName === "add-purchase") {
       state.invId = "";
@@ -1344,10 +1577,37 @@
       state.invQuery = event.target.value;
       var list = document.getElementById("inventory-list");
       if (list) list.innerHTML = inventoryListHtml();
+      return;
+    }
+    if (event.target.id === "archive-q") {
+      state.archiveQuery = event.target.value;
+      state.archiveLimit = 36;
+      paintArchiveList();
     }
   });
 
+  function paintArchiveList() {
+    var list = document.getElementById("archive-list");
+    var count = document.getElementById("archive-count");
+    if (!list || !hwBook.index) return;
+    var hits = filterHw();
+    var page = hits.slice(0, state.archiveLimit);
+    var needed = [];
+    page.forEach(function (hit) {
+      if (!hwBook.years[hit.y] && needed.indexOf(hit.y) === -1) needed.push(hit.y);
+    });
+    if (needed.length) loadHwYears(needed);
+    if (count) count.textContent = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
+    list.innerHTML = hwCardsHtml(page, hits.length);
+  }
+
   document.addEventListener("change", function (event) {
+    if (event.target.id === "archive-year") {
+      state.archiveYear = event.target.value;
+      state.archiveLimit = 36;
+      paintArchiveList();
+      return;
+    }
     if (event.target.id !== "inv-cat") return;
     var sel = document.getElementById("inv-grade");
     if (!sel) return;

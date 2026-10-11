@@ -1,0 +1,431 @@
+{
+  "generatedAt": "2026-10-11T03:21:46.782Z",
+  "phase": "1968–2026 Hot Wheels Wiki year lists, plus series pages found for 2012–2026. Mattel Creations images hotlinked when the toy number matches. No image files are stored in the repo.",
+  "attribution": "Release tables: Hot Wheels Wiki (Fandom), CC BY-SA. Official photos: Mattel Creations CDN, hotlinked, for items matched by toy number or name. Other photos: Hot Wheels Wiki file thumbs, hotlinked, with a link to the file page.",
+  "sources": {
+    "wiki": "https://hotwheels.fandom.com/wiki/Category:Lists_of_Hot_Wheels_by_year",
+    "mattel": "https://creations.mattel.com/collections/hot-wheels-collectors"
+  },
+  "totals": {
+    "count": 16192,
+    "photos": 15607,
+    "mattel": 659,
+    "photoPct": 96.4,
+    "mattelPct": 4.1
+  },
+  "years": [
+    {
+      "year": 1968,
+      "count": 16,
+      "photos": 16,
+      "mattel": 0,
+      "file": "data/hw/1968.json"
+    },
+    {
+      "year": 1969,
+      "count": 24,
+      "photos": 23,
+      "mattel": 0,
+      "file": "data/hw/1969.json"
+    },
+    {
+      "year": 1970,
+      "count": 37,
+      "photos": 37,
+      "mattel": 0,
+      "file": "data/hw/1970.json"
+    },
+    {
+      "year": 1971,
+      "count": 35,
+      "photos": 35,
+      "mattel": 0,
+      "file": "data/hw/1971.json"
+    },
+    {
+      "year": 1972,
+      "count": 7,
+      "photos": 7,
+      "mattel": 0,
+      "file": "data/hw/1972.json"
+    },
+    {
+      "year": 1973,
+      "count": 34,
+      "photos": 34,
+      "mattel": 0,
+      "file": "data/hw/1973.json"
+    },
+    {
+      "year": 1974,
+      "count": 25,
+      "photos": 25,
+      "mattel": 0,
+      "file": "data/hw/1974.json"
+    },
+    {
+      "year": 1975,
+      "count": 32,
+      "photos": 31,
+      "mattel": 0,
+      "file": "data/hw/1975.json"
+    },
+    {
+      "year": 1976,
+      "count": 40,
+      "photos": 40,
+      "mattel": 0,
+      "file": "data/hw/1976.json"
+    },
+    {
+      "year": 1977,
+      "count": 75,
+      "photos": 71,
+      "mattel": 0,
+      "file": "data/hw/1977.json"
+    },
+    {
+      "year": 1978,
+      "count": 54,
+      "photos": 52,
+      "mattel": 0,
+      "file": "data/hw/1978.json"
+    },
+    {
+      "year": 1979,
+      "count": 51,
+      "photos": 51,
+      "mattel": 0,
+      "file": "data/hw/1979.json"
+    },
+    {
+      "year": 1980,
+      "count": 47,
+      "photos": 47,
+      "mattel": 0,
+      "file": "data/hw/1980.json"
+    },
+    {
+      "year": 1981,
+      "count": 27,
+      "photos": 27,
+      "mattel": 0,
+      "file": "data/hw/1981.json"
+    },
+    {
+      "year": 1982,
+      "count": 85,
+      "photos": 82,
+      "mattel": 0,
+      "file": "data/hw/1982.json"
+    },
+    {
+      "year": 1983,
+      "count": 59,
+      "photos": 54,
+      "mattel": 0,
+      "file": "data/hw/1983.json"
+    },
+    {
+      "year": 1984,
+      "count": 30,
+      "photos": 30,
+      "mattel": 0,
+      "file": "data/hw/1984.json"
+    },
+    {
+      "year": 1985,
+      "count": 36,
+      "photos": 36,
+      "mattel": 0,
+      "file": "data/hw/1985.json"
+    },
+    {
+      "year": 1986,
+      "count": 22,
+      "photos": 22,
+      "mattel": 0,
+      "file": "data/hw/1986.json"
+    },
+    {
+      "year": 1987,
+      "count": 21,
+      "photos": 20,
+      "mattel": 0,
+      "file": "data/hw/1987.json"
+    },
+    {
+      "year": 1988,
+      "count": 25,
+      "photos": 25,
+      "mattel": 0,
+      "file": "data/hw/1988.json"
+    },
+    {
+      "year": 1989,
+      "count": 76,
+      "photos": 74,
+      "mattel": 0,
+      "file": "data/hw/1989.json"
+    },
+    {
+      "year": 1990,
+      "count": 77,
+      "photos": 76,
+      "mattel": 0,
+      "file": "data/hw/1990.json"
+    },
+    {
+      "year": 1991,
+      "count": 57,
+      "photos": 56,
+      "mattel": 0,
+      "file": "data/hw/1991.json"
+    },
+    {
+      "year": 1992,
+      "count": 24,
+      "photos": 24,
+      "mattel": 0,
+      "file": "data/hw/1992.json"
+    },
+    {
+      "year": 1993,
+      "count": 70,
+      "photos": 69,
+      "mattel": 0,
+      "file": "data/hw/1993.json"
+    },
+    {
+      "year": 1994,
+      "count": 13,
+      "photos": 13,
+      "mattel": 0,
+      "file": "data/hw/1994.json"
+    },
+    {
+      "year": 1995,
+      "count": 97,
+      "photos": 95,
+      "mattel": 0,
+      "file": "data/hw/1995.json"
+    },
+    {
+      "year": 1996,
+      "count": 139,
+      "photos": 138,
+      "mattel": 0,
+      "file": "data/hw/1996.json"
+    },
+    {
+      "year": 1997,
+      "count": 122,
+      "photos": 119,
+      "mattel": 0,
+      "file": "data/hw/1997.json"
+    },
+    {
+      "year": 1998,
+      "count": 186,
+      "photos": 184,
+      "mattel": 0,
+      "file": "data/hw/1998.json"
+    },
+    {
+      "year": 1999,
+      "count": 209,
+      "photos": 205,
+      "mattel": 0,
+      "file": "data/hw/1999.json"
+    },
+    {
+      "year": 2000,
+      "count": 249,
+      "photos": 246,
+      "mattel": 0,
+      "file": "data/hw/2000.json"
+    },
+    {
+      "year": 2001,
+      "count": 257,
+      "photos": 255,
+      "mattel": 1,
+      "file": "data/hw/2001.json"
+    },
+    {
+      "year": 2002,
+      "count": 243,
+      "photos": 243,
+      "mattel": 0,
+      "file": "data/hw/2002.json"
+    },
+    {
+      "year": 2003,
+      "count": 223,
+      "photos": 222,
+      "mattel": 1,
+      "file": "data/hw/2003.json"
+    },
+    {
+      "year": 2004,
+      "count": 269,
+      "photos": 269,
+      "mattel": 1,
+      "file": "data/hw/2004.json"
+    },
+    {
+      "year": 2005,
+      "count": 230,
+      "photos": 195,
+      "mattel": 1,
+      "file": "data/hw/2005.json"
+    },
+    {
+      "year": 2006,
+      "count": 324,
+      "photos": 318,
+      "mattel": 0,
+      "file": "data/hw/2006.json"
+    },
+    {
+      "year": 2007,
+      "count": 315,
+      "photos": 308,
+      "mattel": 0,
+      "file": "data/hw/2007.json"
+    },
+    {
+      "year": 2008,
+      "count": 358,
+      "photos": 344,
+      "mattel": 0,
+      "file": "data/hw/2008.json"
+    },
+    {
+      "year": 2009,
+      "count": 342,
+      "photos": 331,
+      "mattel": 0,
+      "file": "data/hw/2009.json"
+    },
+    {
+      "year": 2010,
+      "count": 423,
+      "photos": 416,
+      "mattel": 0,
+      "file": "data/hw/2010.json"
+    },
+    {
+      "year": 2011,
+      "count": 429,
+      "photos": 395,
+      "mattel": 0,
+      "file": "data/hw/2011.json"
+    },
+    {
+      "year": 2012,
+      "count": 694,
+      "photos": 678,
+      "mattel": 0,
+      "file": "data/hw/2012.json"
+    },
+    {
+      "year": 2013,
+      "count": 636,
+      "photos": 611,
+      "mattel": 0,
+      "file": "data/hw/2013.json"
+    },
+    {
+      "year": 2014,
+      "count": 672,
+      "photos": 665,
+      "mattel": 0,
+      "file": "data/hw/2014.json"
+    },
+    {
+      "year": 2015,
+      "count": 586,
+      "photos": 572,
+      "mattel": 0,
+      "file": "data/hw/2015.json"
+    },
+    {
+      "year": 2016,
+      "count": 504,
+      "photos": 501,
+      "mattel": 0,
+      "file": "data/hw/2016.json"
+    },
+    {
+      "year": 2017,
+      "count": 584,
+      "photos": 558,
+      "mattel": 0,
+      "file": "data/hw/2017.json"
+    },
+    {
+      "year": 2018,
+      "count": 760,
+      "photos": 717,
+      "mattel": 3,
+      "file": "data/hw/2018.json"
+    },
+    {
+      "year": 2019,
+      "count": 632,
+      "photos": 533,
+      "mattel": 1,
+      "file": "data/hw/2019.json"
+    },
+    {
+      "year": 2020,
+      "count": 644,
+      "photos": 590,
+      "mattel": 14,
+      "file": "data/hw/2020.json"
+    },
+    {
+      "year": 2021,
+      "count": 684,
+      "photos": 648,
+      "mattel": 38,
+      "file": "data/hw/2021.json"
+    },
+    {
+      "year": 2022,
+      "count": 682,
+      "photos": 668,
+      "mattel": 55,
+      "file": "data/hw/2022.json"
+    },
+    {
+      "year": 2023,
+      "count": 858,
+      "photos": 817,
+      "mattel": 99,
+      "file": "data/hw/2023.json"
+    },
+    {
+      "year": 2024,
+      "count": 873,
+      "photos": 854,
+      "mattel": 123,
+      "file": "data/hw/2024.json"
+    },
+    {
+      "year": 2025,
+      "count": 922,
+      "photos": 904,
+      "mattel": 171,
+      "file": "data/hw/2025.json"
+    },
+    {
+      "year": 2026,
+      "count": 947,
+      "photos": 931,
+      "mattel": 151,
+      "file": "data/hw/2026.json"
+    }
+  ]
+}
