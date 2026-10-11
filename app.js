@@ -26,7 +26,12 @@
   var scanTimer = null;
 
   var state = {
-    tab: "hunt",
+    tab: "home",
+    category: "all",
+    segment: "watching",
+    itemKind: "catalog",
+    undo: null,
+    draftAlert: null,
     view: "root",
     lane: "",
     storeId: "",
@@ -1145,10 +1150,477 @@
       '<div id="archive-list" class="hw-list">' + hwCardsHtml(page, hits.length) + "</div>";
   }
 
-  function screenHtml() {
-    if (bootError && state.tab !== "inventory" && state.tab !== "archive") {
-      return stateCard("error", "Reseller hit a problem", bootError) + '<button class="solid" type="button" data-action="retry">Try again</button>';
+  function huntSettings() {
+    if (!window.HuntFlow) return { feePercent: 13, shipping: 5, minProfit: 5, minSales: 5 };
+    return window.HuntFlow.loadSettings(localStorage);
+  }
+
+  function signedMoney(n) {
+    if (n == null || !Number.isFinite(Number(n))) return "";
+    var abs = Math.abs(Number(n)).toFixed(2);
+    return Number(n) < 0 ? "−$" + abs : "$" + abs;
+  }
+
+  function subjectOf(kind, id) {
+    if (!id) return null;
+    if (kind === "inventory") {
+      var inv = findInv(id);
+      if (!inv) return null;
+      var soldPrice = inv.soldHistory && inv.soldHistory[0] ? inv.soldHistory[0].price : null;
+      return {
+        kind: "inventory",
+        id: inv.id,
+        name: inv.name,
+        line: inv.category || "Tracked",
+        sold: soldPrice,
+        cost: inv.cost,
+        sales: soldPrice == null ? 0 : huntSettings().minSales,
+        photo: photoFor(inv),
+        tells: inv.notes || "",
+      };
     }
+    if (kind === "golf") {
+      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, tells: golf.note || "" };
+    }
+    if (kind === "market") {
+      var marketItem = findMarket(id);
+      if (!marketItem) return null;
+      return {
+        kind: "market",
+        id: marketItem.id,
+        name: marketItem.name,
+        line: marketItem.section || "Market",
+        sold: marketItem.sold,
+        cost: marketItem.retail,
+        sales: marketItem.nRecentSales || 0,
+        photo: marketItem.photo ? { src: marketItem.photo, alt: marketItem.name } : null,
+        tells: "",
+      };
+    }
+    var item = findCatalog(id);
+    if (!item) return null;
+    var resale = item.resale || {};
+    var lane = Rules.laneMeta(Rules.laneFor(item));
+    return {
+      kind: "catalog",
+      id: item.id,
+      name: item.name,
+      line: [lane && lane.title, resale.series].filter(Boolean).join(" · "),
+      sold: resale.soldValue,
+      cost: resale.retail != null ? resale.retail : item.shelfNum,
+      sales: resale.nRecentSales || 0,
+      photo: item.photoMatched && item.photo ? { src: item.photo, alt: item.photoAlt || item.name } : null,
+      tells: Rules.tellsFor(item),
+    };
+  }
+
+  function chipOf(rec) {
+    var blob = ((rec.name || "") + " " + (rec.category || "") + " " + (rec.categoryTitle || "")).toLowerCase();
+    if (blob.indexOf("matchbox") !== -1 || rec.category === "mbsc") return "matchbox";
+    if (blob.indexOf("pokemon") !== -1 || blob.indexOf("pokémon") !== -1) return "pokemon";
+    if (rec.kind === "golf" || rec.category === "golf") return "golf";
+    if (rec.kind === "catalog") return "hot-wheels";
+    return "other";
+  }
+
+  function rowSubtitle(math) {
+    if (!math || math.profit == null) return "No sold data";
+    var net = "Net " + signedMoney(math.profit);
+    if (math.verdict === "BUY") return net + " after fees";
+    if (math.reason === "few-sales") return net + " · few sales";
+    return net;
+  }
+
+  function flowThumb(subject) {
+    if (subject && subject.photo && subject.photo.src) {
+      return '<img class="flow-thumb" src="' + esc(subject.photo.src) + '" alt="" />';
+    }
+    return '<span class="flow-thumb is-empty">Photo needed</span>';
+  }
+
+  function flowPill(verdict) {
+    var key = String(verdict || "CHECK").toLowerCase();
+    return '<span class="pill pill-' + key + '">' + esc(verdict || "CHECK") + "</span>";
+  }
+
+  function recordKind(rec) {
+    if (rec.kind === "inventory") return "inventory";
+    if (rec.kind === "golf") return "golf";
+    return "catalog";
+  }
+
+  function recordId(rec) {
+    if (rec.kind === "golf") return rec.name;
+    return rec.ref && rec.ref.id;
+  }
+
+  function flowRow(rec) {
+    var kind = recordKind(rec);
+    var id = recordId(rec);
+    var subject = subjectOf(kind, id);
+    if (!subject) return "";
+    var math = window.HuntFlow.breakdown(subject, huntSettings());
+    return '<button class="flow-row" type="button" data-open-verdict="' + esc(kind) + '" data-open-id="' + esc(id) + '">' +
+      flowThumb(subject) +
+      '<span class="flow-copy"><b>' + esc(subject.name) + "</b><span>" + esc(rowSubtitle(math)) + "</span></span>" +
+      flowPill(math.verdict) + "</button>";
+  }
+
+  function rememberCheck(kind, id) {
+    var list = readJson("hunt-recent", []);
+    list = [{ kind: kind, id: id }].concat(list.filter(function (row) {
+      return !(row && row.kind === kind && row.id === id);
+    })).slice(0, 8);
+    writeJson("hunt-recent", list);
+  }
+
+  function homeResults() {
+    var hits = S.searchRecords(searchPool(), state.query).filter(function (rec) {
+      return state.category === "all" || chipOf(rec) === state.category;
+    });
+    if (!hits.length) return stateCard("no-results", "Leave it", "If it is not on the buy list, leave it.");
+    return '<h2 class="section-label">Results</h2><div class="list">' + hits.slice(0, 40).map(flowRow).join("") + "</div>";
+  }
+
+  function recentHtml() {
+    var rows = readJson("hunt-recent", []).map(function (row) {
+      return flowRow({ kind: row.kind, name: row.kind === "golf" ? row.id : "", ref: { id: row.id } });
+    }).filter(Boolean);
+    var body = rows.length
+      ? '<div class="list">' + rows.join("") + "</div>"
+      : '<p class="fine">Checks you open will show up here.</p>';
+    return '<h2 class="section-label">Recent checks</h2>' + body;
+  }
+
+  function homeBody() {
+    if (state.query.trim()) return homeResults();
+    return recentHtml() +
+      '<h2 class="section-label">Dropping soon</h2>' +
+      renderDropsStrip() +
+      '<button class="ghost" type="button" data-action="open-catalog">Full catalog</button>';
+  }
+
+  function renderHome() {
+    var chips = [["all", "All"], ["hot-wheels", "Hot Wheels"], ["matchbox", "Matchbox"], ["pokemon", "Pokémon"], ["golf", "Golf"]];
+    return offlineBanner() +
+      "<h1>What did you find?</h1>" +
+      '<div class="search-row"><label class="search" for="hunt-q"><span class="sr-only">Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search name, casting, or UPC" value="' + esc(state.query) + '"></label>' +
+      '<button class="scan" type="button" data-action="scan" aria-label="Scan barcode" title="Scan barcode"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg></button></div>' +
+      '<div class="chips" role="group" aria-label="Category">' + chips.map(function (chip) {
+        return '<button class="chip' + (state.category === chip[0] ? " is-on" : "") + '" type="button" data-category="' + chip[0] + '">' + chip[1] + "</button>";
+      }).join("") + "</div>" +
+      '<div id="hunt-body">' + homeBody() + "</div>";
+  }
+
+  function renderVerdict() {
+    var subject = subjectOf(state.itemKind, state.itemId);
+    if (!subject) return stateCard("error", "Missing item", "That item is not on the list.");
+    var math = window.HuntFlow.breakdown(subject, huntSettings());
+    var word = math.verdict.toLowerCase();
+    var evidence = math.profit == null
+      ? "No sold data"
+      : "at " + signedMoney(math.cost) + " shelf price · " + math.sales + " sales in 30 days";
+    var rows = math.profit == null ? "" : (
+      '<div class="kv"><span>Typical sold price</span><b>' + esc(signedMoney(math.sold)) + "</b></div>" +
+      '<div class="kv"><span>Marketplace fees (' + esc(String(math.feePercent)) + '%)</span><b>−' + esc(signedMoney(math.fees)) + "</b></div>" +
+      '<div class="kv"><span>Shipping &amp; supplies</span><b>−' + esc(signedMoney(math.shipping)) + "</b></div>" +
+      '<div class="kv"><span>Your cost</span><b>−' + esc(signedMoney(math.cost)) + "</b></div>" +
+      '<div class="kv"><span><b>Profit</b></span><b class="profit-num">' + esc(signedMoney(math.profit)) + "</b></div>"
+    );
+    return '<button class="back" type="button" data-back>Home</button>' +
+      '<div class="verdict-layout"><section class="hero-card">' + flowThumb(subject) +
+      "<h1>" + esc(subject.name) + "</h1>" +
+      (subject.line ? '<p class="fine">' + esc(subject.line) + "</p>" : "") +
+      '<p class="verdict-word is-' + word + '">' + esc(math.verdict) + "</p>" +
+      (math.profit == null ? "" : '<p class="profit-hero">' + esc(signedMoney(math.profit)) + " profit</p>") +
+      '<p class="fine">' + esc(evidence) + "</p></section>" +
+      '<div class="verdict-side">' +
+      (rows ? '<section class="card" aria-label="How we got there">' + rows + "</section>" : '<p class="fine">No sold data</p>') +
+      (subject.tells ? '<p class="digest">' + esc(subject.tells) + "</p>" : "") +
+      '<button class="btn-primary" type="button" data-action="track-item">Track this item</button>' +
+      '<button class="btn-secondary" type="button" data-action="set-alert">Set price alert</button></div></div>';
+  }
+
+  function trackedList() {
+    return readJson("hunt-tracked", []);
+  }
+
+  function watchRow(row) {
+    var subject = subjectOf(row.kind, row.id) || { name: row.name || "Item", photo: null };
+    var math = window.HuntFlow.breakdown(subjectOf(row.kind, row.id) || { sold: null, cost: null, sales: 0 }, huntSettings());
+    return '<div class="flow-swipe" data-swipe="1"><button class="flow-row" type="button" data-open-verdict="' + esc(row.kind) + '" data-open-id="' + esc(row.id) + '">' +
+      flowThumb(subject) +
+      '<span class="flow-copy"><b>' + esc(subject.name) + "</b><span>" + esc(rowSubtitle(math)) + "</span></span>" +
+      flowPill(math.verdict) + "</button>" +
+      '<button class="ghost" type="button" data-action="mark-bought" data-kind="' + esc(row.kind) + '" data-id="' + esc(row.id) + '">Mark bought</button>' +
+      '<button class="danger" type="button" data-action="untrack" data-kind="' + esc(row.kind) + '" data-id="' + esc(row.id) + '">Remove</button></div>';
+  }
+
+  function boughtSummary(book) {
+    var settings = huntSettings();
+    var realized = 0;
+    var sales = 0;
+    var held = 0;
+    book.forEach(function (item) {
+      var price = item.soldHistory && item.soldHistory[0] ? item.soldHistory[0].price : null;
+      if (item.status === "Sold" && price != null && window.HuntFlow) {
+        var math = window.HuntFlow.breakdown({ sold: price, cost: item.cost || 0, sales: settings.minSales }, settings);
+        if (math.profit != null) {
+          realized += math.profit;
+          sales += 1;
+        }
+      } else {
+        held += Number(item.cost) || 0;
+      }
+    });
+    trackedList().forEach(function (row) {
+      if (!row.bought) return;
+      held += Number(row.cost) || 0;
+    });
+    return '<p class="bookline" id="bought-summary"><strong>Realized ' + esc(signedMoney(Math.round(realized * 100) / 100)) + "</strong> · " +
+      sales + " sales · Held cost " + esc(signedMoney(Math.round(held * 100) / 100)) + "</p>";
+  }
+
+  function renderTracked() {
+    var watching = trackedList().filter(function (row) { return !row.bought; });
+    var book = invState ? Inv.visible(invState) : [];
+    var boughtCount = book.length + trackedList().filter(function (row) { return row.bought; }).length;
+    var seg = '<div class="seg" role="tablist" aria-label="Tracked">' +
+      '<button type="button" role="tab" data-segment="watching" aria-selected="' + (state.segment !== "bought" ? "true" : "false") + '"' + (state.segment !== "bought" ? ' class="is-on"' : "") + ">Watching (" + watching.length + ")</button>" +
+      '<button type="button" role="tab" data-segment="bought" aria-selected="' + (state.segment === "bought" ? "true" : "false") + '"' + (state.segment === "bought" ? ' class="is-on"' : "") + ">Bought (" + boughtCount + ")</button></div>";
+    var body;
+    if (state.segment === "bought") {
+      var extra = trackedList().filter(function (row) { return row.bought; }).map(function (row) {
+        return watchRow(row);
+      }).join("");
+      body = boughtSummary(book) +
+        '<p class="fine">Realized profit uses a sold price you entered. Book targets are not live solds.</p>' +
+        (extra ? '<div class="list">' + extra + "</div>" : "") +
+        '<div class="actions"><button class="solid" type="button" data-action="add-purchase">Add</button><button class="ghost" type="button" data-action="export-json">Export JSON</button><button class="ghost" type="button" data-action="export-csv">Export CSV</button><button class="ghost" type="button" data-action="import-json">Import JSON</button></div>' +
+        '<div class="list" id="inventory-list">' + (book.length ? book.map(invRow).join("") : "") + "</div>";
+    } else if (!watching.length) {
+      body = stateCard("empty", "Nothing tracked yet", "Open an item and tap Track this item.") +
+        '<p class="fine">Swipe left on a row to stop tracking.</p>';
+    } else {
+      body = '<div class="list">' + watching.map(watchRow).join("") + "</div>" +
+        '<p class="fine">Swipe left on a row to stop tracking.</p>';
+    }
+    var toast = state.undo
+      ? '<div class="toast" role="status">Stopped tracking ' + esc(state.undo.name || "that item") + '. <button type="button" data-action="undo-untrack">Undo</button></div>'
+      : "";
+    return toast + "<h1>Tracked</h1>" + seg + body;
+  }
+
+  function savedStoreIds() {
+    var ids = readJson("hunt-stores", ["walmart", "target"]);
+    return Array.isArray(ids) && ids.length ? ids : ["walmart", "target"];
+  }
+
+  function savedStoreLabel() {
+    return savedStoreIds().map(function (id) {
+      var store = findStore(id);
+      return store ? store.name : id;
+    }).join(", ") + " within 10 mi";
+  }
+
+  function renderAlerts() {
+    var list = readJson("hunt-alerts", []);
+    if (!list.length) {
+      return "<h1>Alerts</h1>" + stateCard("empty", "No alerts yet", "Open an item and tap Set price alert.") +
+        '<p class="fine">Push is the delivery. Email is an opt-in fallback.</p>';
+    }
+    var rows = list.map(function (rule) {
+      var bits = [];
+      if (rule.profitOn) bits.push("Profit above " + signedMoney(rule.threshold));
+      if (rule.stockOn) bits.push("In stock near me");
+      if (rule.verdictOn) bits.push("Verdict changes");
+      var channel = rule.channel === "both" ? "Push and email" : rule.channel === "email" ? "Email fallback" : "Push";
+      var history = (rule.history || []).slice(0, 3).map(function (entry) {
+        return "<li>" + esc((entry.reasons || []).join(", ")) + " · " + esc(entry.verdict || "") + "</li>";
+      }).join("");
+      return '<article class="card"><button class="flow-row" type="button" data-open-verdict="' + esc(rule.kind) + '" data-open-id="' + esc(rule.itemId) + '"><span class="flow-copy"><b>' + esc(rule.name) + "</b><span>" + esc(bits.join(" · ")) + "</span></span></button>" +
+        '<p class="fine">' + esc(channel) + (rule.email ? " · " + esc(rule.email) : "") + "</p>" +
+        (history ? "<ul>" + history + "</ul>" : "") +
+        '<button class="danger" type="button" data-action="delete-alert" data-id="' + esc(rule.id) + '">Remove</button></article>';
+    }).join("");
+    return "<h1>Alerts</h1><p class=\"fine\">Push is the delivery. Email is an opt-in fallback.</p>" + rows;
+  }
+
+  function iosNeedsInstall() {
+    var ua = navigator.userAgent || "";
+    var ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    return ios && !standalone;
+  }
+
+  function renderAlertSetup() {
+    var subject = subjectOf(state.itemKind, state.itemId);
+    var draft = state.draftAlert || { profitOn: true, threshold: 5, stockOn: true, verdictOn: false, channel: "push", email: "" };
+    var math = window.HuntFlow.breakdown(subject || { sold: null, cost: null, sales: 0 }, huntSettings());
+    var current = math.profit == null ? "No sold data" : "Currently " + signedMoney(math.profit);
+    var install = iosNeedsInstall()
+      ? '<section class="card" id="a2hs"><b>Add Hunt to your Home Screen</b><p>iOS delivers Web Push only to an installed app. In Safari, tap Share, then Add to Home Screen.</p></section>'
+      : "";
+    var email = draft.channel === "email" || draft.channel === "both"
+      ? '<label class="field" for="alert-email"><span>Email, opt-in fallback</span><input id="alert-email" type="email" autocomplete="email" inputmode="email" value="' + esc(draft.email || "") + '"></label>'
+      : "";
+    return '<button class="back" type="button" data-back>' + esc(subject ? subject.name : "Back") + "</button>" +
+      "<h1>Alert me when…</h1>" + install +
+      '<section class="card"><div class="switch-row"><div><b>Profit goes above</b><span>' + esc(current) + '</span></div>' +
+      '<button class="switch" type="button" role="switch" aria-checked="' + (draft.profitOn ? "true" : "false") + '" aria-label="Profit goes above" data-toggle="profitOn"></button></div>' +
+      '<label class="field" for="alert-threshold"><span>Profit threshold</span><input id="alert-threshold" type="number" inputmode="decimal" step="0.01" value="' + esc(draft.threshold) + '"></label></section>' +
+      '<section class="card"><div class="switch-row"><div><b>It is in stock near me</b><span>' + esc(savedStoreLabel()) + '</span></div>' +
+      '<button class="switch" type="button" role="switch" aria-checked="' + (draft.stockOn ? "true" : "false") + '" aria-label="In stock near me" data-toggle="stockOn"></button></div></section>' +
+      '<section class="card"><div class="switch-row"><div><b>Verdict changes</b><span>e.g. CHECK → BUY</span></div>' +
+      '<button class="switch" type="button" role="switch" aria-checked="' + (draft.verdictOn ? "true" : "false") + '" aria-label="Verdict changes" data-toggle="verdictOn"></button></div></section>' +
+      '<span class="field" id="notify-label">Notify by</span><div class="seg" role="group" aria-labelledby="notify-label">' +
+      ["push", "email", "both"].map(function (channel) {
+        var label = channel === "push" ? "Push" : channel === "email" ? "Email" : "Both";
+        return '<button type="button" data-channel="' + channel + '"' + (draft.channel === channel ? ' class="is-on"' : "") + ">" + label + "</button>";
+      }).join("") + "</div>" + email +
+      '<button class="btn-primary" type="button" data-action="save-alert">Save alert</button>';
+  }
+
+  function themeChoice() {
+    try { return localStorage.getItem("hunt-theme") || "system"; } catch (err) { return "system"; }
+  }
+
+  function applyTheme(choice) {
+    var next = choice || themeChoice();
+    if (next !== "light" && next !== "dark") next = "system";
+    if (next === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("hunt-theme", next); } catch (err) {}
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var light = next === "light" || (next === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+      meta.setAttribute("content", light ? "#f7f4ef" : "#070708");
+    }
+  }
+
+  function saveAlertDraft() {
+    var draft = state.draftAlert || { profitOn: true, threshold: 5, stockOn: false, verdictOn: false, channel: "push", email: "" };
+    var emailEl = document.getElementById("alert-email");
+    var thresholdEl = document.getElementById("alert-threshold");
+    if (emailEl) draft.email = emailEl.value.trim();
+    if (thresholdEl && thresholdEl.value !== "") draft.threshold = Number(thresholdEl.value);
+    if ((draft.channel === "email" || draft.channel === "both") && !draft.email) {
+      state.note = "Add an email for the fallback.";
+      render();
+      return;
+    }
+    var subject = subjectOf(state.itemKind, state.itemId);
+    var math = window.HuntFlow.breakdown(subject || { sold: null, cost: null, sales: 0 }, huntSettings());
+    var list = readJson("hunt-alerts", []).filter(function (row) {
+      return !(row.kind === state.itemKind && row.itemId === state.itemId);
+    });
+    list.unshift({
+      id: "alert-" + state.itemKind + "-" + state.itemId,
+      kind: state.itemKind,
+      itemId: state.itemId,
+      name: subject ? subject.name : "Item",
+      profitOn: !!draft.profitOn,
+      threshold: Number(draft.threshold),
+      stockOn: !!draft.stockOn,
+      verdictOn: !!draft.verdictOn,
+      channel: draft.channel || "push",
+      email: draft.email || "",
+      snapshot: { profit: math.profit, verdict: math.verdict, inStock: false },
+      history: draft.history || [],
+    });
+    writeJson("hunt-alerts", list);
+    state.note = "Alert saved.";
+    if (draft.channel !== "email" && !iosNeedsInstall() && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(function () {});
+    }
+    setTab("alerts");
+  }
+
+  function renderAccount() {
+    var settings = huntSettings();
+    var theme = themeChoice();
+    var appearance = ["system", "light", "dark"].map(function (choice) {
+      var label = choice === "system" ? "System" : choice === "light" ? "Light" : "Dark";
+      var on = theme === choice;
+      return '<button type="button" data-theme-choice="' + choice + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + label + "</button>";
+    }).join("");
+    var checked = localStorage.getItem("reseller-checked-at");
+    var fresh = window.ResellerHuntDrops ? window.ResellerHuntDrops.dataStatusLabel(state.dataPhase) : "";
+    var storeIds = savedStoreIds();
+    return "<h1>Account</h1>" +
+      '<span class="field" id="appearance-label">Appearance</span><div class="seg" role="group" aria-labelledby="appearance-label">' + appearance + "</div>" +
+      '<form id="account-form" class="tool">' +
+      '<label class="field" for="set-fee"><span>Marketplace fee %</span><input id="set-fee" type="number" inputmode="decimal" step="0.1" min="0" value="' + esc(settings.feePercent) + '"></label>' +
+      '<label class="field" for="set-ship"><span>Shipping and supplies</span><input id="set-ship" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(settings.shipping) + '"></label>' +
+      '<label class="field" for="set-profit"><span>Minimum profit</span><input id="set-profit" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(settings.minProfit) + '"></label>' +
+      '<label class="field" for="set-sales"><span>Minimum sales in 30 days</span><input id="set-sales" type="number" inputmode="numeric" step="1" min="0" value="' + esc(settings.minSales) + '"></label>' +
+      '<button class="btn-primary" type="submit">Save settings</button></form>' +
+      "<h2>Where are you?</h2>" +
+      '<p class="digest">Store choice is a filter for stock alerts. Pick a store to open that peg list.</p>' +
+      '<div class="chips" role="group" aria-label="Stores for stock alerts">' + stores.map(function (store) {
+        var on = storeIds.indexOf(store.id) !== -1;
+        return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-store-toggle="' + esc(store.id) + '" aria-pressed="' + (on ? "true" : "false") + '">' + esc(store.name) + "</button>";
+      }).join("") + "</div>" +
+      '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
+      '<section class="tool"><p class="kicker">Data freshness</p><p>' + esc(fresh || "Not checked yet") + "</p><p>" +
+      (checked ? "Last refresh · " + esc(formatWhen(checked)) : "No refresh yet") + "</p></section>" +
+      '<button class="ghost" type="button" data-action="open-estimate">Estimate a sale</button>' +
+      '<button class="ghost" type="button" data-action="sources">Sources</button>' +
+      '<p class="legal">Broken Beaker Labs LC</p>';
+  }
+
+  function deliverAlert(rule, reasons, math) {
+    var body = (rule.name || "Item") + " · " + reasons.join(", ");
+    if (math && math.verdict) body += " · " + math.verdict;
+    if ((rule.channel === "email" || rule.channel === "both") && rule.email) {
+      state.note = "Email fallback ready for " + rule.email + ".";
+    }
+    if (rule.channel === "email") return;
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    var show = function () {
+      try { new Notification("Hunt", { body: body }); } catch (err) { /* page may block the constructor */ }
+    };
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg && reg.showNotification) reg.showNotification("Hunt", { body: body });
+        else show();
+      }).catch(show);
+      return;
+    }
+    show();
+  }
+
+  function evaluateAlerts() {
+    if (!window.HuntFlow) return;
+    var list = readJson("hunt-alerts", []);
+    var dirty = false;
+    list.forEach(function (rule) {
+      var subject = subjectOf(rule.kind, rule.itemId);
+      if (!subject) return;
+      var math = window.HuntFlow.breakdown(subject, huntSettings());
+      var next = { profit: math.profit, verdict: math.verdict, inStock: false };
+      var prev = rule.snapshot || {};
+      var reasons = window.HuntFlow.shouldNotify(rule, prev, next);
+      if (prev.profit !== next.profit || prev.verdict !== next.verdict || prev.inStock !== next.inStock) {
+        rule.snapshot = next;
+        dirty = true;
+      }
+      if (!reasons.length) return;
+      rule.history = rule.history || [];
+      rule.history.unshift({ at: new Date().toISOString(), reasons: reasons, verdict: next.verdict, profit: next.profit });
+      dirty = true;
+      deliverAlert(rule, reasons, math);
+    });
+    if (dirty) writeJson("hunt-alerts", list);
+  }
+
+  function screenHtml() {
+    if (bootError && state.tab !== "inventory" && state.tab !== "tracked" && state.tab !== "archive" && state.view !== "archive") {
+      return stateCard("error", "Hunt hit a problem", bootError) + '<button class="solid" type="button" data-action="retry">Try again</button>';
+    }
+    if (state.view === "verdict") return renderVerdict();
+    if (state.view === "alert-setup") return renderAlertSetup();
+    if (state.view === "estimate") return renderProfit();
     if (state.view === "lanes") return renderLanes();
     if (state.view === "lane") return renderLane();
     if (state.view === "store") return renderStore();
@@ -1158,12 +1630,14 @@
     if (state.view === "inv") return renderInvDetail();
     if (state.view === "inv-form") return invForm(state.invId ? findInv(state.invId) : null);
     if (state.view === "golf") return renderGolfDetail();
-    if (state.tab === "archive" && state.view === "root") return renderArchive();
+    if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
+    if (state.view === "drops" || state.tab === "drops") return renderDrops();
     if (state.tab === "stores") return renderStores();
-    if (state.tab === "drops") return renderDrops();
-    if (state.tab === "inventory") return renderInventory();
+    if (state.tab === "inventory" || state.tab === "tracked") return renderTracked();
     if (state.tab === "profit") return renderProfit();
-    return renderHunt();
+    if (state.tab === "alerts") return renderAlerts();
+    if (state.tab === "account") return renderAccount();
+    return renderHome();
   }
 
   function paintDataStatus() {
@@ -1181,9 +1655,12 @@
     screen.innerHTML = screenHtml();
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
-      var on = btn.getAttribute("data-tab") === state.tab;
+      var current = state.tab === "hunt" ? "home" : state.tab === "inventory" ? "tracked" : state.tab;
+      var on = btn.getAttribute("data-tab") === current;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
+      if (on) btn.setAttribute("aria-current", "page");
+      else btn.removeAttribute("aria-current");
     });
     var checked = localStorage.getItem("reseller-checked-at");
     var checkedLine = document.getElementById("checked-line");
@@ -1195,7 +1672,8 @@
     }
     paintDataStatus();
     if (keepY != null) window.scrollTo(0, keepY);
-    if (state.tab === "profit" && state.view === "root") bindProfit();
+    if (state.view === "estimate" || (state.tab === "profit" && state.view === "root")) bindProfit();
+    evaluateAlerts();
     var hunt = document.getElementById("hunt-q");
     if (hunt && document.activeElement && document.activeElement.id === "hunt-q") {
       var pos = state.query.length;
@@ -1245,6 +1723,7 @@
       lane: state.lane,
       storeId: state.storeId,
       itemId: state.itemId,
+      itemKind: state.itemKind,
       invId: state.invId,
       dropId: state.dropId,
       marketId: state.marketId,
@@ -1260,7 +1739,7 @@
   function back() {
     var prev = state.stack.pop();
     if (!prev) {
-      state.tab = "hunt";
+      state.tab = "home";
       state.view = "root";
     } else {
       Object.assign(state, prev);
@@ -1399,7 +1878,7 @@
     };
     Inv.upsertUser(invState, row);
     Inv.write(localStorage, invState);
-    state.tab = "inventory";
+    state.tab = "tracked";
     state.view = "root";
     state.stack = [];
     state.moveFocus = true;
@@ -1557,7 +2036,7 @@
     if (storeBtn) {
       var storeId = storeBtn.getAttribute("data-store");
       if (state.tab === "stores") push({ view: "store", storeId: storeId });
-      else push({ tab: "hunt", view: "lanes", storeId: storeId });
+      else push({ view: "lanes", storeId: storeId });
       return;
     }
     var laneBtn = event.target.closest("[data-lane]");
@@ -1614,6 +2093,55 @@
       paintArchiveList();
       return;
     }
+    var catBtn = event.target.closest("[data-category]");
+    if (catBtn) {
+      state.category = catBtn.getAttribute("data-category");
+      render({ keepScroll: true });
+      return;
+    }
+    var segBtn = event.target.closest("[data-segment]");
+    if (segBtn) {
+      state.segment = segBtn.getAttribute("data-segment");
+      render();
+      return;
+    }
+    var themeBtn = event.target.closest("[data-theme-choice]");
+    if (themeBtn) {
+      applyTheme(themeBtn.getAttribute("data-theme-choice"));
+      render();
+      return;
+    }
+    var storeToggle = event.target.closest("[data-store-toggle]");
+    if (storeToggle) {
+      var toggled = storeToggle.getAttribute("data-store-toggle");
+      var ids = savedStoreIds().filter(function (id) { return id !== toggled; });
+      if (ids.length === savedStoreIds().length) ids.push(toggled);
+      if (!ids.length) ids.push(toggled);
+      writeJson("hunt-stores", ids);
+      render();
+      return;
+    }
+    var toggleBtn = event.target.closest("[data-toggle]");
+    if (toggleBtn && state.draftAlert) {
+      var key = toggleBtn.getAttribute("data-toggle");
+      state.draftAlert[key] = !state.draftAlert[key];
+      render();
+      return;
+    }
+    var channelBtn = event.target.closest("[data-channel]");
+    if (channelBtn && state.draftAlert) {
+      state.draftAlert.channel = channelBtn.getAttribute("data-channel");
+      render();
+      return;
+    }
+    var openVerdict = event.target.closest("[data-open-verdict]");
+    if (openVerdict) {
+      var openKind = openVerdict.getAttribute("data-open-verdict");
+      var openId = openVerdict.getAttribute("data-open-id");
+      rememberCheck(openKind, openId);
+      push({ view: "verdict", itemKind: openKind, itemId: openId });
+      return;
+    }
     var filterBtn = event.target.closest("[data-filter]");
     if (filterBtn) {
       state.invFilter = filterBtn.getAttribute("data-filter");
@@ -1649,23 +2177,118 @@
     if (!actionBtn) return;
     var actionName = actionBtn.getAttribute("data-action");
     if (actionName === "refresh") { refreshAll(); return; }
-    if (actionName === "open-drops") { setTab("drops"); return; }
+    if (actionName === "open-drops") { push({ view: "drops" }); return; }
     if (actionName === "sources") { openSheet(sourcesHtml()); return; }
     if (actionName === "close-sheet") { closeSheet(); return; }
     if (actionName === "close-zoom") { closeZoom(); return; }
     if (actionName === "retry") { boot(); return; }
     if (actionName === "archive-retry") { reloadHwBook(); return; }
     if (actionName === "scan") { openScan(); return; }
+    if (actionName === "open-catalog") { push({ view: "archive" }); return; }
+    if (actionName === "open-estimate") { push({ view: "estimate" }); return; }
+    if (actionName === "track-item") {
+      var tracked = trackedList().filter(function (row) {
+        return !(row.kind === state.itemKind && row.id === state.itemId);
+      });
+      var subject = subjectOf(state.itemKind, state.itemId);
+      tracked.unshift({
+        kind: state.itemKind,
+        id: state.itemId,
+        name: subject ? subject.name : "",
+        bought: false,
+        cost: subject ? subject.cost : null,
+        at: new Date().toISOString(),
+      });
+      writeJson("hunt-tracked", tracked);
+      state.segment = "watching";
+      state.note = "Tracking.";
+      setTab("tracked");
+      return;
+    }
+    if (actionName === "set-alert") {
+      var alertSubject = subjectOf(state.itemKind, state.itemId);
+      var alertMath = window.HuntFlow.breakdown(alertSubject || { sold: null, cost: null, sales: 0 }, huntSettings());
+      var existingAlert = readJson("hunt-alerts", []).filter(function (row) {
+        return row.kind === state.itemKind && row.itemId === state.itemId;
+      })[0];
+      var suggested = alertMath.profit != null && alertMath.profit > 0
+        ? Math.round(alertMath.profit * 115) / 100
+        : huntSettings().minProfit;
+      state.draftAlert = existingAlert || {
+        profitOn: true,
+        threshold: suggested,
+        stockOn: true,
+        verdictOn: false,
+        channel: "push",
+        email: "",
+      };
+      if (state.draftAlert.threshold == null) state.draftAlert.threshold = suggested;
+      push({ view: "alert-setup" });
+      return;
+    }
+    if (actionName === "save-alert") { saveAlertDraft(); return; }
+    if (actionName === "untrack") {
+      var dropKind = actionBtn.getAttribute("data-kind");
+      var dropId = actionBtn.getAttribute("data-id");
+      var kept = [];
+      var removed = null;
+      trackedList().forEach(function (row) {
+        if (row.kind === dropKind && row.id === dropId) removed = row;
+        else kept.push(row);
+      });
+      writeJson("hunt-tracked", kept);
+      state.undo = removed;
+      render();
+      return;
+    }
+    if (actionName === "undo-untrack") {
+      if (state.undo) {
+        var restored = trackedList();
+        restored.unshift(state.undo);
+        writeJson("hunt-tracked", restored);
+        state.undo = null;
+        render();
+      }
+      return;
+    }
+    if (actionName === "mark-bought") {
+      state.buyKind = actionBtn.getAttribute("data-kind");
+      state.buyId = actionBtn.getAttribute("data-id");
+      openSheet('<h2>Mark bought</h2><label class="field" for="bought-cost"><span>What you paid</span><input id="bought-cost" type="number" inputmode="decimal" step="0.01"></label><button class="solid full" type="button" data-action="confirm-bought">Save</button>');
+      return;
+    }
+    if (actionName === "confirm-bought") {
+      var costEl = document.getElementById("bought-cost");
+      var paid = costEl && costEl.value !== "" ? Number(costEl.value) : null;
+      var nextTracked = trackedList().map(function (row) {
+        if (row.kind === state.buyKind && row.id === state.buyId) {
+          row.bought = true;
+          row.cost = Number.isFinite(paid) ? paid : row.cost;
+        }
+        return row;
+      });
+      writeJson("hunt-tracked", nextTracked);
+      closeSheet();
+      state.segment = "bought";
+      render();
+      return;
+    }
+    if (actionName === "delete-alert") {
+      var alertId = actionBtn.getAttribute("data-id");
+      writeJson("hunt-alerts", readJson("hunt-alerts", []).filter(function (row) { return row.id !== alertId; }));
+      render();
+      return;
+    }
     if (actionName === "add-purchase") {
       state.invId = "";
-      push({ tab: "inventory", view: "inv-form", invId: "" });
+      push({ tab: "tracked", view: "inv-form", invId: "" });
       return;
     }
     if (actionName === "add-inv") { var current = findCatalog(state.itemId); if (current) addCatalog(current); return; }
     if (actionName === "estimate") {
       if (state.view === "catalog" && state.itemId) state.profitId = "c:" + state.itemId;
       if ((state.view === "inv" || state.tab === "inventory") && state.invId) state.profitId = "i:" + state.invId;
-      setTab("profit");
+      push({ view: "estimate" });
       return;
     }
     if (actionName === "copy-notes") {
@@ -1708,7 +2331,7 @@
       Inv.write(localStorage, invState);
       closeSheet();
       state.view = "root";
-      state.tab = "inventory";
+      state.tab = "tracked";
       state.stack = [];
       render();
       return;
@@ -1752,7 +2375,7 @@
       var typed = document.getElementById("scan-q");
       state.query = typed ? typed.value : "";
       closeSheet();
-      state.tab = "hunt";
+      state.tab = "home";
       state.view = "root";
       state.stack = [];
       render();
@@ -1763,9 +2386,15 @@
     if (event.target.id === "hunt-q") {
       state.query = event.target.value;
       var box = document.getElementById("hunt-body");
-      if (box) {
-        box.innerHTML = state.query.trim() ? huntResults() : '<div class="store-list">' + stores.map(storeButton).join("") + '</div><button class="ghost" type="button" data-action="scan">Scan a code</button>';
-      }
+      if (box) box.innerHTML = homeBody();
+      return;
+    }
+    if (event.target.id === "alert-threshold" && state.draftAlert) {
+      state.draftAlert.threshold = event.target.value;
+      return;
+    }
+    if (event.target.id === "alert-email" && state.draftAlert) {
+      state.draftAlert.email = event.target.value;
       return;
     }
     if (event.target.id === "inv-q") {
@@ -1827,6 +2456,18 @@
       saveInvForm(state.invId ? findInv(state.invId) : null);
     }
     if (event.target.id === "profit-form") event.preventDefault();
+    if (event.target.id === "account-form") {
+      event.preventDefault();
+      if (!window.HuntFlow) return;
+      window.HuntFlow.saveSettings(localStorage, {
+        feePercent: document.getElementById("set-fee").value,
+        shipping: document.getElementById("set-ship").value,
+        minProfit: document.getElementById("set-profit").value,
+        minSales: document.getElementById("set-sales").value,
+      });
+      state.note = "Settings saved.";
+      render();
+    }
   });
 
   sheet.addEventListener("click", function (event) {
@@ -1858,7 +2499,7 @@
             if (!codes[0]) return;
             state.query = codes[0].rawValue;
             closeSheet();
-            state.tab = "hunt";
+            state.tab = "home";
             state.view = "root";
             state.stack = [];
             render();
@@ -2026,6 +2667,30 @@
     bindReturns();
     loadHuntData(true);
   }
+
+  applyTheme(themeChoice());
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+      if (themeChoice() === "system") applyTheme("system");
+    });
+  }
+
+  var swipe = null;
+  document.addEventListener("pointerdown", function (event) {
+    var row = event.target.closest("[data-swipe]");
+    if (!row) return;
+    swipe = { x: event.clientX, y: event.clientY, row: row };
+  });
+  document.addEventListener("pointerup", function (event) {
+    if (!swipe) return;
+    var dx = event.clientX - swipe.x;
+    var dy = event.clientY - swipe.y;
+    var row = swipe.row;
+    swipe = null;
+    if (dx > -64 || Math.abs(dx) < Math.abs(dy)) return;
+    var remove = row.querySelector("[data-action='untrack']");
+    if (remove) remove.click();
+  });
 
   watchShellUpdates();
   boot();
