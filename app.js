@@ -1491,6 +1491,11 @@
     if (next === "system") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme", next);
     try { localStorage.setItem("hunt-theme", next); } catch (err) {}
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var light = next === "light" || (next === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+      meta.setAttribute("content", light ? "#f7f4ef" : "#070708");
+    }
   }
 
   function saveAlertDraft() {

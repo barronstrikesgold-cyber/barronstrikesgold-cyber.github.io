@@ -67,6 +67,7 @@ async function openHome(page) {
 async function metrics(page, width) {
   return page.evaluate((viewportWidth) => {
     const tab = document.querySelector(".tabbar").getBoundingClientRect();
+    const app = document.querySelector(".app").getBoundingClientRect();
     const screen = document.querySelector(".screen");
     const list = document.querySelector("#hunt-body .list");
     const scan = getComputedStyle(document.querySelector(".scan"));
@@ -75,6 +76,7 @@ async function metrics(page, width) {
     return {
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       tabX: tab.x,
+      appX: app.x,
       tabY: tab.y,
       tabW: tab.width,
       tabH: tab.height,
@@ -113,7 +115,7 @@ try {
         assert(info.wordmark === "Hunt", `${name} ${width} ${theme} wordmark`);
         assert(info.theme === theme, `${name} ${width} ${theme} data-theme is ${info.theme}`);
         assert(!info.overflow, `${name} ${width} ${theme} horizontal overflow`);
-        const side = info.tabW < info.viewW * 0.45 && info.tabX <= 2 && info.tabH > info.viewH * 0.7;
+        const side = info.tabW < info.viewW * 0.45 && Math.abs(info.tabX - info.appX) <= 2 && info.tabH > info.viewH * 0.7;
         const bottom = info.tabW > info.viewW * 0.8 && info.tabY > info.viewH * 0.55;
         if (width >= 1024) assert(side, `${name} ${width} ${theme} side nav (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabX)},${Math.round(info.tabY)})`);
         else assert(bottom, `${name} ${width} ${theme} bottom tabs (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabY)})`);
