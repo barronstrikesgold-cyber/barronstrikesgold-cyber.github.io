@@ -109,7 +109,7 @@ async function main() {
   const precache = shell.slice(shell.indexOf("var SHELL"), shell.indexOf("self.addEventListener"));
   assert(!precache.includes("data/hw/"), "year files stay out of the precache");
   assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files are runtime-cached stale-while-revalidate");
-  assert(fs.readFileSync(path.join(root, "app.js"), "utf8").includes('data-tab="archive"') || fs.readFileSync(path.join(root, "index.html"), "utf8").includes('data-tab="archive"'), "catalog tab");
+  assert(app.includes('data-action="open-catalog"') && app.includes("function renderArchive"), "catalog folds into home");
   console.log("hw-catalog.test.js OK", count, "photos", manifest.totals.photoPct + "%", "mattel", manifest.totals.mattelPct + "%", "worth", worth);
 }
 
