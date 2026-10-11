@@ -100,6 +100,7 @@ assert(pokemon.items.some((item) => /world championship deck/i.test(item.name)),
 assert(/BUY/.test(file.formula) && /PASS/.test(file.formula), "formula states BUY and PASS");
 const refresh = fs.readFileSync(path.join(root, "scripts/refresh-market.mjs"), "utf8");
 assert(refresh.includes("applyMarketComps"), "daily refresh attaches sold comps");
+assert(refresh.includes("stampAssociates"), "daily refresh stamps Amazon Associates tags");
 
 const all = [];
 file.sections.forEach((section) => section.items.forEach((item) => all.push(item)));

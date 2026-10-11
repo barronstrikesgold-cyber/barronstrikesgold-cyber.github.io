@@ -316,6 +316,15 @@ try {
         return pad >= tab.getBoundingClientRect().height + 24;
       });
       assert(clears, "screen padding clears the tab bar");
+      const disclosure = page.getByText("As an Amazon Associate I earn from qualifying purchases.", { exact: true });
+      await disclosure.waitFor();
+      const visible = await disclosure.evaluate((el) => {
+        var rect = el.getBoundingClientRect();
+        var tab = document.querySelector(".tabbar").getBoundingClientRect();
+        var style = getComputedStyle(el);
+        return rect.height > 0 && style.visibility !== "hidden" && rect.bottom <= tab.top + 1;
+      });
+      assert(visible, "associates disclosure sits above the tab bar");
       await page.getByRole("tab", { name: "Catalog" }).click();
       await page.getByRole("heading", { name: "Catalog" }).waitFor();
       await page.waitForFunction(() => {
