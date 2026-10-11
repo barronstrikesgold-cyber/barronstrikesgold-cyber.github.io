@@ -1,6 +1,6 @@
 {
-  "name": "Reseller",
-  "short_name": "Reseller",
+  "name": "Hunt",
+  "short_name": "Hunt",
   "description": "If it is not on the buy list, leave it.",
   "start_url": "./",
   "scope": "./",

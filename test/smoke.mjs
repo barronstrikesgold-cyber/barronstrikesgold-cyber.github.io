@@ -13,6 +13,7 @@ const types = {
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".jpg": "image/jpeg",
+  ".webp": "image/webp",
   ".webmanifest": "application/manifest+json",
 };
 
@@ -88,24 +89,18 @@ try {
   for (const width of [375, 390, 430]) {
     const page = await browser.newPage({ viewport: { width, height: 844 }, deviceScaleFactor: 2 });
     await page.goto(base, { waitUntil: "networkidle" });
-    await page.getByRole("tab", { name: "Hunt" }).waitFor();
+    await page.getByRole("heading", { name: "What did you find?" }).waitFor();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert(!overflow, `horizontal overflow at ${width}`);
-    const tabs = ["Hunt", "Catalog", "Stores", "Drops", "Inventory", "Profit"];
+    const tabs = ["Home", "Tracked", "Alerts", "Account"];
     for (const name of tabs) {
-      const tab = page.getByRole("tab", { name });
+      const tab = page.getByRole("tab", { name, exact: true });
       await tab.click();
       assert(await tab.getAttribute("aria-selected") === "true", `${name} selected at ${width}`);
-      if (name === "Drops") {
-        await page.getByText("Latest drops", { exact: true }).waitFor();
-        await page.getByText("On the buy list", { exact: true }).waitFor();
-        const dropsOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
-        assert(!dropsOverflow, `drops overflow at ${width}`);
-      }
     }
-    await page.getByRole("tab", { name: "Inventory" }).click();
-    await page.getByRole("heading", { name: "Inventory" }).waitFor();
-    await page.getByText("78 packages").waitFor();
+    await page.getByRole("tab", { name: "Tracked", exact: true }).click();
+    await page.getByRole("tab", { name: /Bought/ }).click();
+    await page.locator("[data-inv]").first().waitFor();
     const rows = await page.locator("[data-inv]").count();
     assert(rows === 78, `expected 78 inventory rows at ${width}, saw ${rows}`);
     await page.getByRole("button", { name: /Lotus Sport Elise STH/ }).waitFor();
@@ -118,8 +113,8 @@ try {
     assert((await sub.innerText()).includes("Verify STH"), "second Subaru is Verify STH");
     if (width === 390) {
       await page.screenshot({ path: path.join(shots, "inventory-390.png"), fullPage: false });
-      await page.getByRole("tab", { name: "Hunt" }).click();
-      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
+      await page.getByRole("tab", { name: "Home", exact: true }).click();
+      await page.getByRole("heading", { name: "What did you find?" }).waitFor();
       const strip = page.locator(".drops-strip");
       await strip.waitFor();
       const stripText = await strip.innerText();
@@ -130,14 +125,29 @@ try {
       assert(await page.locator("#update-banner").isHidden(), "update banner stays hidden until a new shell is waiting");
       await strip.click();
       await page.getByRole("heading", { name: "Drops" }).waitFor();
-      await page.getByRole("tab", { name: "Hunt" }).click();
+      await page.getByRole("tab", { name: "Account", exact: true }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
-      for (const line of ["Super TH", "Premium chase", "F&F", "Matchbox Super Chase", "Exclusives", "Premium", "Multipacks", "Mainline", "Leave on peg", "Selective", "Pokémon"]) {
-        await page.getByRole("heading", { name: line, exact: true }).waitFor();
+      await page.locator(".store-pick").filter({ hasText: "Walmart" }).click();
+      await page.getByRole("heading", { name: "Walmart", exact: true }).waitFor();
+      const laneTitles = ["Super TH", "Premium chase", "F&F", "Matchbox Super Chase", "Exclusives", "Premium", "Multipacks", "Mainline", "Leave on peg", "Selective", "Pokémon"];
+      for (const line of laneTitles) {
+        await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: new RegExp("^" + line + "$") }) }).waitFor();
       }
-      assert(await page.locator("[data-resale]").count() === 87, "all 87 resale cards are on Hunt");
-      const bare = await page.locator("[data-resale]").evaluateAll((els) => els.filter((el) => !el.querySelector("img")).map((el) => el.getAttribute("data-resale")));
+      let resaleCount = 0;
+      const bare = [];
+      for (const line of laneTitles) {
+        await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: new RegExp("^" + line + "$") }) }).click();
+        await page.getByRole("heading", { name: line, exact: true }).waitFor();
+        const cards = page.locator("[data-resale]");
+        resaleCount += await cards.count();
+        bare.push(...await cards.evaluateAll((els) => els.filter((el) => !el.querySelector("img")).map((el) => el.getAttribute("data-resale"))));
+        await page.getByRole("button", { name: "Walmart", exact: true }).click();
+        await page.getByRole("heading", { name: "Walmart", exact: true }).waitFor();
+      }
+      assert(resaleCount === 87, "all 87 resale cards are on the store lanes");
       assert(bare.length === 0, "every resale card has a photo tag, missing " + bare.join(","));
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Premium chase$/ }) }).click();
+      await page.getByRole("heading", { name: "Premium chase", exact: true }).waitFor();
       await assertFullPackage(page.getByRole("button", { name: /Aero Styles/ }), "aero", "photos/resale/hw26-001.jpg");
       assert(/BUY/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero is BUY");
       assert(/\$204\.67/.test(await page.getByRole("button", { name: /Aero Styles/ }).innerText()), "aero shows net");
@@ -160,18 +170,12 @@ try {
       });
       assert((await detailImg.getAttribute("referrerpolicy")) === "no-referrer", "detail photo omits the referrer");
       await page.getByRole("button", { name: "Back" }).click();
-      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
+      await page.getByRole("heading", { name: "Premium chase", exact: true }).waitFor();
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
-      await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
-      await page.getByRole("button", { name: /Fast & Furious Supra/ }).waitFor();
-      await page.getByRole("button", { name: /Lincoln Continental/ }).waitFor();
-      await page.getByRole("button", { name: /Knockout/ }).waitFor();
-      await page.getByRole("button", { name: /Booster Bundle/ }).waitFor();
-      await page.getByRole("button", { name: /Wave 2/ }).waitFor();
       await page.screenshot({ path: path.join(shots, "hunt-lines-390.png"), fullPage: false });
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("heading", { name: "Walmart" }).waitFor();
-      await page.getByRole("button", { name: /Super TH/ }).click();
+      await page.getByRole("heading", { name: "Walmart", exact: true }).waitFor();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Super TH$/ }) }).click();
       await page.getByRole("heading", { name: "Super TH" }).waitFor();
       await page.getByText("Read the card").first().waitFor();
       const cuda = page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ });
@@ -233,17 +237,17 @@ try {
       await sky.waitFor();
       assert(/BUY/.test(await sky.innerText()) && /Last sold/i.test(await sky.innerText()), "skyline TH is on the resale list");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Leave on peg/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Leave on peg$/ }) }).click();
       await page.getByRole("heading", { name: "Leave on peg" }).waitFor();
       assert(await page.getByRole("button", { name: /Black Nissan Skyline/ }).count() === 0, "skyline TH left the pass lane");
       await page.getByRole("button", { name: /Basic Hot Wheels mainline/ }).waitFor();
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Premium chase/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Premium chase$/ }) }).click();
       await page.getByRole("button", { name: /Bel Air/ }).waitFor();
       await assertFullPackage(page.getByRole("button", { name: /Bel Air/ }), "belair", "photos/belair.jpg");
       await assertFullPackage(page.getByRole("button", { name: /Datsun 510/ }), "datsun", "photos/datsun.jpg");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Matchbox Super Chase/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Matchbox Super Chase$/ }) }).click();
       await page.getByRole("button", { name: /Integra Type R/ }).waitFor();
       await assertFullPackage(page.getByRole("button", { name: /Integra Type R/ }), "mb-integra", "photos/mb-integra.jpg");
       await assertFullPackage(page.getByRole("button", { name: /Porsche 911 Rally/ }), "mb-911", "photos/mb-911.jpg");
@@ -256,10 +260,10 @@ try {
       await defender.waitFor();
       assert(/photo needed/i.test(await defender.innerText()), "defender stays Photo needed");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /F&F/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^F&F$/ }) }).click();
       await assertFullPackage(page.getByRole("button", { name: /Fast & Furious Supra/ }), "ff-supra", "photos/ff-supra.jpg");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Pokémon/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Pokémon$/ }) }).click();
       await assertFullPackage(page.getByRole("button", { name: /Knockout/ }), "knockout", "photos/knockout.jpg");
       await assertFullPackage(page.getByRole("button", { name: /Tech Sticker/ }), "tech-sticker", "photos/tech-sticker.jpg");
       await assertFullPackage(page.getByRole("button", { name: /M6a/ }), "m6a", "photos/m6a.jpg");
@@ -267,26 +271,24 @@ try {
       await bundle.waitFor();
       assert(/photo needed/i.test(await bundle.innerText()), "bundle stays Photo needed");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
-      await page.getByRole("button", { name: /Super TH/ }).click();
+      await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Super TH$/ }) }).click();
       await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).click();
       await page.getByRole("link", { name: "Google", exact: true }).waitFor();
       await page.getByRole("link", { name: "Google Shopping", exact: true }).waitFor();
       await page.getByRole("link", { name: "Search on Walmart", exact: true }).waitFor();
       await page.locator("#hunt-q").waitFor({ state: "detached" });
-      await page.getByRole("tab", { name: "Hunt" }).click();
+      await page.getByRole("tab", { name: "Home", exact: true }).click();
       await page.locator("#hunt-q").fill("spectraflame blue");
       await page.getByRole("button", { name: /Subaru Impreza WRX STI rally \(2nd\)/ }).waitFor();
       assert(await page.getByRole("button", { name: /Subaru Impreza/ }).count() === 3, "search finds both book Subarus and the Impreza Super");
       await page.locator("#hunt-q").fill("");
-      await page.getByRole("tab", { name: "Stores" }).click();
-      await page.getByRole("button", { name: /Target/ }).click();
-      await page.getByRole("link", { name: "Search on Target", exact: true }).first().waitFor();
-      await page.getByRole("button", { name: "Search on Target.com" }).waitFor();
-      await page.getByRole("link", { name: "Google", exact: true }).first().waitFor();
-      const href = await page.getByRole("link", { name: "Google", exact: true }).first().getAttribute("href");
-      assert(href && href.includes("google.com/search"), "Google check is a search link");
+      await page.getByRole("tab", { name: "Account", exact: true }).click();
+      await page.locator(".store-pick").filter({ hasText: "Target" }).click();
+      await page.getByRole("heading", { name: "Target", exact: true }).waitFor();
+      await page.locator("button.lane-card").first().waitFor();
       await page.screenshot({ path: path.join(shots, "stores-390.png"), fullPage: false });
-      await page.getByRole("tab", { name: "Drops" }).click();
+      await page.getByRole("tab", { name: "Home", exact: true }).click();
+      await page.locator(".drops-strip").click();
       await page.getByText("Latest drops", { exact: true }).waitFor();
       await page.getByText("On the buy list", { exact: true }).waitFor();
       const sneakers = page.getByRole("button", { name: "Sneakers", exact: true });
@@ -316,7 +318,8 @@ try {
       await page.getByText("On the buy list", { exact: true }).waitFor();
       await page.getByText("Released").first().waitFor();
       await page.screenshot({ path: path.join(shots, "drops-390.png"), fullPage: false });
-      await page.getByRole("tab", { name: "Profit" }).click();
+      await page.getByRole("tab", { name: "Account", exact: true }).click();
+      await page.getByRole("button", { name: "Estimate a sale" }).click();
       await page.getByRole("heading", { name: "Profit" }).waitFor();
       await page.locator("#profit-item").selectOption("c:f40");
       await page.getByText("No sold data", { exact: true }).waitFor();
@@ -344,7 +347,8 @@ try {
         return rect.height > 0 && style.visibility !== "hidden" && rect.bottom <= tab.top + 1;
       });
       assert(visible, "associates disclosure sits above the tab bar");
-      await page.getByRole("tab", { name: "Catalog" }).click();
+      await page.getByRole("tab", { name: "Home", exact: true }).click();
+      await page.getByRole("button", { name: "Full catalog" }).click();
       await page.getByRole("heading", { name: "Catalog" }).waitFor();
       await page.waitForFunction(() => {
         const img = document.querySelector(".hw-card .hw-photo img");
@@ -369,8 +373,8 @@ try {
       await page.locator(".hw-card, .state-card").first().waitFor();
       const overflowCatalog = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
       assert(!overflowCatalog, "catalog has no horizontal overflow");
-      await page.getByRole("tab", { name: "Hunt" }).click();
-      await page.getByRole("heading", { name: "Where are you?" }).waitFor();
+      await page.getByRole("tab", { name: "Home", exact: true }).click();
+      await page.getByRole("heading", { name: "What did you find?" }).waitFor();
       const refresh = page.waitForRequest((req) => req.url().includes("data/drops.json"));
       await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
       const came = await refresh;

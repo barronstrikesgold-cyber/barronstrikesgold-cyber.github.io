@@ -58,6 +58,7 @@ var SHELL = [
   "./index.html",
   "./lib/amazon.js",
   "./lib/dates.js",
+  "./lib/flow.js",
   "./lib/hunt-drops.js",
   "./lib/inventory.js",
   "./lib/market.js",

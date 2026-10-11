@@ -110,7 +110,9 @@ async function main() {
   assert(precache.includes("./data/hw/index.json"), "catalog index is precached");
   assert(precache.includes("./data/hw/manifest.json"), "catalog manifest is precached");
   assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files refresh after the precache");
-  assert(fs.readFileSync(path.join(root, "app.js"), "utf8").includes('data-tab="archive"') || fs.readFileSync(path.join(root, "index.html"), "utf8").includes('data-tab="archive"'), "catalog tab");
+  assert(app.includes('data-action="open-catalog"') && app.includes("function renderArchive"), "catalog folds into home");
+  assert(app.includes("function catalogShowing"), "catalog refresh follows the open view");
+  assert(app.includes("if (catalogShowing() && canRepaint()) render()"), "opening the catalog from Home repaints when the index arrives");
   console.log("hw-catalog.test.js OK", count, "photos", manifest.totals.photoPct + "%", "mattel", manifest.totals.mattelPct + "%", "worth", worth);
 }
 
