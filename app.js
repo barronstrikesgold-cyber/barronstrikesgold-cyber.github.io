@@ -6,6 +6,7 @@
   var R = window.ResellerProviders;
   var Inv = window.ResellerInventory;
   var Rules = window.ResellerRules;
+  var Scan = window.ResellerScan;
 
   var SHOE_SIZES = ["8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"];
   var CLOTHES_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -24,6 +25,9 @@
   var bootError = "";
   var stream = null;
   var scanTimer = null;
+  var scanGen = 0;
+  var scanHit = false;
+  var pendingScan = null;
 
   var state = {
     tab: "home",
@@ -991,6 +995,7 @@
       "<p>" + esc(bookTarget(item)) + ". This is your book, not a sold comp.</p>" +
       "<p>No sold data</p>" +
       "<p>Notes · " + esc(item.notes || "None") + "</p>" +
+      (item.barcode ? "<p>Code · " + esc(item.barcode) + "</p>" : "") +
       "<p>Status · " + esc(item.status || "On hand") + ". STH and Verify are statuses, not a buy button.</p>" +
       "<p>Grade · " + esc(item.grade || "Not set") + "</p>" +
       "<p>Photo · " + (shot ? "Package photo from the buy list." : "Photo needed") + "</p></section>" +
@@ -2002,7 +2007,7 @@
     render();
   }
 
-  function addCatalog(item) {
+  function addCatalog(item, extra) {
     var owned = invForCatalog(item);
     if (owned) {
       push({ tab: "inventory", view: "inv", invId: owned.id });
@@ -2022,6 +2027,7 @@
       category: (Rules.laneMeta(Rules.laneFor(item)) || {}).title || "Cars",
       grade: gradeOfCatalog(item),
       catalogId: item.id,
+      barcode: extra && extra.barcode ? extra.barcode : "",
     });
     Inv.write(localStorage, invState);
     push({ tab: "inventory", view: "inv", invId: row.id });
@@ -2089,10 +2095,13 @@
   }
 
   function stopCamera() {
+    scanGen += 1;
     if (scanTimer) clearInterval(scanTimer);
     scanTimer = null;
     if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
     stream = null;
+    var video = document.getElementById("scan-video");
+    if (video) video.srcObject = null;
   }
 
   function sourcesHtml() {
@@ -2479,14 +2488,17 @@
       reader.readAsText(file);
       return;
     }
-    if (actionName === "run-scan-text") {
-      var typed = document.getElementById("scan-q");
-      state.query = typed ? typed.value : "";
-      closeSheet();
-      state.tab = "home";
-      state.view = "root";
-      state.stack = [];
-      render();
+    if (actionName === "add-scan-code") {
+      addScannedCode(pendingScan, null);
+      return;
+    }
+    if (actionName === "add-scan-catalog") {
+      addScannedCode(pendingScan, actionBtn.getAttribute("data-scan-catalog"));
+      return;
+    }
+    if (actionName === "add-scan-inv") {
+      openScannedInventory(actionBtn.getAttribute("data-scan-inv"), pendingScan);
+      return;
     }
   });
 
@@ -2559,6 +2571,11 @@
       if (store) window.open(R.checkHref(store.search, q ? q.value : ""), "_blank", "noopener,noreferrer");
       return;
     }
+    if (event.target.id === "scan-form") {
+      event.preventDefault();
+      lookupTypedCode();
+      return;
+    }
     if (event.target.id === "inv-form") {
       event.preventDefault();
       saveInvForm(state.invId ? findInv(state.invId) : null);
@@ -2588,36 +2605,282 @@
     });
   }
 
-  function openScan() {
-    var canScan = !!(navigator.mediaDevices && window.BarcodeDetector);
-    var camera = canScan
-      ? '<video id="scan-video" playsinline muted></video><p id="scan-msg" class="fine"></p>'
-      : '<p id="scan-msg" class="fine">No barcode detector in this browser. Type the name. The code is not the tell. Read the card.</p>';
-    openSheet('<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' + camera + '<label class="field"><span>Or type the name</span><input id="scan-q" type="text" autocomplete="off"></label><button class="solid full" type="button" data-action="run-scan-text">Search the list</button>');
-    if (!canScan) return;
+  function scanSheetHtml() {
+    return '<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' +
+      '<video id="scan-video" playsinline muted autoplay></video>' +
+      '<p id="scan-msg" class="fine" role="status">Starting the camera…</p>' +
+      '<div id="scan-hits"></div>' +
+      '<form id="scan-form"><label class="field"><span>Or type the code</span><input id="scan-q" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></label>' +
+      '<button class="solid full" type="submit">Look up this code</button></form>';
+  }
+
+  function setScanMessage(text, isError) {
     var msg = document.getElementById("scan-msg");
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (media) {
-      stream = media;
-      var video = document.getElementById("scan-video");
-      video.srcObject = media;
-      return video.play().then(function () {
-        var detector = new BarcodeDetector({ formats: ["ean_13", "upc_a", "upc_e", "code_128", "qr_code"] });
-        scanTimer = setInterval(function () {
-          detector.detect(video).then(function (codes) {
-            if (!codes[0]) return;
-            state.query = codes[0].rawValue;
-            closeSheet();
-            state.tab = "home";
-            state.view = "root";
-            state.stack = [];
-            render();
-          }).catch(function () {});
-        }, 500);
+    if (!msg) return;
+    msg.textContent = text;
+    msg.classList.toggle("is-error", !!isError);
+    msg.setAttribute("role", isError ? "alert" : "status");
+  }
+
+  function hideScanVideo() {
+    var video = document.getElementById("scan-video");
+    if (video) video.hidden = true;
+  }
+
+  function scanChoices(parsed) {
+    var hits = Scan.match(parsed, { catalog: allCatalog(), inventory: Inv.visible(invState) });
+    var rows = [];
+    var seen = {};
+    hits.inventory.forEach(function (item) {
+      seen[item.id] = true;
+      rows.push({ kind: "inv", id: item.id, name: item.name, note: "In inventory" });
+    });
+    hits.catalog.forEach(function (item) {
+      var owned = invForCatalog(item);
+      if (owned) {
+        if (!seen[owned.id]) rows.push({ kind: "inv", id: owned.id, name: item.name, note: "In inventory" });
+        return;
+      }
+      rows.push({ kind: "catalog", id: item.id, name: item.name, note: "On the buy list" });
+    });
+    return rows;
+  }
+
+  function paintScanChoices(parsed, rows) {
+    pendingScan = parsed;
+    var box = document.getElementById("scan-hits");
+    if (!rows.length) {
+      setScanMessage(Scan.MESSAGES.miss, true);
+      if (box) box.innerHTML = '<button class="solid full" type="button" data-action="add-scan-code">Add this code to inventory</button>';
+      return;
+    }
+    if (rows.length > 1) setScanMessage("Several items share this code. Read the card, then pick one.", false);
+    else setScanMessage("This code is on the list. Read the card.", false);
+    if (!box) return;
+    box.innerHTML = rows.map(function (row) {
+      var action = row.kind === "inv" ? "add-scan-inv" : "add-scan-catalog";
+      var attr = row.kind === "inv" ? "data-scan-inv" : "data-scan-catalog";
+      return '<button class="solid full" type="button" data-action="' + action + '" ' + attr + '="' + esc(row.id) + '">' + esc(row.note + " · " + row.name) + "</button>";
+    }).join("");
+  }
+
+  function openScannedInventory(id, parsed) {
+    var row = findInv(id);
+    if (!row) return;
+    if (parsed && parsed.key && !row.barcode) {
+      row.barcode = parsed.key;
+      Inv.write(localStorage, invState);
+    }
+    closeSheet();
+    push({ tab: "tracked", view: "inv", invId: row.id });
+  }
+
+  function addScannedCode(parsed, catalogId) {
+    if (!parsed || !parsed.key) return;
+    if (!catalogId) {
+      var row = Inv.upsertUser(invState, {
+        name: "Code " + parsed.key,
+        notes: "Scanned " + parsed.format + ". Not on the catalog. Read the card.",
+        cost: 0,
+        resaleLow: null,
+        resaleHigh: null,
+        resaleLabel: "",
+        tag: "mainline",
+        store: "",
+        date: new Date().toISOString().slice(0, 10),
+        status: "On hand",
+        category: "Cars",
+        grade: "",
+        catalogId: null,
+        barcode: parsed.key,
       });
-    }).catch(function () {
-      var video = document.getElementById("scan-video");
-      if (video) video.remove();
-      msg.textContent = "Camera is unavailable. Type the name. Read the card.";
+      Inv.write(localStorage, invState);
+      closeSheet();
+      push({ tab: "tracked", view: "inv", invId: row.id });
+      return;
+    }
+    var item = findCatalog(catalogId);
+    if (!item) return;
+    var owned = invForCatalog(item);
+    if (owned) {
+      openScannedInventory(owned.id, parsed);
+      return;
+    }
+    closeSheet();
+    addCatalog(item, { barcode: parsed.key });
+  }
+
+  function presentScan(raw) {
+    var parsed = Scan.normalize(raw);
+    if (!parsed) {
+      setScanMessage(Scan.MESSAGES.shape, true);
+      return;
+    }
+    if (parsed.error) {
+      setScanMessage(Scan.MESSAGES[parsed.error] || Scan.MESSAGES.shape, true);
+      return;
+    }
+    if (scanHit) return;
+    scanHit = true;
+    pendingScan = parsed;
+    stopCamera();
+    hideScanVideo();
+    var rows = scanChoices(parsed);
+    if (rows.length === 1 && rows[0].kind === "catalog") {
+      addScannedCode(parsed, rows[0].id);
+      return;
+    }
+    if (rows.length === 1 && rows[0].kind === "inv") {
+      openScannedInventory(rows[0].id, parsed);
+      return;
+    }
+    paintScanChoices(parsed, rows);
+  }
+
+  function lookupTypedCode() {
+    var typed = document.getElementById("scan-q");
+    scanHit = false;
+    presentScan(typed ? typed.value : "");
+  }
+
+  function attachScanStream(media) {
+    stream = media;
+    var video = document.getElementById("scan-video");
+    if (!video) {
+      stopCamera();
+      return Promise.reject(new Error("closed"));
+    }
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("muted", "");
+    video.autoplay = true;
+    video.srcObject = media;
+    return video.play();
+  }
+
+  function watchBarcodeDetector(video, detector, gen) {
+    var busy = false;
+    scanTimer = setInterval(function () {
+      if (busy || gen !== scanGen) return;
+      busy = true;
+      detector.detect(video).then(function (codes) {
+        busy = false;
+        if (gen !== scanGen || !codes || !codes[0] || !codes[0].rawValue) return;
+        var format = String(codes[0].format || "");
+        if (format && Scan.FORMATS.indexOf(format) === -1) return;
+        presentScan(codes[0].rawValue);
+      }).catch(function () {
+        busy = false;
+      });
+    }, 300);
+  }
+
+  function watchZXing(video, gen) {
+    var canvas = document.createElement("canvas");
+    var busy = false;
+    scanTimer = setInterval(function () {
+      if (busy || gen !== scanGen || !video.videoWidth || !window.ZXing) return;
+      busy = true;
+      var found = null;
+      try {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext("2d", { willReadFrequently: true }) || canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        found = Scan.decodeImageData(window.ZXing, ctx.getImageData(0, 0, canvas.width, canvas.height));
+      } catch (err) {
+        found = null;
+      }
+      busy = false;
+      if (gen === scanGen && found && found.rawValue) presentScan(found.rawValue);
+    }, 300);
+  }
+
+  function loadZXing() {
+    if (window.ZXing && window.ZXing.MultiFormatReader) return Promise.resolve(window.ZXing);
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement("script");
+      script.src = "vendor/zxing.min.js";
+      script.async = true;
+      script.onload = function () {
+        if (window.ZXing && window.ZXing.MultiFormatReader) resolve(window.ZXing);
+        else reject(new Error("zxing"));
+      };
+      script.onerror = function () { reject(new Error("zxing")); };
+      document.head.appendChild(script);
+    });
+  }
+
+  function nativeDetector() {
+    if (typeof window.BarcodeDetector !== "function") return Promise.resolve(null);
+    function build(formats) {
+      if (!formats.length) return null;
+      try {
+        return new window.BarcodeDetector({ formats: formats });
+      } catch (err) {
+        return null;
+      }
+    }
+    if (typeof window.BarcodeDetector.getSupportedFormats === "function") {
+      return window.BarcodeDetector.getSupportedFormats().then(function (supported) {
+        var have = supported || [];
+        return build(Scan.FORMATS.filter(function (format) { return have.indexOf(format) !== -1; }));
+      }).catch(function () {
+        return build(Scan.FORMATS.slice());
+      });
+    }
+    return Promise.resolve(build(Scan.FORMATS.slice()));
+  }
+
+  function requestCamera() {
+    if (!window.isSecureContext) return Promise.reject({ kind: "https" });
+    var devices = navigator.mediaDevices;
+    if (!devices || typeof devices.getUserMedia !== "function") return Promise.reject({ kind: "no-camera" });
+    return devices.getUserMedia(Scan.cameraConstraints()).catch(function (err) {
+      if (err && (err.name === "OverconstrainedError" || err.name === "NotFoundError")) {
+        return devices.getUserMedia(Scan.fallbackConstraints());
+      }
+      throw err;
+    });
+  }
+
+  function openScan() {
+    pendingScan = null;
+    scanHit = false;
+    openSheet(scanSheetHtml());
+    var gen = scanGen;
+    requestCamera().then(function (media) {
+      if (gen !== scanGen) {
+        media.getTracks().forEach(function (track) { track.stop(); });
+        return;
+      }
+      return attachScanStream(media).then(function () {
+        if (gen !== scanGen) return;
+        var video = document.getElementById("scan-video");
+        setScanMessage("Point the camera at a UPC, EAN, or Code 128.", false);
+        return nativeDetector().then(function (detector) {
+          if (gen !== scanGen || !video) return;
+          if (detector) {
+            watchBarcodeDetector(video, detector, gen);
+            return;
+          }
+          return loadZXing().then(function () {
+            if (gen !== scanGen) return;
+            watchZXing(video, gen);
+          }).catch(function () {
+            if (gen !== scanGen) return;
+            setScanMessage(Scan.MESSAGES["no-detector"], true);
+          });
+        });
+      });
+    }).catch(function (err) {
+      if (gen !== scanGen) return;
+      hideScanVideo();
+      var kind = err && err.kind ? err.kind : Scan.cameraErrorKind(err);
+      setScanMessage(Scan.MESSAGES[kind] || Scan.MESSAGES["no-camera"], true);
     });
   }
 

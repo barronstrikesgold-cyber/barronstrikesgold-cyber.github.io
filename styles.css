@@ -742,7 +742,18 @@ h2 {
 }
 .sheet::backdrop, .lightbox::backdrop { background: rgba(0, 0, 0, 0.72); }
 .sheet-body { padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); display: grid; gap: 12px; }
-.sheet video { width: 100%; border-radius: 16px; background: #000; max-height: 240px; }
+.sheet video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  object-position: center center;
+  border-radius: 16px;
+  background: #000;
+}
+.sheet video[hidden] { display: none; }
+#scan-msg.is-error { color: var(--pass); font-weight: 700; }
+.scan-hits, #scan-hits { display: grid; gap: 8px; }
 
 .lightbox {
   width: 100vw;
