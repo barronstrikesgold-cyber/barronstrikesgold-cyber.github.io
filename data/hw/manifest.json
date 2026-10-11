@@ -1,16 +1,16 @@
 {
   "generatedAt": "2026-10-11T03:21:46.782Z",
-  "phase": "1968–2026 Hot Wheels Wiki year lists, plus series pages found for 2012–2026. Mattel Creations images hotlinked when the toy number matches. No image files are stored in the repo.",
-  "attribution": "Release tables: Hot Wheels Wiki (Fandom), CC BY-SA. Official photos: Mattel Creations CDN, hotlinked, for items matched by toy number or name. Other photos: Hot Wheels Wiki file thumbs, hotlinked, with a link to the file page.",
+  "phase": "1968–2026 Hot Wheels Wiki year lists. Wiki photos that Fandom blocks from GitHub Pages are stored as small WebP thumbs. Mattel Creations photos stay on the Shopify CDN over https.",
+  "attribution": "Release tables: Hot Wheels Wiki (Fandom), CC BY-SA. Official photos: Mattel Creations CDN, hotlinked over https. Wiki photos: small WebP thumbs hosted with this site, with a link to the wiki file page.",
   "sources": {
     "wiki": "https://hotwheels.fandom.com/wiki/Category:Lists_of_Hot_Wheels_by_year",
     "mattel": "https://creations.mattel.com/collections/hot-wheels-collectors"
   },
   "totals": {
     "count": 16192,
-    "photos": 15607,
+    "photos": 15568,
     "mattel": 659,
-    "photoPct": 96.4,
+    "photoPct": 96.1,
     "mattelPct": 4.1
   },
   "years": [
@@ -241,14 +241,14 @@
     {
       "year": 2000,
       "count": 249,
-      "photos": 246,
+      "photos": 243,
       "mattel": 0,
       "file": "data/hw/2000.json"
     },
     {
       "year": 2001,
       "count": 257,
-      "photos": 255,
+      "photos": 254,
       "mattel": 1,
       "file": "data/hw/2001.json"
     },
@@ -283,7 +283,7 @@
     {
       "year": 2006,
       "count": 324,
-      "photos": 318,
+      "photos": 316,
       "mattel": 0,
       "file": "data/hw/2006.json"
     },
@@ -304,14 +304,14 @@
     {
       "year": 2009,
       "count": 342,
-      "photos": 331,
+      "photos": 328,
       "mattel": 0,
       "file": "data/hw/2009.json"
     },
     {
       "year": 2010,
       "count": 423,
-      "photos": 416,
+      "photos": 412,
       "mattel": 0,
       "file": "data/hw/2010.json"
     },
@@ -360,14 +360,14 @@
     {
       "year": 2017,
       "count": 584,
-      "photos": 558,
+      "photos": 555,
       "mattel": 0,
       "file": "data/hw/2017.json"
     },
     {
       "year": 2018,
       "count": 760,
-      "photos": 717,
+      "photos": 713,
       "mattel": 3,
       "file": "data/hw/2018.json"
     },
@@ -409,21 +409,21 @@
     {
       "year": 2024,
       "count": 873,
-      "photos": 854,
+      "photos": 851,
       "mattel": 123,
       "file": "data/hw/2024.json"
     },
     {
       "year": 2025,
       "count": 922,
-      "photos": 904,
+      "photos": 894,
       "mattel": 171,
       "file": "data/hw/2025.json"
     },
     {
       "year": 2026,
       "count": 947,
-      "photos": 931,
+      "photos": 925,
       "mattel": 151,
       "file": "data/hw/2026.json"
     }

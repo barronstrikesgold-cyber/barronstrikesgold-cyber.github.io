@@ -1008,6 +1008,14 @@
     return (yearMap && yearMap[hit.id]) || null;
   }
 
+  function catalogSrc(url) {
+    var value = String(url || "");
+    if (/^http:\/\//i.test(value)) value = "https://" + value.slice(7);
+    if (/^https:\/\//.test(value)) return value;
+    if (value.indexOf("assets/hw/thumbs/") === 0) return value;
+    return "";
+  }
+
   function hwCardsHtml(page, total) {
     if (!page.length) {
       return stateCard("no-results", "No matches", "Try another name, toy number, year, or line.");
@@ -1016,8 +1024,8 @@
       var item = hwRecord(hit);
       var name = item ? item.name : hit.n;
       var image = item && item.image ? item.image : "";
-      var photo = image
-        ? '<button type="button" class="hw-photo" data-zoom="' + esc(image) + '" data-alt="' + esc(name) + '"><img alt="" width="144" height="108" loading="lazy" decoding="async" src="' + esc(image) + '"></button>'
+      var photo = catalogSrc(image)
+        ? '<button type="button" class="hw-photo" data-zoom="' + esc(catalogSrc(image)) + '" data-alt="' + esc(name) + '"><img alt="" width="144" height="108" decoding="async" referrerpolicy="no-referrer" src="' + esc(catalogSrc(image)) + '"></button>'
         : '<div class="hw-photo" aria-hidden="true"><img alt="" width="144" height="108" src="assets/states/photo-needed.svg"></div>';
       var bits = [String(hit.y), hwLineLabel(item ? item.line : hit.l)];
       if (item && item.series) bits.push(item.series);
@@ -1443,7 +1451,8 @@
 
   function openZoom(src, alt) {
     var img = document.getElementById("zoom-img");
-    img.src = src;
+    img.referrerPolicy = "no-referrer";
+    img.src = catalogSrc(src) || "assets/states/photo-needed.svg";
     img.alt = alt || "";
     if (!zoom.open) zoom.showModal();
   }
@@ -1485,6 +1494,16 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text);
     state.note = "Notes copied.";
   }
+
+  document.addEventListener("error", function (event) {
+    var img = event.target;
+    if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
+    var catalog = img.closest && img.closest(".hw-photo");
+    if (!catalog && img.id !== "zoom-img") return;
+    img.setAttribute("data-fallback", "1");
+    img.removeAttribute("srcset");
+    img.src = "assets/states/photo-needed.svg";
+  }, true);
 
   document.addEventListener("click", function (event) {
     var zoomBtn = event.target.closest("[data-zoom]");
