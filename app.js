@@ -172,12 +172,20 @@
 
   function pegPhoto(item, large) {
     var shot = photoFor(item);
-    if (shot) return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""></span>';
+    if (shot) {
+      var w = item && Number(item.photoWidth);
+      var h = item && Number(item.photoHeight);
+      var dims = w && h ? ' width="' + w + '" height="' + h + '" style="aspect-ratio:' + w + " / " + h + '"' : "";
+      return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""' + dims + ' loading="lazy" decoding="async"></span>';
+    }
     if (!large) return "";
     return '<span class="peg-photo is-empty is-hero"><em>Photo needed</em></span>';
   }
 
-  function decisionBar(verdict) {
+  function decisionBar(verdict, resaleVerdict) {
+    if (resaleVerdict === "BUY") return '<span class="decision decision-buy"><span class="verdict verdict-buy">BUY</span><span>If the card matches</span></span>';
+    if (resaleVerdict === "CHECK") return '<span class="decision decision-check"><span class="verdict verdict-check">CHECK</span><span>Confirm solds before multiples</span></span>';
+    if (resaleVerdict === "LOT ONLY") return '<span class="decision decision-lot"><span class="verdict verdict-lot">LOT ONLY</span><span>Bundle it</span></span>';
     var buy = verdict === "Buy";
     return '<span class="decision decision-' + (buy ? "buy" : "pass") + '"><strong>' + (buy ? "Buy" : "Pass") + "</strong><span>" + (buy ? "If the card matches" : "Leave it") + "</span></span>";
   }
@@ -186,11 +194,28 @@
     return '<p class="fine">Restocks, confirm with the store: Walmart often Monday, Tuesday, or midweek. Target often Sunday night or Monday. Dollar Tree follows freight. Kroger is a vendor stop, not a store tab. A case code is freight, not a national day.</p>';
   }
 
+  function resaleOf(item) {
+    if (item && item.resale && item.resale.verdict) return item.resale;
+    var rule = item && Rules.cardRule(item.id);
+    if (!rule || !rule.resaleVerdict) return null;
+    return {
+      id: rule.resaleId || "",
+      verdict: rule.resaleVerdict,
+      howToSpot: rule.tells || "",
+      soldSource: rule.soldSource || "",
+      soldUrl: rule.soldUrl || "",
+      series: rule.series || "",
+      toyNo: rule.toyNo || "",
+    };
+  }
+
   function pegMoney(item) {
     var pay = Rules.payFor(item) || shelfLabel(item) || "Shelf price on the tag";
     var line = Rules.priceLine(item);
-    if (line === "No sold data") return esc(pay) + " · No sold data";
-    return esc(pay) + " · " + esc(line);
+    var resale = resaleOf(item);
+    var source = resale && resale.soldSource ? resale.soldSource : "";
+    if (line === "No sold data") return esc(pay) + " · No sold data" + (source ? " · " + esc(source) : "");
+    return esc(pay) + " · " + esc(line) + (source ? " · " + esc(source) : "");
   }
 
   function priceDetail(item, comp) {
@@ -203,22 +228,49 @@
   function priceNote(item, comp) {
     if (comp) return '<a class="text-link" href="' + esc(comp.url) + '" target="_blank" rel="noopener noreferrer">Open source</a>';
     var money = Rules.moneyOf(item);
-    if (money) return '<p class="fine">' + esc(money.note) + " Re-check solds before listing. Net is sold × 0.87 − $5.</p>";
+    if (money) {
+      var link = money.url && Rules.isSourceUrl(money.url)
+        ? ' <a class="text-link" href="' + esc(money.url) + '" target="_blank" rel="noopener noreferrer">Sold source</a>'
+        : "";
+      return '<p class="fine">' + esc(money.note) + " Re-check solds before listing. Net is sold × 0.87 − $5." + link + "</p>";
+    }
+    var resale = resaleOf(item);
+    if (resale && resale.soldSource) return '<p class="fine">' + esc(resale.soldSource) + "</p>";
     return '<p class="fine">No source URL and no sheet sold. Do not invent a sold.</p>';
+  }
+
+  function seriesLine(item, resale) {
+    var series = (resale && resale.series) || "";
+    var toy = (resale && resale.toyNo) || "";
+    if (!series) return "";
+    var text = series + (toy && toy !== "—" ? " · " + toy : "");
+    return '<span class="peg-meta">' + esc(text) + "</span>";
+  }
+
+  function sourceLink(resale) {
+    var url = resale && resale.soldUrl;
+    if (!url || !Rules.isSourceUrl(url)) return "";
+    return '<div class="link-row"><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Sold source</a></div>';
   }
 
   function pegCard(item, opts) {
     opts = opts || {};
     var verdict = Rules.verdictFor(item);
+    var resale = resaleOf(item);
     var idAttr = item.kind === "golf" ? ' data-golf="' + esc(item.name) + '"' : ' data-item="' + esc(item.id) + '"';
+    if (resale && resale.id) idAttr += ' data-resale="' + esc(resale.id) + '"';
     var links = opts.links || "";
     var photo = pegPhoto(item, true);
+    var spot = resale && resale.howToSpot ? resale.howToSpot : Rules.tellsFor(item);
     return '<article class="peg"><button class="peg-open is-stack" type="button"' + idAttr + ">" +
       photo +
-      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span></span>" +
-      decisionBar(verdict) +
-      '<span class="peg-foot"><span class="peg-tell">' + esc(Rules.tellsFor(item)) + "</span>" +
+      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
+      seriesLine(item, resale) +
+      "</span>" +
+      decisionBar(verdict, resale && resale.verdict) +
+      '<span class="peg-foot"><span class="peg-tell">' + esc(spot) + "</span>" +
       '<span class="peg-meta">' + pegMoney(item) + "</span></span></button>" +
+      sourceLink(resale) +
       links + "</article>";
   }
 
@@ -365,7 +417,12 @@
     return '<button class="store-pick" type="button" data-store="' + esc(store.id) + '"><span class="mono">' + esc(store.monogram || store.name.slice(0, 1)) + "</span><span><b>" + esc(store.name) + "</b><span>" + esc(store.short || store.look) + "</span></span><span class=\"chev\" aria-hidden=\"true\">›</span></button>";
   }
 
-  var HUNT_LANES = ["sth", "cc", "ff", "mbsc", "leave", "selective", "pokemon"];
+  var HUNT_LANES = ["sth", "cc", "ff", "mbsc", "exclusive", "premium", "multipack", "hw-main", "leave", "selective", "pokemon"];
+
+  function isListed(item) {
+    var verdict = Rules.verdictFor(item);
+    return verdict === "Buy" || verdict === "Check" || verdict === "Lot";
+  }
 
   function aisleSection(laneId, linkStore) {
     var meta = Rules.laneMeta(laneId);
@@ -439,8 +496,8 @@
       '<div class="lane-list">' + lanes.map(function (id) {
         var meta = Rules.laneMeta(id);
         if (!meta) return "";
-        var buys = laneItems(id).filter(function (item) { return Rules.verdictFor(item) === "Buy"; }).length;
-        var count = buys ? buys + " on the buy list" : "Pass lane";
+        var buys = laneItems(id).filter(isListed).length;
+        var count = buys ? buys + " on the list" : "Pass lane";
         return '<button class="lane-card" type="button" data-lane="' + esc(id) + '"><span class="mono">' + esc(meta.title.slice(0, 2).toUpperCase()) + '</span><span><b>' + esc(meta.title) + "</b><span>" + esc(meta.blurb) + " · " + esc(count) + "</span></span><span class=\"chev\" aria-hidden=\"true\">›</span></button>";
       }).join("") + "</div>";
   }
@@ -450,13 +507,13 @@
     var store = findStore(state.storeId);
     if (!meta) return stateCard("error", "Missing aisle", "That category is not on the hunt.");
     var items = laneItems(state.lane);
-    var buys = items.filter(function (item) { return Rules.verdictFor(item) === "Buy"; });
-    var passes = items.filter(function (item) { return Rules.verdictFor(item) !== "Buy"; });
+    var buys = items.filter(isListed);
+    var passes = items.filter(function (item) { return !isListed(item); });
     var buyHtml = buys.length
       ? buys.map(function (item) { return pegCard(item); }).join("")
       : '<p class="fine">Nothing in this aisle is a blind buy.</p>';
     var passHtml = passes.length
-      ? '<details class="leave"' + (buys.length ? "" : " open") + '><summary>Leave these (' + passes.length + ")</summary><div class=\"list\">" + passes.map(function (item) { return pegCard(item); }).join("") + "</div></details>"
+      ? '<details class="leave"' + (buys.length ? "" : " open") + '><summary>Leave on peg (' + passes.length + ")</summary><div class=\"list\">" + passes.map(function (item) { return pegCard(item); }).join("") + "</div></details>"
       : "";
     if (state.lane === "leave" || state.lane === "selective") {
       return '<button class="back" type="button" data-back>' + esc(store ? store.name : "Back") + "</button>" +
@@ -514,6 +571,9 @@
     var item = findCatalog(state.itemId);
     if (!item) return stateCard("error", "Missing item", "That product is not on the buy list.");
     var verdict = Rules.verdictFor(item);
+    var resale = resaleOf(item);
+    var badge = resale && resale.verdict ? resale.verdict : verdict;
+    var callClass = badge === "BUY" || badge === "Buy" ? "buy" : badge === "CHECK" ? "check" : badge === "LOT ONLY" ? "lot" : "pass";
     var comp = Rules.compOf(item);
     var stock = stockMap()[item.id];
     var sizeKind = item.category === "sneakers" ? "shoe" : item.category === "streetwear" ? "clothes" : "";
@@ -524,7 +584,7 @@
       heroPhoto(item) +
       '<p class="kicker">' + esc((Rules.laneMeta(Rules.laneFor(item)) || {}).title || "") + "</p>" +
       "<h1>" + esc(item.name) + "</h1>" +
-      '<section class="call call-' + (verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(verdict) + "</strong><p>" + esc(Rules.tellsFor(item)) + "</p></section>" +
+      '<section class="call call-' + callClass + '"><strong>' + esc(badge) + "</strong><p>" + esc(Rules.tellsFor(item)) + "</p></section>" +
       '<section class="tool"><p class="kicker">Price</p>' +
       "<p>" + esc(Rules.payFor(item) || ("Shelf · " + shelfLabel(item))) + "</p>" +
       "<p>" + esc(priceDetail(item, comp)) + "</p>" +
