@@ -1,5 +1,6 @@
-# Rebuild data/market.json from public retail pages.
-# This does not publish the site. publish.yml still only runs npm test.
+# Rebuild data/market.json from public retail pages and sold comps.
+# Sold comps come from TCGplayer sales history, BrickLink, HWPriceGuide, and Swappa.
+# Asks are not stored as solds. This does not publish the site. publish.yml still only runs npm test.
 name: refresh-market
 
 on:

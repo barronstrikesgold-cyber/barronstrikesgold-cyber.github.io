@@ -212,6 +212,7 @@
     if (resaleVerdict === "BUY") return '<span class="decision decision-buy"><span class="verdict verdict-buy">BUY</span><span>If the card matches</span></span>';
     if (resaleVerdict === "CHECK") return '<span class="decision decision-check"><span class="verdict verdict-check">CHECK</span><span>Confirm solds before multiples</span></span>';
     if (resaleVerdict === "LOT ONLY") return '<span class="decision decision-lot"><span class="verdict verdict-lot">LOT ONLY</span><span>Bundle it</span></span>';
+    if (resaleVerdict === "PASS") return '<span class="decision decision-pass"><span class="verdict verdict-pass">PASS</span><span>Loses at this retail</span></span>';
     var buy = verdict === "Buy";
     return '<span class="decision decision-' + (buy ? "buy" : "pass") + '"><strong>' + (buy ? "Buy" : "Pass") + "</strong><span>" + (buy ? "If the card matches" : "Leave it") + "</span></span>";
   }
@@ -699,7 +700,7 @@
     var current = sections.filter(function (row) { return row.id === state.marketBrand; })[0];
     var kicker = state.marketBrand === "latest" ? "Latest drops" : (current ? current.title : "Drops");
     var note = state.marketBrand === "latest"
-      ? "Soonest release or restock from today forward. CHECK means there is no verified sold."
+      ? "Soonest release or restock from today forward. BUY needs a liquid sold whose net beats retail × 1.09 by $15. PASS loses at retail. CHECK is everything else."
       : ((current && current.note) || "");
     var items = marketPool();
     var page = items.slice(0, state.marketLimit);
@@ -711,7 +712,7 @@
       : "";
     var checked = market.generatedAt ? '<p class="fine">Market file · ' + esc(formatWhen(market.generatedAt)) + "</p>" : "";
     return '<p class="kicker">' + esc(kicker) + "</p>" +
-      '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. A missing sold stays CHECK.</p>' +
+      '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. BUY, PASS, or CHECK.</p>' +
       chips +
       (note ? '<p class="fine">' + esc(note) + "</p>" : "") +
       checked +
@@ -721,7 +722,7 @@
   function renderMarketDetail() {
     var item = findMarket(state.marketId);
     if (!item) return stateCard("error", "Missing drop", "That product is not on the market list.");
-    var callClass = item.verdict === "BUY" ? "buy" : item.verdict === "LOT ONLY" ? "lot" : "check";
+    var callClass = item.verdict === "BUY" ? "buy" : item.verdict === "PASS" ? "pass" : item.verdict === "LOT ONLY" ? "lot" : "check";
     var soldBlock = item.sold == null
       ? "<p>No sold data</p>" + (item.soldSource ? '<p class="fine">' + esc(item.soldSource) + "</p>" : "")
       : "<p>Sold " + esc(marketMoneyText(item.sold)) + (item.soldDate ? " · " + esc(item.soldDate) : "") + "</p>" +
