@@ -104,7 +104,10 @@ try {
 const atEnd = snapshotBytes();
 const report = {
   profile: "4 Mbps down, 150ms RTT, shared pipe",
-  fcp: heading.fcp,
+  fcp: heading.fcp == null ? Math.round(await page.evaluate(() => {
+    const paint = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint");
+    return paint ? paint.startTime : -1;
+  })) : heading.fcp,
   firstContentMs: heading.ms,
   interactiveMs: Math.round(clickAt),
   dropsVisibleMs: ready.ms,

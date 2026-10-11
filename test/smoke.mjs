@@ -71,12 +71,16 @@ async function assertFullPackage(locator, label, src) {
       frameH: frame.height,
       imgH: box.height,
       src: el.getAttribute("src"),
+      srcset: el.getAttribute("srcset") || "",
       naturalRatio: el.naturalWidth / el.naturalHeight,
       shownRatio: box.width / box.height,
       capped: box.height >= window.innerHeight * 0.78 - 2,
     };
   });
-  assert(framed.src === src, label + " photo is " + src);
+  const thumb = src.match(/^photos\/([^/]+)\.(jpe?g|png)$/i);
+  const shown = thumb ? "photos/thumbs/" + thumb[1] + ".webp" : src;
+  assert(framed.src === shown, label + " photo is " + shown);
+  if (shown !== src) assert(framed.srcset.includes(src), label + " full photo stays in srcset");
   assert(framed.fit === "contain", label + " photo uses contain");
   assert(framed.position === "50% 50%", label + " photo is centered");
   assert(framed.imgH > 120, label + " photo is tall enough to include the car");
