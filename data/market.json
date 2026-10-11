@@ -32,7 +32,8 @@
           "section": "pokemon",
           "name": "Pokémon 30th Celebration ETB",
           "verdict": "BUY",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0H78BB9TY"
         },
         {
           "feed": false,
@@ -84,7 +85,8 @@
           "section": "pokemon",
           "name": "Pokémon Knockout",
           "verdict": "CHECK",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0H7FDBNSB"
         },
         {
           "feed": false,
@@ -110,7 +112,8 @@
           "section": "pokemon",
           "name": "Pokémon Tech Sticker",
           "verdict": "CHECK",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0H77VZBX4"
         },
         {
           "feed": false,
@@ -212,7 +215,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/644279?range=month",
           "liquid": true,
           "net": 100.3,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0FH5MH29W"
         },
         {
           "id": "pk-tcg-648394",
@@ -236,7 +240,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/648394?range=month",
           "liquid": true,
           "net": 105.05,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0FH5P7BWK"
         },
         {
           "id": "pk-tcg-644282",
@@ -284,7 +289,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/648415?range=month",
           "liquid": true,
           "net": 165.34,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0G1VYTXGG"
         },
         {
           "id": "pk-tcg-539385",
@@ -308,7 +314,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/539385?range=month",
           "liquid": true,
           "net": 39.44,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0CTZRM7H8"
         },
         {
           "id": "pk-tcg-236379",
@@ -332,7 +339,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/236379?range=month",
           "liquid": true,
           "net": 15.31,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B08Y5L8FVR"
         },
         {
           "id": "pk-tcg-623029",
@@ -380,7 +388,8 @@
           "soldUrl": "https://infinite-api.tcgplayer.com/price/history/575294?range=month",
           "liquid": true,
           "net": 112.89,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0DFNJ1MW1"
         },
         {
           "id": "pk-tcg-616302",
@@ -452,7 +461,8 @@
           "soldUrl": "",
           "liquid": false,
           "net": null,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0CTTRH7NL"
         },
         {
           "id": "pk-tcg-532027",
@@ -1046,7 +1056,8 @@
           "section": "lorcana",
           "name": "Hyperia City",
           "verdict": "CHECK",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0HFPF8CPH"
         }
       ]
     },
@@ -1080,7 +1091,8 @@
           "section": "yugioh",
           "name": "Beyond the Brave",
           "verdict": "CHECK",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0HJ74KX3D"
         },
         {
           "feed": true,
@@ -1166,7 +1178,8 @@
           "section": "sports",
           "name": "2026 Topps Football blaster",
           "verdict": "CHECK",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0HHT67GRJ"
         },
         {
           "feed": false,
@@ -1192,7 +1205,8 @@
           "section": "sports",
           "name": "2026-27 Upper Deck Artifacts hockey blaster",
           "verdict": "CHECK",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0HLG8B65G"
         },
         {
           "feed": false,
@@ -1572,7 +1586,8 @@
           "section": "lego",
           "name": "21353 The Botanical Garden",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0DLZNNHYK"
         },
         {
           "feed": false,
@@ -1598,7 +1613,8 @@
           "section": "lego",
           "name": "21351 Disney Tim Burton's The Nightmare Before Christmas",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0CYM126TT"
         },
         {
           "feed": false,
@@ -1624,7 +1640,8 @@
           "section": "lego",
           "name": "21333 Vincent van Gogh - The Starry Night",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B09SM828FD"
         },
         {
           "feed": false,
@@ -1650,7 +1667,8 @@
           "section": "lego",
           "name": "10326 Natural History Museum",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0CGY1FSH8"
         },
         {
           "feed": false,
@@ -1676,7 +1694,8 @@
           "section": "lego",
           "name": "10335 The Endurance",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B01NBFSJPC"
         },
         {
           "feed": false,
@@ -1702,7 +1721,8 @@
           "section": "lego",
           "name": "43263 Beauty and the Beast Castle",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0DRW654DB"
         },
         {
           "feed": false,
@@ -1754,7 +1774,8 @@
           "section": "lego",
           "name": "40805 Arcade Machine",
           "verdict": "PASS",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0G6PVJ7H5"
         },
         {
           "feed": false,
@@ -1780,7 +1801,8 @@
           "section": "lego",
           "name": "10341 NASA Artemis Space Launch System",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0CRWGX5NH"
         },
         {
           "feed": false,
@@ -1806,7 +1828,8 @@
           "section": "lego",
           "name": "75192 Millennium Falcon™",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B075SDMMMV"
         },
         {
           "feed": false,
@@ -1832,7 +1855,8 @@
           "section": "lego",
           "name": "21360 Willy Wonka & the Chocolate Factory",
           "verdict": "PASS",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0F2JD25LJ"
         },
         {
           "feed": false,
@@ -1858,7 +1882,8 @@
           "section": "lego",
           "name": "10345 Flower Arrangement",
           "verdict": "PASS",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0DL9KYRPX"
         },
         {
           "feed": false,
@@ -1884,7 +1909,8 @@
           "section": "lego",
           "name": "43021 Nike Dunk Trickshot",
           "verdict": "CHECK",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0GJ6QXCFK"
         },
         {
           "feed": false,
@@ -1910,7 +1936,8 @@
           "section": "lego",
           "name": "40468 Yellow Taxi",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B08WL8JLHB"
         },
         {
           "feed": false,
@@ -1936,7 +1963,8 @@
           "section": "lego",
           "name": "10302 Optimus Prime",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B09XVH9ZWQ"
         },
         {
           "feed": false,
@@ -1962,7 +1990,8 @@
           "section": "lego",
           "name": "21356 River Steamboat",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0DRW4XCZH"
         },
         {
           "feed": false,
@@ -1988,7 +2017,8 @@
           "section": "lego",
           "name": "43217 ‘Up’ House​",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0D5JZDKXB"
         },
         {
           "feed": false,
@@ -2014,7 +2044,8 @@
           "section": "lego",
           "name": "43272 Heihei",
           "verdict": "PASS",
-          "liquid": false
+          "liquid": false,
+          "amazonUrl": "https://www.amazon.com/dp/B0DJ1BM6YR"
         },
         {
           "feed": false,
@@ -2040,7 +2071,8 @@
           "section": "lego",
           "name": "40955 Maersk Dual-Fuel Container Vessel",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0GR1FHKT7"
         },
         {
           "feed": false,
@@ -2066,7 +2098,8 @@
           "section": "lego",
           "name": "75328 The Mandalorian™ Helmet",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B09JKZM4CM"
         },
         {
           "feed": false,
@@ -2092,7 +2125,8 @@
           "section": "lego",
           "name": "43277 Cruella De Vil's Car",
           "verdict": "CHECK",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0DRW7WXDF"
         },
         {
           "feed": false,
@@ -2118,7 +2152,8 @@
           "section": "lego",
           "name": "40797 Eeyore",
           "verdict": "PASS",
-          "liquid": true
+          "liquid": true,
+          "amazonUrl": "https://www.amazon.com/dp/B0F2JCZC43"
         }
       ]
     },
@@ -2198,7 +2233,8 @@
           "soldUrl": "",
           "liquid": false,
           "net": null,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B0772QPR9W"
         },
         {
           "id": "funko-159348",
@@ -2222,7 +2258,8 @@
           "soldUrl": "",
           "liquid": false,
           "net": null,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B077Q438MR"
         },
         {
           "id": "funko-167490",
@@ -2270,7 +2307,8 @@
           "soldUrl": "",
           "liquid": false,
           "net": null,
-          "verdict": "CHECK"
+          "verdict": "CHECK",
+          "amazonUrl": "https://www.amazon.com/dp/B09QWDDK15"
         },
         {
           "id": "funko-154140",

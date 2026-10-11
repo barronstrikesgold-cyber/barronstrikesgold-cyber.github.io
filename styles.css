@@ -7,6 +7,7 @@
   --muted: #a7a29a;
   --line: rgba(255, 243, 230, 0.12);
   --flame: #ff4d00;
+  --drops-kicker: #ff4d00;
   --flame-deep: #e10600;
   --on-flame: #070708;
   --gold: #f5c518;
@@ -37,6 +38,7 @@
   --muted: #4e4942;
   --line: rgba(26, 23, 20, 0.12);
   --gold: #7a5600;
+  --drops-kicker: #c2410c;
   --pass: #a32018;
   --pass-bg: rgba(163, 32, 24, 0.1);
   --ok: #087443;
@@ -59,6 +61,7 @@
     --muted: #4e4942;
     --line: rgba(26, 23, 20, 0.12);
     --gold: #7a5600;
+    --drops-kicker: #c2410c;
     --pass: #a32018;
     --pass-bg: rgba(163, 32, 24, 0.1);
     --ok: #087443;
@@ -194,11 +197,12 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
   padding: 12px 14px;
   border: 1px solid rgba(255, 77, 0, 0.45);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(255, 77, 0, 0.18), rgba(18, 18, 20, 0.92));
+  background: var(--card);
+  color: var(--ink);
   box-shadow: var(--shadow);
   cursor: pointer;
 }
-.drops-strip .kicker { grid-column: 1; }
+.drops-strip .kicker { grid-column: 1; color: var(--drops-kicker); }
 .drops-strip p {
   grid-column: 1;
   margin: 0;

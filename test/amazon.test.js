@@ -13,7 +13,8 @@ function assert(cond, msg) {
 
 const root = path.join(__dirname, "..");
 const sample = "B0TEST1234";
-const tagged = "https://www.amazon.com/dp/" + sample + "?tag=hempsply02-20";
+const clean = "https://www.amazon.com/dp/" + sample;
+const tagged = clean + "?tag=hempsply02-20";
 
 assert(Amazon.TAG === "hempsply02-20", "tracking id");
 assert(Amazon.DISCLOSURE === "As an Amazon Associate I earn from qualifying purchases.", "disclosure sentence");
@@ -27,6 +28,7 @@ assert(Amazon.tagUrl("http://amazon.com/dp/" + sample).includes("tag=hempsply02-
 assert(Amazon.tagUrl("https://www.amazon.com/dp/" + sample + "?tag=other-20").includes("tag=hempsply02-20"), "a different tag is replaced");
 assert(!Amazon.tagUrl("https://www.amazon.com/dp/" + sample + "?tag=other-20").includes("tag=other-20"), "the old tag does not remain");
 assert(Amazon.tagUrl(tagged) === tagged, "a correct tag is left as written");
+assert(Amazon.cleanProductUrl(sample) === clean, "stored form is a clean /dp/ URL");
 assert(Amazon.productUrl(sample) === tagged, "ASIN builds a tagged product link");
 assert(Amazon.searchUrl("Hot Wheels") === "https://www.amazon.com/s?k=Hot%20Wheels&tag=hempsply02-20", "search links carry the tracking id");
 assert(Amazon.ebayUrl("Skyline", true).includes("LH_Sold=1") && Amazon.ebayUrl("Skyline", true).includes("LH_Complete=1"), "sold search is completed listings");
@@ -47,10 +49,11 @@ const fresh = Amazon.stampAssociates({
     ],
   }],
 });
-assert(fresh.tagged === 1, "one existing product link was tagged");
+assert(fresh.tagged === 1, "one existing product link was rewritten to a clean /dp/ URL");
 assert(fresh.added === 1, "one BUY card with an ASIN and no product link was added");
-assert(fresh.value.sections[0].items[0].amazonUrl === tagged, "added link uses the tracking id");
-assert(fresh.value.sections[0].items[1].retailUrl.includes("tag=hempsply02-20"), "stored product link keeps the tracking id");
+assert(fresh.value.sections[0].items[0].amazonUrl === clean, "added link is a clean /dp/ URL");
+assert(fresh.value.sections[0].items[1].retailUrl === clean, "stored product link is a clean /dp/ URL");
+assert(!fresh.value.sections[0].items[1].retailUrl.includes("tag="), "stored product link does not keep a tag");
 assert(!fresh.value.sections[0].items[1].amazonUrl, "an existing product link is not duplicated");
 assert(!fresh.value.sections[0].items[2].amazonUrl, "PASS keeps a bare ASIN off the buy link");
 assert(!fresh.value.sections[0].items[3].amazonUrl, "a card without an ASIN is unchanged");
@@ -79,7 +82,7 @@ files.forEach(function (file) {
   productLinks += stamped.productLinks;
   taggedLinks += stamped.tagged;
   addedLinks += stamped.added;
-  assert(stamped.tagged === 0, path.relative(root, file) + " still has an untagged Amazon product link");
+  assert(stamped.tagged === 0, path.relative(root, file) + " is not stored as a clean /dp/ASIN URL");
   assert(stamped.added === 0, path.relative(root, file) + " has a BUY/CHECK ASIN without an Amazon link");
 });
 

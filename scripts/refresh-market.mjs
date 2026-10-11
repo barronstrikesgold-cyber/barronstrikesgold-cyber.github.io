@@ -4,7 +4,8 @@
  * Retail comes from the official page. A sold price is stored only when this
  * repo already has a verified comp (URL, source, date). StockX and GOAT are
  * not guessed. A failed feed keeps the last good copy of that section.
- * Amazon.com product links are stamped with the Associates tag before write.
+ * Amazon.com product links are stored as clean /dp/ASIN URLs. The Associates
+ * tag is applied at render. TODO: resolve ASINs with the Product Advertising API.
  *
  *   node scripts/refresh-market.mjs
  */
@@ -137,6 +138,22 @@ function loadPrevious() {
   } catch (err) {
     return { sections: [] };
   }
+}
+
+function keepAmazonUrls(sections, prev) {
+  const urls = new Map();
+  (prev.sections || []).forEach((section) => {
+    (section.items || []).forEach((item) => {
+      const asin = item && Amazon.asinFromUrl(item.amazonUrl);
+      if (item && item.id && asin) urls.set(item.id, Amazon.cleanProductUrl(asin));
+    });
+  });
+  sections.forEach((section) => {
+    (section.items || []).forEach((item) => {
+      const url = item && urls.get(item.id);
+      if (url && !Amazon.asinFromUrl(item.amazonUrl)) item.amazonUrl = url;
+    });
+  });
 }
 
 function previousItems(prev, id) {
@@ -807,9 +824,10 @@ async function main() {
     sections,
     sources,
   };
+  keepAmazonUrls(sections, prev);
   const stamped = Amazon.stampAssociates(file);
   fs.writeFileSync(outFile, JSON.stringify(stamped.value, null, 2) + "\n");
-  process.stdout.write("amazon tagged " + stamped.tagged + " added " + stamped.added + "\n");
+  process.stdout.write("amazon normalized " + stamped.tagged + " added " + stamped.added + "\n");
   const total = sections.reduce((sum, section) => sum + section.items.length, 0);
   process.stdout.write("market items " + total + "\n");
 }
