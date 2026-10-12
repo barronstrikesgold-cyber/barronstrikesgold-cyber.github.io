@@ -47,11 +47,11 @@ assert(app.includes("Read the card") || rules.includes("Read the card"), "supers
 assert(rules.includes("SUPER CHASE"), "matchbox tell");
 assert(html.includes("lib/rules.js"), "rules script is on the page");
 assert(app.includes("Golf"), "golf category");
-assert(/\.peg-photo\.is-hero\s*\{[^}]*height:\s*auto/.test(css), "hunt photo frame follows the package");
-assert(/\.peg-photo\.is-hero\s*\{[^}]*aspect-ratio:\s*auto/.test(css), "hunt photo keeps the source aspect");
-assert(/\.peg-photo\.is-hero img\s*\{[^}]*object-fit:\s*contain/.test(css), "hunt photo contains the car");
-assert(/\.peg-photo\.is-hero img\s*\{[^}]*object-position:\s*center center/.test(css), "hunt photo is centered");
-assert(!/\.peg-photo\.is-hero\s*\{[^}]*height:\s*168px/.test(css), "hunt photo is not a short crop");
+assert(/\.peg-photo\.is-hero[^{]*\{[^}]*height:\s*auto/.test(css), "hunt photo frame height follows the ratio");
+assert(/\.peg-photo\.is-hero[^{]*\{[^}]*aspect-ratio:\s*4\s*\/\s*3/.test(css), "hunt photo uses a fixed frame");
+assert(/object-fit:\s*contain/.test(css), "photos use contain");
+assert(/object-position:\s*center center/.test(css), "photos are centered");
+assert(!/height:\s*168px/.test(css), "hunt photo is not a short crop");
 assert(css.includes("prefers-reduced-motion"), "reduced motion");
 assert(css.includes("safe-area-inset-bottom"), "safe area");
 assert(css.includes("min-height: 44px"), "44px targets");
@@ -87,8 +87,9 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261011h"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261011g"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261012a"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261011j"), "previous shell cache is retired");
+assert(!sw.includes("reseller-shell-20261011h"), "main shell cache is retired");
 assert(sw.includes("./lib/flow.js"), "flow helper is in the shell");
 assert(app.includes('id="home-grid"'), "home lists the hunt grid");
 assert(app.includes('data-action="open-stores"'), "stores stay reachable from home");

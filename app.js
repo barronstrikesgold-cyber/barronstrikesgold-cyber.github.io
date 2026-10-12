@@ -6,6 +6,7 @@
   var R = window.ResellerProviders;
   var Inv = window.ResellerInventory;
   var Rules = window.ResellerRules;
+  var Scan = window.ResellerScan;
 
   var SHOE_SIZES = ["8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"];
   var CLOTHES_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -24,6 +25,9 @@
   var bootError = "";
   var stream = null;
   var scanTimer = null;
+  var scanGen = 0;
+  var scanHit = false;
+  var pendingScan = null;
 
   var state = {
     tab: "home",
@@ -52,13 +56,15 @@
     archiveYear: "",
     archiveLine: "all",
     archiveWorth: false,
-    archiveLimit: 36,
+    archiveLimit: 24,
+    invLimit: 24,
+    homeLimit: 24,
     marketBrand: "latest",
     marketLimit: 24,
     marketId: "",
   };
 
-  var hwBook = { manifest: null, index: null, years: {}, error: "", flight: null };
+  var hwBook = { manifest: null, chunks: {}, pending: {}, years: {}, error: "", flight: null };
   var HW_PREMIUM = { premium: 1, boulevard: 1, "car-culture": 1, "pop-culture": 1, rlc: 1, elite: 1, "team-transport": 1, ff: 1 };
   var HW_LINE = {
     mainline: "Mainline",
@@ -107,6 +113,192 @@
       if (ResellerAmazon.sameProduct(shown[i], href)) return "";
     }
     return '<div class="link-row">' + externalAnchor(href, "Buy on Amazon") + "</div>";
+  }
+
+  function tagAmazonHref(href) {
+    var raw = String(href || "");
+    if (!window.ResellerAmazon) return raw;
+    if (ResellerAmazon.isProductUrl(raw)) return ResellerAmazon.tagUrl(raw);
+    try {
+      var url = new URL(raw);
+      if (/(^|\.)amazon\.com$/i.test(url.hostname)) {
+        url.protocol = "https:";
+        url.hostname = "www.amazon.com";
+        if (url.searchParams.get("tag") !== ResellerAmazon.TAG) url.searchParams.set("tag", ResellerAmazon.TAG);
+        return url.toString();
+      }
+    } catch (err) {
+      return raw;
+    }
+    return raw;
+  }
+
+  function buyAnchor(href, label) {
+    return '<a href="' + esc(tagAmazonHref(href)) + '" target="_blank" rel="sponsored noopener">' + esc(label) + "</a>";
+  }
+
+  function shopHref(item) {
+    if (!item) return "";
+    if (item.buyUrl && /^https:\/\//.test(item.buyUrl)) return item.buyUrl;
+    if (item.amazonUrl && /^https:\/\//.test(item.amazonUrl)) return item.amazonUrl;
+    var retail = item.retailUrl || "";
+    if (/^https:\/\//.test(retail) && /target\.com|walmart\.com|lego\.com|nike\.com|apple\.com|mattel\.com|nintendo\.com|bestbuy\.com|amazon\.com|funko\.com|pokemoncenter\.com|tcgplayer\.com\/product/i.test(retail)) return retail;
+    return "";
+  }
+
+  function shopLabel(item, href) {
+    if (item && item.buyLabel) return item.buyLabel;
+    if (window.ResellerAmazon && ResellerAmazon.isProductUrl(href)) return "Buy on Amazon";
+    try {
+      var host = new URL(href).hostname.replace(/^www\./, "");
+      if (host.indexOf("target.com") !== -1) return "Buy at Target";
+      if (host.indexOf("walmart.com") !== -1) return "Buy at Walmart";
+      if (host.indexOf("lego.com") !== -1) return "LEGO";
+      if (host.indexOf("nike.com") !== -1) return "Nike";
+      if (host.indexOf("apple.com") !== -1) return "Apple";
+      if (host.indexOf("mattel.com") !== -1) return "Mattel";
+      if (host.indexOf("nintendo.com") !== -1) return "Nintendo";
+      if (host.indexOf("bestbuy.com") !== -1) return "Best Buy";
+      if (host.indexOf("amazon.com") !== -1) return "Amazon";
+      if (host.indexOf("tcgplayer.com") !== -1) return "TCGplayer";
+    } catch (err) {
+      return "Retailer";
+    }
+    return "Retailer";
+  }
+
+  function detailSubject(item) {
+    var subject = typeof item === "string" ? { name: item } : Object.assign({}, item || {});
+    if (subject.catalogId) {
+      var cat = findCatalog(subject.catalogId);
+      if (cat) {
+        if (!subject.buyUrl && cat.buyUrl) subject.buyUrl = cat.buyUrl;
+        if (!subject.buyLabel && cat.buyLabel) subject.buyLabel = cat.buyLabel;
+        if (!subject.retailUrl && cat.retailUrl) subject.retailUrl = cat.retailUrl;
+        if (!subject.name) subject.name = cat.name;
+      }
+    }
+    return subject;
+  }
+
+  function detailBuyLinks(item) {
+    var subject = detailSubject(item);
+    var name = subject.name || subject.id || "";
+    var links = [];
+    var shop = shopHref(subject);
+    if (shop) links.push(buyAnchor(shop, shopLabel(subject, shop)));
+    if (window.ResellerAmazon) {
+      links.push(buyAnchor(ResellerAmazon.ebayUrl(name, true), "eBay sold"));
+      links.push(buyAnchor(ResellerAmazon.ebayUrl(name, false), "eBay active"));
+      links.push(buyAnchor(ResellerAmazon.searchUrl(name), "Amazon"));
+    }
+    if (!links.length) return "";
+    return '<section class="tool"><p class="kicker">Buy</p><div class="link-row">' + links.join("") + "</div></section>";
+  }
+
+  function catalogSrc(url) {
+    var value = String(url || "").trim();
+    if (/^http:\/\//i.test(value)) value = "https://" + value.slice(7);
+    if (/^https:\/\//.test(value)) return value;
+    if (value.indexOf("assets/hw/thumbs/") === 0) return value;
+    if (value.indexOf("assets/hosted/") === 0) return value;
+    if (value.indexOf("photos/") === 0) return value;
+    if (value.indexOf("assets/") === 0) return value;
+    return "";
+  }
+
+  function thumbSources(url, kind) {
+    var value = catalogSrc(url);
+    if (!value) return null;
+    var card = kind !== "hero";
+    var sizes = card ? "112px" : "(min-width: 720px) 420px, 92vw";
+    var photo = value.match(/^photos\/([^/]+)\.(jpe?g|png)$/i);
+    if (photo) {
+      var thumb = "photos/thumbs/" + photo[1] + ".webp";
+      if (card) return { src: thumb, srcset: thumb + " 360w", sizes: "112px", zoom: value };
+      return { src: thumb, srcset: thumb + " 360w, " + value + " 1200w", sizes: sizes, zoom: value };
+    }
+    if (value.indexOf("assets/hw/thumbs/") === 0) {
+      return { src: value, srcset: value + " 240w", sizes: sizes, zoom: value };
+    }
+    if (/cdn\.shopify\.com/i.test(value) && /[?&]width=\d+/.test(value)) {
+      var small = value.replace(/([?&]width=)\d+/, "$1192");
+      var mid = value.replace(/([?&]width=)\d+/, "$1384");
+      return { src: card ? small : mid, srcset: small + " 192w, " + mid + " 384w", sizes: sizes, zoom: mid };
+    }
+    return { src: value, srcset: "", sizes: "", zoom: value };
+  }
+
+  function frameHtml(src, opts) {
+    opts = opts || {};
+    var kind = opts.kind || "hero";
+    var pack = thumbSources(src, kind);
+    var resolved = pack ? pack.zoom : "";
+    var shown = pack ? pack.src : "assets/states/photo-needed.svg";
+    var lazy = !!(pack && opts.index >= 8);
+    var classes = "photo-frame photo-frame-" + kind;
+    if (kind === "hero") classes += " peg-photo is-hero hero-photo";
+    else if (kind === "card") classes += " peg-photo";
+    else if (kind === "market") classes += " market-photo";
+    else if (kind === "catalog") classes += " hw-photo";
+    else if (kind === "flow") classes += " flow-thumb";
+    if (!pack) classes += " is-empty";
+    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer"';
+    if (lazy) {
+      img += ' data-src="' + esc(shown) + '"';
+      if (pack.srcset) img += ' data-srcset="' + esc(pack.srcset) + '" data-sizes="' + esc(pack.sizes) + '"';
+    } else {
+      img += ' src="' + esc(shown) + '"';
+      if (pack) img += ' loading="eager"';
+      if (pack && pack.srcset) img += ' srcset="' + esc(pack.srcset) + '" sizes="' + esc(pack.sizes) + '"';
+    }
+    if (!pack) img += ' data-fallback="1"';
+    img += ">";
+    if (opts.zoom && resolved) {
+      return '<button type="button" class="' + classes + '" data-zoom="' + esc(resolved) + '" data-alt="' + esc(opts.alt || "") + '">' + img + (opts.hint ? '<span class="zoom-hint">Full photo</span>' : "") + "</button>";
+    }
+    var note = !pack && opts.note ? "<em>Photo needed</em>" : "";
+    return '<span class="' + classes + '">' + img + note + "</span>";
+  }
+
+  var lazyObserver = null;
+
+  function promoteLazy(img) {
+    if (!img || img.getAttribute("src")) return;
+    var src = img.getAttribute("data-src");
+    if (!src) return;
+    var srcset = img.getAttribute("data-srcset");
+    var sizes = img.getAttribute("data-sizes");
+    if (srcset) img.setAttribute("srcset", srcset);
+    if (sizes) img.setAttribute("sizes", sizes);
+    img.setAttribute("src", src);
+    img.removeAttribute("data-src");
+  }
+
+  function observeLazy(root) {
+    var scope = root || document;
+    var nodes = scope.querySelectorAll ? scope.querySelectorAll("img[data-src]") : [];
+    if (!nodes.length) return;
+    if (!("IntersectionObserver" in window)) {
+      Array.prototype.forEach.call(nodes, promoteLazy);
+      return;
+    }
+    if (!lazyObserver) {
+      lazyObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          promoteLazy(entry.target);
+          lazyObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: "200px" });
+    }
+    Array.prototype.forEach.call(nodes, function (img) { lazyObserver.observe(img); });
+  }
+
+  function skeletonList(count) {
+    var cards = "";
+    for (var i = 0; i < (count || 4); i++) cards += '<div class="skeleton-card"></div>';
+    return '<div class="skeleton-list" aria-hidden="true">' + cards + "</div>";
   }
 
   function readJson(key, fallback) {
@@ -223,16 +415,10 @@
     return null;
   }
 
-  function pegPhoto(item, large) {
+  function pegPhoto(item, large, index) {
     var shot = photoFor(item);
-    if (shot) {
-      var w = item && Number(item.photoWidth);
-      var h = item && Number(item.photoHeight);
-      var dims = w && h ? ' width="' + w + '" height="' + h + '" style="aspect-ratio:' + w + " / " + h + '"' : "";
-      return '<span class="peg-photo' + (large ? " is-hero" : "") + '"><img src="' + esc(shot.src) + '" alt=""' + dims + ' loading="lazy" decoding="async"></span>';
-    }
-    if (!large) return "";
-    return '<span class="peg-photo is-empty is-hero"><em>Photo needed</em></span>';
+    if (!shot) return frameHtml("", { kind: large ? "hero" : "card", note: !!large, index: index });
+    return frameHtml(shot.src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
   }
 
   function decisionBar(verdict, resaleVerdict) {
@@ -402,10 +588,10 @@
     return "";
   }
 
-  function invRow(item) {
+  function invRow(item, index) {
     var hint = sellHint(item);
     var flag = flagLabel(item);
-    var photo = pegPhoto(item, false);
+    var photo = pegPhoto(item, false, index);
     var shot = photoFor(item);
     return '<article class="peg"><button class="peg-open' + (photo ? "" : " no-photo") + '" type="button" data-inv="' + esc(item.id) + '">' +
       photo +
@@ -617,10 +803,9 @@
 
   function heroPhoto(item) {
     var shot = photoFor(item);
-    if (shot) {
-      return '<button class="hero-photo" type="button" data-zoom="' + esc(shot.src) + '" data-alt="' + esc(shot.alt) + '"><img src="' + esc(shot.src) + '" alt="' + esc(shot.alt) + '"><span class="zoom-hint">Full photo</span></button>';
-    }
-    return '<div class="photo-needed" role="img" aria-label="Photo needed"><img src="assets/states/photo-needed.svg" alt=""><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
+    if (shot) return frameHtml(shot.src, { alt: shot.alt, kind: "hero", zoom: true, hint: true });
+    return frameHtml("", { kind: "hero", note: true }) +
+      '<div class="photo-needed" role="img" aria-label="Photo needed"><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
   }
 
   function renderCatalogDetail() {
@@ -645,8 +830,8 @@
       "<p>" + esc(Rules.payFor(item) || ("Shelf · " + shelfLabel(item))) + "</p>" +
       "<p>" + esc(priceDetail(item, comp)) + "</p>" +
       priceNote(item, comp) +
-      amazonBuyRow(item, badge, []) +
       "</section>" +
+      detailBuyLinks(item) +
       '<section class="tool"><p class="kicker">Grade</p>' + chips(gradesFor(item.category), gradeOfCatalog(item), "data-grade") + "</section>" +
       (sizeKind ? '<section class="tool"><p class="kicker">Size</p><p class="fine">' + esc(item.sizing || "") + "</p>" + chips(sizes, sizeMap()[item.id] || "", "data-size", sizeKind === "shoe" ? FAST_SHOES : FAST_CLOTHES) + "</section>" : "") +
       '<section class="tool"><p class="kicker">What you saw</p><label class="field"><span>Store</span><select id="stock-store">' + STORE_NAMES.map(function (name) {
@@ -670,9 +855,8 @@
     return "$" + Number(value).toFixed(2);
   }
 
-  function marketPhoto(item) {
-    if (!item || !item.photo) return "";
-    return '<span class="market-photo"><img src="' + esc(item.photo) + '" alt="" width="640" height="480" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>';
+  function marketPhoto(item, zoom, index) {
+    return frameHtml(item && item.photo, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
   }
 
   function marketFoot(item) {
@@ -707,9 +891,9 @@
     return section && section.items ? section.items : [];
   }
 
-  function marketCard(item) {
+  function marketCard(item, index) {
     var when = item.releaseLabel || "";
-    var photo = marketPhoto(item);
+    var photo = marketPhoto(item, false, index);
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
       '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
@@ -762,18 +946,19 @@
         (item.soldSource ? "<p>" + esc(item.soldSource) + "</p>" : "") +
         (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
-    var retailLabel = window.ResellerAmazon && ResellerAmazon.isProductUrl(item.retailUrl) ? "Buy on Amazon" : (item.retailSource || "Retail source");
-    var retailLink = item.retailUrl
-      ? '<div class="link-row">' + externalAnchor(item.retailUrl, retailLabel) + "</div>"
+    var shop = shopHref(item);
+    var retailLink = item.retailUrl && item.retailUrl !== shop
+      ? '<div class="link-row">' + externalAnchor(item.retailUrl, item.retailSource || "Retail source") + "</div>"
       : "";
     var photoCredit = item.photoPage
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
     return '<button class="back" type="button" data-back>Drops</button>' +
-      marketPhoto(item) +
+      marketPhoto(item, true) +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
-      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + amazonBuyRow(item, item.verdict, [item.retailUrl]) + "</section>" +
+      '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      detailBuyLinks(item) +
       (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
@@ -791,7 +976,7 @@
     function block(row) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
-      var photo = row.photoMatched && row.photo ? pegPhoto(row, true) : "";
+      var photo = pegPhoto(row, true);
       if (rule.verdict === "Buy") {
         return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
           photo +
@@ -800,7 +985,8 @@
           '<span class="peg-foot"><span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
           '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
       }
-      return '<article class="peg"><button class="peg-open no-photo" type="button" data-drop="' + esc(row.id) + '">' +
+      return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
+        photo +
         '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
         '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
@@ -818,9 +1004,7 @@
     if (!item) return stateCard("error", "Missing drop", "That release is not on the calendar.");
     var status = D.releaseState(item.iso);
     var rule = Rules.dropVerdict(item.id);
-    var photo = item.photoMatched && item.photo
-      ? heroPhoto(item)
-      : '<div class="photo-needed" role="img" aria-label="Photo needed"><img src="assets/calendar/release.svg" alt=""><strong>Photo needed</strong><p>' + esc(item.photoSource || item.photoNote || "No exact photo is bundled for this release.") + "</p></div>";
+    var photo = heroPhoto(item);
     return '<button class="back" type="button" data-back>Drops</button>' + photo +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + (rule.verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(rule.verdict) + "</strong><p>" + esc(rule.tells) + "</p></section>" +
@@ -828,7 +1012,7 @@
       "<p>Format · " + esc(item.format) + "</p>" +
       "<p>Printed · " + esc(item.printed || "unknown") + "</p>" +
       "<p>No sold data</p>" +
-      amazonBuyRow(item, rule.verdict, []) +
+      detailBuyLinks(item) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + "</section>";
   }
 
@@ -888,9 +1072,11 @@
       "<p>" + esc(bookTarget(item)) + ". This is your book, not a sold comp.</p>" +
       "<p>No sold data</p>" +
       "<p>Notes · " + esc(item.notes || "None") + "</p>" +
+      (item.barcode ? "<p>Code · " + esc(item.barcode) + "</p>" : "") +
       "<p>Status · " + esc(item.status || "On hand") + ". STH and Verify are statuses, not a buy button.</p>" +
       "<p>Grade · " + esc(item.grade || "Not set") + "</p>" +
       "<p>Photo · " + (shot ? "Package photo from the buy list." : "Photo needed") + "</p></section>" +
+      detailBuyLinks(item) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + '<p class="fine">Search only. Not a shelf count.</p></section>' +
       '<div class="actions"><button class="solid" type="button" data-action="keep">Keep</button><button class="solid" type="button" data-action="sold">Sold</button><button class="ghost" type="button" data-action="estimate">Estimate</button><button class="ghost" type="button" data-action="edit-inv">Edit</button><button class="danger" type="button" data-action="remove-inv">Remove</button></div>';
   }
@@ -936,6 +1122,7 @@
       '<section class="call call-buy"><strong>Buy</strong><p>Name-brand club only. No sold data, so do not invent a price.</p></section>' +
       '<p class="digest">' + esc(golf.note || "") + "</p>" +
       "<p>No sold data</p>" +
+      detailBuyLinks(state.itemId + " golf") +
       '<section class="tool"><p class="kicker">Check</p>' + allCheckLinks(state.itemId + " golf") + "</section>";
   }
 
@@ -970,36 +1157,67 @@
     return { label: "Worth reselling", cls: "verdict verdict-check" };
   }
 
-  function loadHwBook() {
-    if (hwBook.index) return Promise.resolve(hwBook);
+  function catalogShowing() {
+    return state.view === "archive" || (state.tab === "archive" && state.view === "root");
+  }
+
+  function loadIndexChunk(year) {
+    year = String(year);
+    if (hwBook.chunks[year]) return Promise.resolve(hwBook.chunks[year]);
+    if (hwBook.pending[year]) return hwBook.pending[year];
+    hwBook.pending[year] = fetchFreshJson("data/hw/idx/" + year + ".json").then(function (part) {
+      hwBook.chunks[year] = (part.data && part.data.items) || [];
+      delete hwBook.pending[year];
+      return hwBook.chunks[year];
+    }).catch(function (err) {
+      delete hwBook.pending[year];
+      throw err;
+    });
+    return hwBook.pending[year];
+  }
+
+  function ensureArchiveChunks() {
+    if (!hwBook.manifest) return loadHwManifest();
+    if (state.archiveYear && state.archiveYear !== "all") return loadIndexChunk(state.archiveYear);
+    return Promise.all((hwBook.manifest.years || []).map(function (row) { return loadIndexChunk(row.year); }));
+  }
+
+  function archiveChunksReady() {
+    if (!hwBook.manifest) return false;
+    if (state.archiveYear && state.archiveYear !== "all") return !!hwBook.chunks[String(state.archiveYear)];
+    return (hwBook.manifest.years || []).every(function (row) { return !!hwBook.chunks[String(row.year)]; });
+  }
+
+  function loadHwManifest() {
+    if (hwBook.manifest) return ensureArchiveChunks();
     if (hwBook.flight) return hwBook.flight;
-    hwBook.flight = Promise.all([
-      fetchFreshJson("data/hw/manifest.json"),
-      fetchFreshJson("data/hw/index.json"),
-    ]).then(function (parts) {
-      hwBook.manifest = parts[0].data;
-      hwBook.index = parts[1].data;
+    hwBook.flight = fetchFreshJson("data/hw/manifest.json").then(function (part) {
+      hwBook.manifest = part.data;
       hwBook.error = "";
       if (!state.archiveYear) {
         var years = (hwBook.manifest.years || []).map(function (row) { return row.year; });
         state.archiveYear = years.length ? String(years[years.length - 1]) : "all";
       }
-      if (catalogVisible() && canRepaint()) render();
+      return ensureArchiveChunks();
+    }).then(function () {
+      hwBook.flight = null;
+      if (catalogShowing() && canRepaint()) render();
     }).catch(function () {
       hwBook.error = navigator.onLine ? "The catalog did not load." : "Offline. The catalog is not on this phone yet.";
       hwBook.flight = null;
-      if (catalogVisible()) render();
+      if (catalogShowing()) render();
     });
     return hwBook.flight;
   }
 
   function reloadHwBook() {
-    hwBook.index = null;
     hwBook.manifest = null;
+    hwBook.chunks = {};
+    hwBook.pending = {};
     hwBook.years = {};
     hwBook.error = "";
     hwBook.flight = null;
-    return loadHwBook();
+    return loadHwManifest();
   }
 
   function loadHwYears(years) {
@@ -1012,16 +1230,25 @@
       });
     })).then(function () {
       var list = document.getElementById("archive-list");
-      if (!list || !catalogVisible()) return;
+      if (!list || !catalogShowing()) return;
       var hits = filterHw();
       list.innerHTML = hwCardsHtml(hits.slice(0, state.archiveLimit), hits.length);
+      observeLazy(list);
     }).catch(function () {
       hwBook.error = "A year file did not load.";
     });
   }
 
   function filterHw() {
-    var items = (hwBook.index && hwBook.index.items) || [];
+    var items = [];
+    if (state.archiveYear && state.archiveYear !== "all") {
+      items = hwBook.chunks[String(state.archiveYear)] || [];
+    } else {
+      (hwBook.manifest && hwBook.manifest.years || []).forEach(function (row) {
+        var chunk = hwBook.chunks[String(row.year)];
+        if (chunk) items = items.concat(chunk);
+      });
+    }
     var q = state.archiveQuery.trim().toLowerCase();
     var parts = q ? q.split(/\s+/) : [];
     return items.filter(function (item) {
@@ -1033,7 +1260,7 @@
       if (state.archiveLine === "premium" && !HW_PREMIUM[item.l]) return false;
       if (state.archiveWorth && !item.w) return false;
       if (!parts.length) return true;
-      var blob = (item.n + " " + item.t + " " + item.s + " " + item.c).toLowerCase();
+      var blob = ((item.n || "") + " " + (item.t || "") + " " + (item.s || "") + " " + (item.c || "")).toLowerCase();
       return parts.every(function (part) { return blob.indexOf(part) !== -1; });
     });
   }
@@ -1043,25 +1270,15 @@
     return (yearMap && yearMap[hit.id]) || null;
   }
 
-  function catalogSrc(url) {
-    var value = String(url || "");
-    if (/^http:\/\//i.test(value)) value = "https://" + value.slice(7);
-    if (/^https:\/\//.test(value)) return value;
-    if (value.indexOf("assets/hw/thumbs/") === 0) return value;
-    return "";
-  }
-
   function hwCardsHtml(page, total) {
     if (!page.length) {
       return stateCard("no-results", "No matches", "Try another name, toy number, year, or line.");
     }
-    var cards = page.map(function (hit) {
+    var cards = page.map(function (hit, index) {
       var item = hwRecord(hit);
       var name = item ? item.name : hit.n;
-      var image = item && item.image ? item.image : "";
-      var photo = catalogSrc(image)
-        ? '<button type="button" class="hw-photo" data-zoom="' + esc(catalogSrc(image)) + '" data-alt="' + esc(name) + '"><img alt="" width="144" height="108" decoding="async" referrerpolicy="no-referrer" src="' + esc(catalogSrc(image)) + '"></button>'
-        : '<div class="hw-photo" aria-hidden="true"><img alt="" width="144" height="108" src="assets/states/photo-needed.svg"></div>';
+      var image = (item && item.image) || hit.i || "";
+      var photo = frameHtml(image, { alt: name, kind: "catalog", zoom: true, index: index });
       var bits = [String(hit.y), hwLineLabel(item ? item.line : hit.l)];
       if (item && item.series) bits.push(item.series);
       else if (hit.s) bits.push(hit.s);
@@ -1103,12 +1320,12 @@
 
   function renderArchive() {
     var back = state.view === "archive" ? '<button class="back" type="button" data-back>Home</button>' : "";
-    if (hwBook.error && !hwBook.index) {
+    if (hwBook.error && !hwBook.manifest) {
       return back + "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
     }
-    if (!hwBook.index) {
-      loadHwBook();
-      return back + "<h1>Catalog</h1>" + stateCard("loading", "Loading", "Opening the Hot Wheels book.");
+    if (!hwBook.manifest || !archiveChunksReady()) {
+      loadHwManifest();
+      return back + "<h1>Catalog</h1><p class=\"fine\">Opening the Hot Wheels book.</p>" + skeletonList(4);
     }
     var manifest = hwBook.manifest || { totals: {}, years: [] };
     var hits = filterHw();
@@ -1179,10 +1396,15 @@
         sales: soldPrice == null ? 0 : huntSettings().minSales,
         photo: photoFor(inv),
         tells: inv.notes || "",
+        catalogId: inv.catalogId || "",
+        buyUrl: inv.buyUrl || "",
+        buyLabel: inv.buyLabel || "",
+        retailUrl: inv.retailUrl || "",
+        amazonUrl: inv.amazonUrl || "",
       };
     }
     if (kind === "golf") {
-      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, tells: golf.note || "" };
+      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, tells: golf.note || "", buyUrl: "", retailUrl: "", amazonUrl: "" };
     }
     if (kind === "market") {
       var marketItem = findMarket(id);
@@ -1197,6 +1419,10 @@
         sales: marketItem.nRecentSales || 0,
         photo: marketItem.photo ? { src: marketItem.photo, alt: marketItem.name } : null,
         tells: "",
+        buyUrl: marketItem.buyUrl || "",
+        buyLabel: marketItem.buyLabel || "",
+        retailUrl: marketItem.retailUrl || "",
+        amazonUrl: marketItem.amazonUrl || "",
       };
     }
     var item = findCatalog(id);
@@ -1213,6 +1439,11 @@
       sales: resale.nRecentSales || 0,
       photo: item.photoMatched && item.photo ? { src: item.photo, alt: item.photoAlt || item.name } : null,
       tells: Rules.tellsFor(item),
+      catalogId: item.id,
+      buyUrl: item.buyUrl || "",
+      buyLabel: item.buyLabel || "",
+      retailUrl: item.retailUrl || resale.retailUrl || "",
+      amazonUrl: item.amazonUrl || "",
     };
   }
 
@@ -1234,11 +1465,13 @@
     return net;
   }
 
-  function flowThumb(subject) {
-    if (subject && subject.photo && subject.photo.src) {
-      return '<img class="flow-thumb" src="' + esc(subject.photo.src) + '" alt="" />';
-    }
-    return '<span class="flow-thumb is-empty">Photo needed</span>';
+  function flowThumb(subject, index) {
+    var photo = subject && subject.photo;
+    return frameHtml(photo && photo.src, {
+      alt: (photo && photo.alt) || (subject && subject.name) || "",
+      kind: "flow",
+      index: index,
+    });
   }
 
   function flowPill(verdict) {
@@ -1258,14 +1491,14 @@
     return rec.ref && rec.ref.id;
   }
 
-  function flowRow(rec) {
+  function flowRow(rec, index) {
     var kind = recordKind(rec);
     var id = recordId(rec);
     var subject = subjectOf(kind, id);
     if (!subject) return "";
     var math = window.HuntFlow.breakdown(subject, huntSettings());
     return '<button class="flow-row" type="button" data-open-verdict="' + esc(kind) + '" data-open-id="' + esc(id) + '">' +
-      flowThumb(subject) +
+      flowThumb(subject, index) +
       '<span class="flow-copy"><b>' + esc(subject.name) + "</b><span>" + esc(rowSubtitle(math)) + "</span></span>" +
       flowPill(math.verdict) + "</button>";
   }
@@ -1320,9 +1553,13 @@
       if (d) return d;
       return String(a.rec.name || "").localeCompare(String(b.rec.name || ""));
     });
-    var html = ranked.map(function (row) { return flowRow(row.rec); }).filter(Boolean);
+    var page = ranked.slice(0, state.homeLimit);
+    var html = page.map(function (row, index) { return flowRow(row.rec, index); }).filter(Boolean);
     if (!html.length) return stateCard("no-results", "Leave it", "If it is not on the buy list, leave it.");
-    return '<div class="list" id="home-grid">' + html.join("") + "</div>";
+    var more = ranked.length > page.length
+      ? '<button class="ghost hw-more" type="button" data-home-more>Show more · ' + page.length + " of " + ranked.length + "</button>"
+      : "";
+    return '<div class="list" id="home-grid">' + html.join("") + "</div>" + more;
   }
 
   function homeResults() {
@@ -1342,14 +1579,23 @@
   }
 
   function homeBody() {
-    if (state.query.trim()) return homeResults();
-    var source = homeSource();
-    return '<h2 class="section-label">On the list</h2>' +
-      '<p class="fine">' + source.length + " items and deals</p>" +
-      homeCards(source) +
-      recentHtml() +
-      '<h2 class="section-label">Dropping soon</h2>' +
-      renderDropsStrip() +
+    if (!huntLoaded && !drops.length) return skeletonList(4);
+    if (state.query.trim()) {
+      if (!window.ResellerSearch || !huntLoaded) return skeletonList(4);
+      return homeResults();
+    }
+    var grid = huntLoaded && window.ResellerSearch
+      ? (function () {
+        var source = homeSource();
+        return '<h2 class="section-label">On the list</h2>' +
+          '<p class="fine">' + source.length + " items and deals</p>" +
+          homeCards(source);
+      })()
+      : skeletonList(4);
+    var soon = drops.length
+      ? '<h2 class="section-label">Dropping soon</h2>' + renderDropsStrip()
+      : "";
+    return grid + recentHtml() + soon +
       '<div class="actions"><button class="ghost" type="button" data-action="open-catalog">Full catalog</button>' +
       '<button class="ghost" type="button" data-action="open-stores">Stores</button></div>';
   }
@@ -1382,7 +1628,8 @@
       '<div class="kv"><span><b>Profit</b></span><b class="profit-num">' + esc(signedMoney(math.profit)) + "</b></div>"
     );
     return '<button class="back" type="button" data-back>Home</button>' +
-      '<div class="verdict-layout"><section class="hero-card">' + flowThumb(subject) +
+      '<div class="verdict-layout"><section class="hero-card">' +
+      frameHtml(subject.photo && subject.photo.src, { alt: subject.name, kind: "hero", zoom: true, hint: true }) +
       "<h1>" + esc(subject.name) + "</h1>" +
       (subject.line ? '<p class="fine">' + esc(subject.line) + "</p>" : "") +
       '<p class="verdict-word is-' + word + '">' + esc(math.verdict) + "</p>" +
@@ -1391,6 +1638,7 @@
       '<div class="verdict-side">' +
       (rows ? '<section class="card" aria-label="How we got there">' + rows + "</section>" : '<p class="fine">No sold data</p>') +
       (subject.tells ? '<p class="digest">' + esc(subject.tells) + "</p>" : "") +
+      detailBuyLinks(subject) +
       '<button class="btn-primary" type="button" data-action="track-item">Track this item</button>' +
       '<button class="btn-secondary" type="button" data-action="set-alert">Set price alert</button></div></div>';
   }
@@ -1447,11 +1695,16 @@
       var extra = trackedList().filter(function (row) { return row.bought; }).map(function (row) {
         return watchRow(row);
       }).join("");
+      var invPage = book.slice(0, state.invLimit);
+      var invMore = book.length > invPage.length
+        ? '<button class="ghost hw-more" type="button" data-inv-more>Show more · ' + invPage.length + " of " + book.length + "</button>"
+        : "";
       body = boughtSummary(book) +
         '<p class="fine">Realized profit uses a sold price you entered. Book targets are not live solds.</p>' +
         (extra ? '<div class="list">' + extra + "</div>" : "") +
         '<div class="actions"><button class="solid" type="button" data-action="add-purchase">Add</button><button class="ghost" type="button" data-action="export-json">Export JSON</button><button class="ghost" type="button" data-action="export-csv">Export CSV</button><button class="ghost" type="button" data-action="import-json">Import JSON</button></div>' +
-        '<div class="list" id="inventory-list">' + (book.length ? book.map(invRow).join("") : "") + "</div>";
+        '<div class="list" id="inventory-list">' + invPage.map(function (item, index) { return invRow(item, index); }).join("") + "</div>" +
+        invMore;
     } else if (!watching.length) {
       body = stateCard("empty", "Nothing tracked yet", "Open an item and tap Track this item.") +
         '<p class="fine">Swipe left on a row to stop tracking.</p>';
@@ -1669,7 +1922,7 @@
   }
 
   function catalogVisible() {
-    return state.view === "archive" || (state.tab === "archive" && state.view === "root");
+    return catalogShowing();
   }
 
   function screenHtml() {
@@ -1758,6 +2011,7 @@
       }
       state.moveFocus = false;
     }
+    observeLazy(screen);
   }
 
   function formatWhen(iso) {
@@ -1943,7 +2197,7 @@
     render();
   }
 
-  function addCatalog(item) {
+  function addCatalog(item, extra) {
     var owned = invForCatalog(item);
     if (owned) {
       push({ tab: "inventory", view: "inv", invId: owned.id });
@@ -1963,6 +2217,7 @@
       category: (Rules.laneMeta(Rules.laneFor(item)) || {}).title || "Cars",
       grade: gradeOfCatalog(item),
       catalogId: item.id,
+      barcode: extra && extra.barcode ? extra.barcode : "",
     });
     Inv.write(localStorage, invState);
     push({ tab: "inventory", view: "inv", invId: row.id });
@@ -1973,7 +2228,7 @@
     state.note = "Checking what this page is allowed to reach…";
     render({ keepScroll: true });
     var dataPromise = loadHuntData(false);
-    var bookPromise = hwBook.index ? reloadHwBook() : null;
+    var bookPromise = hwBook.manifest ? reloadHwBook() : null;
     var results = [];
     for (var i = 0; i < R.PROVIDERS.length; i++) {
       var plan = R.refreshPlan(R.PROVIDERS[i]);
@@ -2030,10 +2285,13 @@
   }
 
   function stopCamera() {
+    scanGen += 1;
     if (scanTimer) clearInterval(scanTimer);
     scanTimer = null;
     if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
     stream = null;
+    var video = document.getElementById("scan-video");
+    if (video) video.srcObject = null;
   }
 
   function sourcesHtml() {
@@ -2064,17 +2322,8 @@
 
   document.addEventListener("error", function (event) {
     var img = event.target;
-    if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
-    var market = img.closest && img.closest(".market-photo");
-    if (market) {
-      img.setAttribute("data-fallback", "1");
-      var open = market.closest(".peg-open");
-      market.remove();
-      if (open) open.classList.add("no-photo");
-      return;
-    }
-    var catalog = img.closest && img.closest(".hw-photo");
-    if (!catalog && img.id !== "zoom-img") return;
+    if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1" || !img.getAttribute("src")) return;
+    if (img.closest && !img.closest("#screen, .lightbox, .sheet")) return;
     img.setAttribute("data-fallback", "1");
     img.removeAttribute("srcset");
     img.src = "assets/states/photo-needed.svg";
@@ -2136,24 +2385,35 @@
     var archiveLine = event.target.closest("[data-archive-line]");
     if (archiveLine) {
       state.archiveLine = archiveLine.getAttribute("data-archive-line");
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       render();
       return;
     }
     if (event.target.closest("[data-archive-worth]")) {
       state.archiveWorth = !state.archiveWorth;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       render();
       return;
     }
     if (event.target.closest("[data-archive-more]")) {
-      state.archiveLimit += 36;
+      state.archiveLimit += 24;
       paintArchiveList();
+      return;
+    }
+    if (event.target.closest("[data-inv-more]")) {
+      state.invLimit += 24;
+      render({ keepScroll: true });
+      return;
+    }
+    if (event.target.closest("[data-home-more]")) {
+      state.homeLimit += 24;
+      render({ keepScroll: true });
       return;
     }
     var catBtn = event.target.closest("[data-category]");
     if (catBtn) {
       state.category = catBtn.getAttribute("data-category");
+      state.homeLimit = 24;
       render({ keepScroll: true });
       return;
     }
@@ -2430,14 +2690,17 @@
       reader.readAsText(file);
       return;
     }
-    if (actionName === "run-scan-text") {
-      var typed = document.getElementById("scan-q");
-      state.query = typed ? typed.value : "";
-      closeSheet();
-      state.tab = "home";
-      state.view = "root";
-      state.stack = [];
-      render();
+    if (actionName === "add-scan-code") {
+      addScannedCode(pendingScan, null);
+      return;
+    }
+    if (actionName === "add-scan-catalog") {
+      addScannedCode(pendingScan, actionBtn.getAttribute("data-scan-catalog"));
+      return;
+    }
+    if (actionName === "add-scan-inv") {
+      openScannedInventory(actionBtn.getAttribute("data-scan-inv"), pendingScan);
+      return;
     }
   });
 
@@ -2464,7 +2727,7 @@
     }
     if (event.target.id === "archive-q") {
       state.archiveQuery = event.target.value;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       paintArchiveList();
     }
   });
@@ -2472,7 +2735,17 @@
   function paintArchiveList() {
     var list = document.getElementById("archive-list");
     var count = document.getElementById("archive-count");
-    if (!list || !hwBook.index) return;
+    if (!list || !hwBook.manifest) return;
+    if (!archiveChunksReady()) {
+      list.innerHTML = skeletonList(4);
+      ensureArchiveChunks().then(function () {
+        if (catalogShowing()) paintArchiveList();
+      }).catch(function () {
+        hwBook.error = "A year file did not load.";
+        if (catalogShowing()) render();
+      });
+      return;
+    }
     var hits = filterHw();
     var page = hits.slice(0, state.archiveLimit);
     var needed = [];
@@ -2482,12 +2755,13 @@
     if (needed.length) loadHwYears(needed);
     if (count) count.textContent = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
     list.innerHTML = hwCardsHtml(page, hits.length);
+    observeLazy(list);
   }
 
   document.addEventListener("change", function (event) {
     if (event.target.id === "archive-year") {
       state.archiveYear = event.target.value;
-      state.archiveLimit = 36;
+      state.archiveLimit = 24;
       paintArchiveList();
       return;
     }
@@ -2508,6 +2782,11 @@
       var store = findStore(form.getAttribute("data-store-search"));
       var q = document.getElementById("store-q");
       if (store) window.open(R.checkHref(store.search, q ? q.value : ""), "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (event.target.id === "scan-form") {
+      event.preventDefault();
+      lookupTypedCode();
       return;
     }
     if (event.target.id === "inv-form") {
@@ -2539,36 +2818,312 @@
     });
   }
 
-  function openScan() {
-    var canScan = !!(navigator.mediaDevices && window.BarcodeDetector);
-    var camera = canScan
-      ? '<video id="scan-video" playsinline muted></video><p id="scan-msg" class="fine"></p>'
-      : '<p id="scan-msg" class="fine">No barcode detector in this browser. Type the name. The code is not the tell. Read the card.</p>';
-    openSheet('<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' + camera + '<label class="field"><span>Or type the name</span><input id="scan-q" type="text" autocomplete="off"></label><button class="solid full" type="button" data-action="run-scan-text">Search the list</button>');
-    if (!canScan) return;
+  function scanSheetHtml() {
+    return '<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' +
+      '<video id="scan-video" playsinline muted autoplay></video>' +
+      '<p id="scan-msg" class="fine" role="status">Starting the camera…</p>' +
+      '<div id="scan-hits"></div>' +
+      '<form id="scan-form"><label class="field"><span>Or type the code</span><input id="scan-q" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></label>' +
+      '<button class="solid full" type="submit">Look up this code</button></form>';
+  }
+
+  function setScanMessage(text, isError) {
     var msg = document.getElementById("scan-msg");
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (media) {
-      stream = media;
-      var video = document.getElementById("scan-video");
-      video.srcObject = media;
-      return video.play().then(function () {
-        var detector = new BarcodeDetector({ formats: ["ean_13", "upc_a", "upc_e", "code_128", "qr_code"] });
-        scanTimer = setInterval(function () {
-          detector.detect(video).then(function (codes) {
-            if (!codes[0]) return;
-            state.query = codes[0].rawValue;
-            closeSheet();
-            state.tab = "home";
-            state.view = "root";
-            state.stack = [];
-            render();
-          }).catch(function () {});
-        }, 500);
+    if (!msg) return;
+    msg.textContent = text;
+    msg.classList.toggle("is-error", !!isError);
+    msg.setAttribute("role", isError ? "alert" : "status");
+  }
+
+  function hideScanVideo() {
+    var video = document.getElementById("scan-video");
+    if (video) video.hidden = true;
+  }
+
+  function scanChoices(parsed) {
+    var hits = Scan.match(parsed, { catalog: allCatalog(), inventory: Inv.visible(invState) });
+    var rows = [];
+    var seen = {};
+    hits.inventory.forEach(function (item) {
+      seen[item.id] = true;
+      rows.push({ kind: "inv", id: item.id, name: item.name, note: "In inventory" });
+    });
+    hits.catalog.forEach(function (item) {
+      var owned = invForCatalog(item);
+      if (owned) {
+        if (!seen[owned.id]) rows.push({ kind: "inv", id: owned.id, name: item.name, note: "In inventory" });
+        return;
+      }
+      rows.push({ kind: "catalog", id: item.id, name: item.name, note: "On the buy list" });
+    });
+    return rows;
+  }
+
+  function paintScanChoices(parsed, rows) {
+    pendingScan = parsed;
+    var box = document.getElementById("scan-hits");
+    if (!rows.length) {
+      setScanMessage(Scan.MESSAGES.miss, true);
+      if (box) box.innerHTML = '<button class="solid full" type="button" data-action="add-scan-code">Add this code to inventory</button>';
+      return;
+    }
+    if (rows.length > 1) setScanMessage("Several items share this code. Read the card, then pick one.", false);
+    else setScanMessage("This code is on the list. Read the card.", false);
+    if (!box) return;
+    box.innerHTML = rows.map(function (row) {
+      var action = row.kind === "inv" ? "add-scan-inv" : "add-scan-catalog";
+      var attr = row.kind === "inv" ? "data-scan-inv" : "data-scan-catalog";
+      return '<button class="solid full" type="button" data-action="' + action + '" ' + attr + '="' + esc(row.id) + '">' + esc(row.note + " · " + row.name) + "</button>";
+    }).join("");
+  }
+
+  function openScannedInventory(id, parsed) {
+    var row = findInv(id);
+    if (!row) return;
+    if (parsed && parsed.key && !row.barcode) {
+      row.barcode = parsed.key;
+      Inv.write(localStorage, invState);
+    }
+    closeSheet();
+    push({ tab: "tracked", view: "inv", invId: row.id });
+  }
+
+  function addScannedCode(parsed, catalogId) {
+    if (!parsed || !parsed.key) return;
+    if (!catalogId) {
+      var row = Inv.upsertUser(invState, {
+        name: "Code " + parsed.key,
+        notes: "Scanned " + parsed.format + ". Not on the catalog. Read the card.",
+        cost: 0,
+        resaleLow: null,
+        resaleHigh: null,
+        resaleLabel: "",
+        tag: "mainline",
+        store: "",
+        date: new Date().toISOString().slice(0, 10),
+        status: "On hand",
+        category: "Cars",
+        grade: "",
+        catalogId: null,
+        barcode: parsed.key,
       });
+      Inv.write(localStorage, invState);
+      closeSheet();
+      push({ tab: "tracked", view: "inv", invId: row.id });
+      return;
+    }
+    var item = findCatalog(catalogId);
+    if (!item) return;
+    var owned = invForCatalog(item);
+    if (owned) {
+      openScannedInventory(owned.id, parsed);
+      return;
+    }
+    closeSheet();
+    addCatalog(item, { barcode: parsed.key });
+  }
+
+  function presentScan(raw) {
+    var parsed = Scan.normalize(raw);
+    if (!parsed) {
+      setScanMessage(Scan.MESSAGES.shape, true);
+      return;
+    }
+    if (parsed.error) {
+      setScanMessage(Scan.MESSAGES[parsed.error] || Scan.MESSAGES.shape, true);
+      return;
+    }
+    if (scanHit) return;
+    scanHit = true;
+    pendingScan = parsed;
+    stopCamera();
+    hideScanVideo();
+    var rows = scanChoices(parsed);
+    if (rows.length === 1 && rows[0].kind === "catalog") {
+      addScannedCode(parsed, rows[0].id);
+      return;
+    }
+    if (rows.length === 1 && rows[0].kind === "inv") {
+      openScannedInventory(rows[0].id, parsed);
+      return;
+    }
+    paintScanChoices(parsed, rows);
+  }
+
+  var scanScript = null;
+
+  function ensureScan() {
+    if (window.ResellerScan) {
+      Scan = window.ResellerScan;
+      return Promise.resolve(Scan);
+    }
+    if (scanScript) return scanScript;
+    scanScript = loadScript("lib/scan.js").then(function () {
+      Scan = window.ResellerScan;
+      if (!Scan) throw new Error("scan");
+      return Scan;
+    }).catch(function (err) {
+      scanScript = null;
+      throw err;
+    });
+    return scanScript;
+  }
+
+  function lookupTypedCode() {
+    var typed = document.getElementById("scan-q");
+    var raw = typed ? typed.value : "";
+    ensureScan().then(function () {
+      scanHit = false;
+      presentScan(raw);
     }).catch(function () {
-      var video = document.getElementById("scan-video");
-      if (video) video.remove();
-      msg.textContent = "Camera is unavailable. Type the name. Read the card.";
+      setScanMessage("The scanner did not load. Check the connection and try again.", true);
+    });
+  }
+
+  function attachScanStream(media) {
+    stream = media;
+    var video = document.getElementById("scan-video");
+    if (!video) {
+      stopCamera();
+      return Promise.reject(new Error("closed"));
+    }
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("muted", "");
+    video.autoplay = true;
+    video.srcObject = media;
+    return video.play();
+  }
+
+  function watchBarcodeDetector(video, detector, gen) {
+    var busy = false;
+    scanTimer = setInterval(function () {
+      if (busy || gen !== scanGen) return;
+      busy = true;
+      detector.detect(video).then(function (codes) {
+        busy = false;
+        if (gen !== scanGen || !codes || !codes[0] || !codes[0].rawValue) return;
+        var format = String(codes[0].format || "");
+        if (format && Scan.FORMATS.indexOf(format) === -1) return;
+        presentScan(codes[0].rawValue);
+      }).catch(function () {
+        busy = false;
+      });
+    }, 300);
+  }
+
+  function watchZXing(video, gen) {
+    var canvas = document.createElement("canvas");
+    var busy = false;
+    scanTimer = setInterval(function () {
+      if (busy || gen !== scanGen || !video.videoWidth || !window.ZXing) return;
+      busy = true;
+      var found = null;
+      try {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext("2d", { willReadFrequently: true }) || canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        found = Scan.decodeImageData(window.ZXing, ctx.getImageData(0, 0, canvas.width, canvas.height));
+      } catch (err) {
+        found = null;
+      }
+      busy = false;
+      if (gen === scanGen && found && found.rawValue) presentScan(found.rawValue);
+    }, 300);
+  }
+
+  function loadZXing() {
+    if (window.ZXing && window.ZXing.MultiFormatReader) return Promise.resolve(window.ZXing);
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement("script");
+      script.src = "vendor/zxing.min.js";
+      script.async = true;
+      script.onload = function () {
+        if (window.ZXing && window.ZXing.MultiFormatReader) resolve(window.ZXing);
+        else reject(new Error("zxing"));
+      };
+      script.onerror = function () { reject(new Error("zxing")); };
+      document.head.appendChild(script);
+    });
+  }
+
+  function nativeDetector() {
+    if (typeof window.BarcodeDetector !== "function") return Promise.resolve(null);
+    function build(formats) {
+      if (!formats.length) return null;
+      try {
+        return new window.BarcodeDetector({ formats: formats });
+      } catch (err) {
+        return null;
+      }
+    }
+    if (typeof window.BarcodeDetector.getSupportedFormats === "function") {
+      return window.BarcodeDetector.getSupportedFormats().then(function (supported) {
+        var have = supported || [];
+        return build(Scan.FORMATS.filter(function (format) { return have.indexOf(format) !== -1; }));
+      }).catch(function () {
+        return build(Scan.FORMATS.slice());
+      });
+    }
+    return Promise.resolve(build(Scan.FORMATS.slice()));
+  }
+
+  function requestCamera() {
+    if (!window.isSecureContext) return Promise.reject({ kind: "https" });
+    var devices = navigator.mediaDevices;
+    if (!devices || typeof devices.getUserMedia !== "function") return Promise.reject({ kind: "no-camera" });
+    return devices.getUserMedia(Scan.cameraConstraints()).catch(function (err) {
+      if (err && (err.name === "OverconstrainedError" || err.name === "NotFoundError")) {
+        return devices.getUserMedia(Scan.fallbackConstraints());
+      }
+      throw err;
+    });
+  }
+
+  function openScan() {
+    pendingScan = null;
+    scanHit = false;
+    openSheet(scanSheetHtml());
+    var gen = scanGen;
+    ensureScan().then(function () {
+      return requestCamera();
+    }).then(function (media) {
+      if (gen !== scanGen) {
+        media.getTracks().forEach(function (track) { track.stop(); });
+        return;
+      }
+      return attachScanStream(media).then(function () {
+        if (gen !== scanGen) return;
+        var video = document.getElementById("scan-video");
+        setScanMessage("Point the camera at a UPC, EAN, or Code 128.", false);
+        return nativeDetector().then(function (detector) {
+          if (gen !== scanGen || !video) return;
+          if (detector) {
+            watchBarcodeDetector(video, detector, gen);
+            return;
+          }
+          return loadZXing().then(function () {
+            if (gen !== scanGen) return;
+            watchZXing(video, gen);
+          }).catch(function () {
+            if (gen !== scanGen) return;
+            setScanMessage(Scan.MESSAGES["no-detector"], true);
+          });
+        });
+      });
+    }).catch(function (err) {
+      if (gen !== scanGen) return;
+      hideScanVideo();
+      if (!Scan) {
+        setScanMessage("The scanner did not load. Check the connection and try again.", true);
+        return;
+      }
+      var kind = err && err.kind ? err.kind : Scan.cameraErrorKind(err);
+      setScanMessage(Scan.MESSAGES[kind] || Scan.MESSAGES["no-camera"], true);
     });
   }
 
@@ -2627,26 +3182,85 @@
     }
   }
 
-  function loadHuntData(isBoot) {
+  function bindLibs() {
+    if (window.ResellerCash) C = window.ResellerCash;
+    if (window.ResellerDates) D = window.ResellerDates;
+    if (window.ResellerPrices) P = window.ResellerPrices;
+    if (window.ResellerSearch) S = window.ResellerSearch;
+    if (window.ResellerProviders) R = window.ResellerProviders;
+    if (window.ResellerInventory) Inv = window.ResellerInventory;
+    if (window.ResellerRules) Rules = window.ResellerRules;
+    if (window.ResellerScan) Scan = window.ResellerScan;
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if (existing && existing.getAttribute("data-loaded") === "1") {
+        resolve();
+        return;
+      }
+      if (existing && existing.getAttribute("data-loading") === "1") {
+        existing.addEventListener("load", function () { resolve(); });
+        existing.addEventListener("error", function () { reject(new Error(src)); });
+        return;
+      }
+      var el = document.createElement("script");
+      el.src = src;
+      el.async = false;
+      el.setAttribute("data-loading", "1");
+      el.onload = function () {
+        el.setAttribute("data-loaded", "1");
+        resolve();
+      };
+      el.onerror = function () { reject(new Error(src)); };
+      document.head.appendChild(el);
+    });
+  }
+
+  function loadScriptsInOrder(list) {
+    var pending = list.map(loadScript);
+    return Promise.all(pending).then(function () { bindLibs(); });
+  }
+
+  var libsPromise = null;
+
+  function ensureLibs() {
+    if (!libsPromise) {
+      libsPromise = loadScriptsInOrder([
+        "cash.js",
+        "lib/prices.js",
+        "lib/search.js",
+        "lib/providers.js",
+        "lib/inventory.js",
+      ]);
+    }
+    return libsPromise;
+  }
+
+  function loadHuntData(isBoot, dropsPromise) {
     if (huntFlight) return huntFlight;
     state.dataPhase = "checking";
-    if (isBoot) {
-      paintDataStatus();
-      screen.innerHTML = stateCard("loading", "Loading", "Opening the hunt.");
-    } else {
-      paintDataStatus();
-    }
+    paintDataStatus();
+    if (!dropsPromise) dropsPromise = fetchFreshJson("data/drops.json");
+    dropsPromise = dropsPromise.then(function (part) {
+      drops = part.data || [];
+      if (!huntLoaded && canRepaint() && state.view === "root" && state.tab === "home") render();
+      return part;
+    });
     huntFlight = Promise.all([
-      "data/catalog.json",
-      "data/drops.json",
-      "data/inventory-seed.json",
-      "data/stores.json",
-      "data/golf.json",
-      "data/market.json",
-    ].map(fetchFreshJson)).then(function (parts) {
+      fetchFreshJson("data/catalog.json"),
+      dropsPromise,
+      fetchFreshJson("data/inventory-seed.json"),
+      fetchFreshJson("data/stores.json"),
+      fetchFreshJson("data/golf.json"),
+      fetchFreshJson("data/market.json"),
+      ensureLibs(),
+    ]).then(function (parts) {
+      bindLibs();
       applyHuntParts(parts);
       huntLoaded = true;
-      state.dataPhase = parts.some(function (part) { return part.fromCache; }) ? "error" : "fresh";
+      state.dataPhase = parts.slice(0, 6).some(function (part) { return part && part.fromCache; }) ? "error" : "fresh";
       if (isBoot || canRepaint()) render({ keepScroll: !isBoot });
       else paintDataStatus();
     }).catch(function () {
@@ -2724,7 +3338,12 @@
     bootError = "";
     quietUntil = Date.now() + 1200;
     bindReturns();
-    loadHuntData(true);
+    render();
+    var dropsPromise = fetchFreshJson("data/drops.json");
+    ensureLibs();
+    loadHuntData(false, dropsPromise).then(function () {
+      setTimeout(watchShellUpdates, 1200);
+    });
   }
 
   applyTheme(themeChoice());
@@ -2751,6 +3370,5 @@
     if (remove) remove.click();
   });
 
-  watchShellUpdates();
   boot();
 })();

@@ -10,7 +10,7 @@ from PIL import Image
 Image.MAX_IMAGE_PIXELS = 40_000_000
 
 
-def thumb(data):
+def thumb(data, limit):
     image = Image.open(io.BytesIO(data))
     image.seek(0)
     if getattr(image, "is_animated", False):
@@ -18,7 +18,7 @@ def thumb(data):
     bands = image.getbands()
     if image.mode not in ("RGB", "RGBA"):
         image = image.convert("RGBA" if "A" in bands else "RGB")
-    image.thumbnail((240, 240), Image.Resampling.LANCZOS)
+    image.thumbnail((limit, limit), Image.Resampling.LANCZOS)
     out = io.BytesIO()
     image.save(out, "WEBP", quality=62, method=4)
     return out.getvalue()
@@ -30,7 +30,7 @@ for line in sys.stdin:
         continue
     job = json.loads(line)
     try:
-        webp = thumb(base64.b64decode(job["b64"]))
+        webp = thumb(base64.b64decode(job["b64"]), int(job.get("max") or 240))
         sys.stdout.write(json.dumps({"id": job["id"], "ok": True, "b64": base64.b64encode(webp).decode("ascii")}) + "\n")
     except Exception as err:
         sys.stdout.write(json.dumps({"id": job["id"], "ok": False, "error": str(err)[:180]}) + "\n")

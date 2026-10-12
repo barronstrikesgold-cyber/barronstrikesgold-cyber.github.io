@@ -30,6 +30,9 @@ assert(!Amazon.tagUrl("https://www.amazon.com/dp/" + sample + "?tag=other-20").i
 assert(Amazon.tagUrl(tagged) === tagged, "a correct tag is left as written");
 assert(Amazon.cleanProductUrl(sample) === clean, "stored form is a clean /dp/ URL");
 assert(Amazon.productUrl(sample) === tagged, "ASIN builds a tagged product link");
+assert(Amazon.searchUrl("Hot Wheels") === "https://www.amazon.com/s?k=Hot%20Wheels&tag=hempsply02-20", "search links carry the tracking id");
+assert(Amazon.ebayUrl("Skyline", true).includes("LH_Sold=1") && Amazon.ebayUrl("Skyline", true).includes("LH_Complete=1"), "sold search is completed listings");
+assert(!Amazon.ebayUrl("Skyline", false).includes("LH_Sold=1"), "active search is current listings");
 assert(Amazon.productUrl("nope") === "", "a short code is not an ASIN");
 assert(Amazon.buyHref({ asin: sample, verdict: "PASS" }, "PASS") === "", "PASS does not get a buy link");
 assert(Amazon.buyHref({ asin: sample, verdict: "BUY" }) === tagged, "BUY with an ASIN gets a buy link");
@@ -86,6 +89,8 @@ files.forEach(function (file) {
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 assert(app.includes('rel = "sponsored noopener"'), "Amazon anchors use rel=sponsored noopener");
+assert(app.includes('rel="sponsored noopener"'), "buy anchors use rel=sponsored noopener");
+assert(app.includes("eBay sold") && app.includes("eBay active") && app.includes("detailBuyLinks"), "detail pages include eBay and Amazon buy links");
 assert(app.includes("Buy on Amazon"), "buy link label");
 assert(html.includes("<footer"), "footer element");
 assert(html.includes(Amazon.DISCLOSURE), "footer disclosure");
