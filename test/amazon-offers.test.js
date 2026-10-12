@@ -1,9 +1,8 @@
 "use strict";
 
 const fs = require("fs");
-const http = require("http");
 const path = require("path");
-const { chromium } = require("playwright");
+const vm = require("vm");
 
 function assert(cond, msg) {
   if (!cond) {
@@ -13,44 +12,209 @@ function assert(cond, msg) {
 }
 
 const root = path.join(__dirname, "..");
-const TYPES = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".mjs": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
-  ".webp": "image/webp",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
+
+function decode(value) {
+  return String(value || "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, "\"")
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function element(tag) {
+  return {
+    tagName: String(tag || "div").toUpperCase(),
+    children: [],
+    attrs: {},
+    classList: {
+      toggle: function () {},
+      contains: function () { return false; },
+      add: function () {},
+      remove: function () {},
+    },
+    style: {},
+    hidden: false,
+    textContent: "",
+    value: "",
+    id: "",
+    open: false,
+    parentNode: null,
+    listeners: {},
+    src: "",
+    setAttribute: function (key, value) {
+      this.attrs[key] = String(value);
+      if (key === "id") this.id = String(value);
+    },
+    getAttribute: function (key) {
+      return Object.prototype.hasOwnProperty.call(this.attrs, key) ? this.attrs[key] : null;
+    },
+    removeAttribute: function (key) { delete this.attrs[key]; },
+    appendChild: function (child) {
+      child.parentNode = this;
+      this.children.push(child);
+      if (child.tagName === "SCRIPT" && child.src) runScript(child.src.replace(/^\.\//, ""));
+      if (child.onload) child.onload();
+      return child;
+    },
+    remove: function () {},
+    replaceWith: function () {},
+    addEventListener: function (type, fn) {
+      this.listeners[type] = this.listeners[type] || [];
+      this.listeners[type].push(fn);
+    },
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; },
+    focus: function () {},
+    setSelectionRange: function () {},
+    closest: function () { return null; },
+    innerHTML: "",
+  };
+}
+
+const scripts = {};
+const byId = {};
+const tabs = ["home", "calendar", "catalog", "tracked", "account"].map(function (name) {
+  const btn = element("button");
+  btn.setAttribute("data-tab", name);
+  return btn;
+});
+const meta = element("meta");
+meta.setAttribute("name", "theme-color");
+const body = element("body");
+body.innerText = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const head = element("head");
+const documentElement = element("html");
+
+function getElementById(id) {
+  if (!byId[id]) byId[id] = element("div");
+  byId[id].id = id;
+  return byId[id];
+}
+
+["screen", "sheet", "zoom", "status-live", "checked-line", "global-q", "header-back", "topbar", "update-banner", "apply-update"].forEach(getElementById);
+
+const document = {
+  documentElement: documentElement,
+  body: body,
+  head: head,
+  visibilityState: "visible",
+  readyState: "complete",
+  activeElement: body,
+  getElementById: getElementById,
+  createElement: element,
+  querySelector: function (sel) {
+    const script = /^script\[src="([^"]+)"\]$/.exec(sel);
+    if (script) return scripts[script[1]] || null;
+    if (sel === 'meta[name="theme-color"]') return meta;
+    return null;
+  },
+  querySelectorAll: function (sel) {
+    if (sel === ".tabbar [data-tab]") return tabs;
+    return [];
+  },
+  addEventListener: function () {},
 };
 
-function startServer() {
-  const server = http.createServer(function (req, res) {
-    const url = new URL(req.url, "http://127.0.0.1");
-    const rel = decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname);
-    const file = path.normalize(path.join(root, rel));
-    if (file !== root && !file.startsWith(root + path.sep)) {
-      res.writeHead(403);
-      res.end();
-      return;
-    }
-    fs.readFile(file, function (err, buf) {
-      if (err) {
-        res.writeHead(404);
-        res.end("missing");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream" });
-      res.end(buf);
+const context = {
+  console: console,
+  setTimeout: setTimeout,
+  clearTimeout: clearTimeout,
+  URL: URL,
+  URLSearchParams: URLSearchParams,
+  Date: Date,
+  JSON: JSON,
+  Math: Math,
+  Object: Object,
+  Array: Array,
+  String: String,
+  Number: Number,
+  Boolean: Boolean,
+  RegExp: RegExp,
+  Error: Error,
+  TypeError: TypeError,
+  Promise: Promise,
+  Map: Map,
+  Set: Set,
+  Intl: Intl,
+  parseInt: parseInt,
+  parseFloat: parseFloat,
+  isNaN: isNaN,
+  isFinite: isFinite,
+  encodeURIComponent: encodeURIComponent,
+  decodeURIComponent: decodeURIComponent,
+  encodeURI: encodeURI,
+  decodeURI: decodeURI,
+  document: document,
+  navigator: { onLine: true, userAgent: "node", standalone: false },
+  location: { hash: "#/home", href: "http://127.0.0.1/#/home", reload: function () {} },
+  history: {
+    state: null,
+    replaceState: function (state, title, url) { this.state = state; if (url) context.location.hash = url; },
+    pushState: function (state, title, url) { this.state = state; if (url) context.location.hash = url; },
+    back: function () {},
+  },
+  localStorage: {
+    store: {},
+    getItem: function (key) { return Object.prototype.hasOwnProperty.call(this.store, key) ? this.store[key] : null; },
+    setItem: function (key, value) { this.store[key] = String(value); },
+    removeItem: function (key) { delete this.store[key]; },
+  },
+  scrollY: 0,
+  scrollTo: function () {},
+  matchMedia: function () { return { matches: false, addEventListener: function () {} }; },
+  fetch: function (url) {
+    const rel = String(url).replace(/^\//, "").split("?")[0];
+    const file = path.join(root, rel);
+    const text = fs.readFileSync(file, "utf8");
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      headers: { get: function () { return null; } },
+      json: function () { return Promise.resolve(JSON.parse(text)); },
+      text: function () { return Promise.resolve(text); },
     });
-  });
-  return new Promise(function (resolve) {
-    server.listen(0, "127.0.0.1", function () { resolve(server); });
-  });
+  },
+  DOMParser: function DOMParser() {},
+  addEventListener: function () {},
+  removeEventListener: function () {},
+};
+context.DOMParser.prototype.parseFromString = function (html) {
+  const anchors = [];
+  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+  let match;
+  while ((match = re.exec(String(html || "")))) {
+    const attrs = match[1];
+    const href = /href="([^"]*)"/.exec(attrs);
+    const rel = /rel="([^"]*)"/.exec(attrs);
+    const text = match[2].replace(/<[^>]+>/g, "");
+    anchors.push({
+      getAttribute: function (name) {
+        if (name === "href") return href ? decode(href[1]) : "";
+        if (name === "rel") return rel ? rel[1] : "";
+        return "";
+      },
+      textContent: decode(text),
+    });
+  }
+  return {
+    querySelectorAll: function (sel) { return sel === "a" ? anchors : []; },
+  };
+};
+context.window = context;
+context.globalThis = context;
+context.self = context;
+vm.createContext(context);
+
+function runScript(rel) {
+  vm.runInContext(fs.readFileSync(path.join(root, rel), "utf8"), context, { filename: rel });
 }
+
+const savedAppend = head.appendChild;
+head.appendChild = function (child) {
+  if (child && child.tagName === "SCRIPT" && child.src) scripts[child.src] = child;
+  return savedAppend.call(head, child);
+};
 
 function expectedProducts() {
   const catalog = JSON.parse(fs.readFileSync(path.join(root, "data/catalog.json"), "utf8"));
@@ -99,7 +263,7 @@ async function checkDp(urls) {
         const text = res.status === 503 || res.status === 429 ? "" : await res.text();
         return { url: url, status: res.status, kind: classify(res.status, text.slice(0, 120000)) };
       } catch (err) {
-        return { url: url, status: 0, kind: "inconclusive", error: err.name };
+        return { url: url, status: 0, kind: "inconclusive" };
       } finally {
         clearTimeout(timer);
       }
@@ -113,27 +277,34 @@ async function checkDp(urls) {
   return { broken: broken, ok: ok, inconclusive: inconclusive };
 }
 
-async function main() {
-  const counts = expectedProducts();
-  const server = await startServer();
-  const port = server.address().port;
-  const browser = await chromium.launch({ headless: true });
-  let report;
-  try {
-    const page = await browser.newPage();
-    await page.goto("http://127.0.0.1:" + port + "/#/home", { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(function () {
-      return window.HuntAmazonRender && window.HuntAmazonRender.ready();
-    }, null, { timeout: 30000 });
-    report = await page.evaluate(function () { return window.HuntAmazonRender.audit(); });
-  } finally {
-    await browser.close();
-    server.close();
-  }
+function sleep(ms) {
+  return new Promise(function (resolve) { setTimeout(resolve, ms); });
+}
 
-  if (report.problems.length) {
-    console.error(report.problems.slice(0, 30).join("\n"));
+async function main() {
+  [
+    "lib/dates.js",
+    "lib/resale-cards.js",
+    "lib/rules.js",
+    "lib/hunt-drops.js",
+    "lib/flow.js",
+    "lib/amazon.js",
+    "lib/market.js",
+    "app.js",
+  ].forEach(runScript);
+
+  let report = null;
+  for (let i = 0; i < 80; i++) {
+    if (context.HuntAmazonRender && context.HuntAmazonRender.ready()) {
+      report = context.HuntAmazonRender.audit();
+      break;
+    }
+    await sleep(25);
   }
+  assert(report, "the app did not finish rendering its product data");
+
+  if (report.problems.length) console.error(report.problems.slice(0, 30).join("\n"));
+  const counts = expectedProducts();
   assert(report.problems.length === 0, report.problems.length + " product views failed the Amazon link check");
   assert(report.disclosure, "footer disclosure is still on the page");
   assert(report.products === counts.total, "rendered " + report.products + " products, data has " + counts.total);
