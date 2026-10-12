@@ -87,8 +87,11 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261012e"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261012d"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261012f"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261012e"), "previous shell cache is retired");
+assert(app.includes("data-fashion-brand"), "sneaker and designer drops have brand chips");
+assert(app.includes("id=\"drop-calendar\""), "dated drops render as a calendar");
+assert(app.includes("Authentication: sneakers and designer pieces"), "authentication disclaimer is on fashion drops");
 assert(css.includes("position: fixed; top: 0; z-index: 40"), "header stays pinned");
 assert(css.includes("padding-top: calc(56px + env(safe-area-inset-top))"), "content clears the fixed header");
 assert(html.includes('href="#/home"'), "wordmark links home");

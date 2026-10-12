@@ -1,0 +1,75 @@
+:root {
+  color-scheme: dark;
+  --bg: #070708;
+  --card: #18181b;
+  --ink: #f6f3ee;
+  --muted: #a7a29a;
+  --line: rgba(255, 243, 230, 0.12);
+  --gold: #f5c518;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  line-height: 1.55;
+}
+
+a { color: var(--gold); }
+
+.wrap {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 28px 20px 72px;
+}
+
+.brand {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 1.35rem;
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(2rem, 7vw, 3.1rem);
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  margin: 22px 0 12px;
+}
+
+h2 { margin: 0 0 8px; font-size: 1.25rem; line-height: 1.25; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  margin: 14px 0;
+}
+
+.card a { text-decoration: none; }
+
+.fine { color: var(--muted); font-size: 0.92rem; }
+
+p { font-size: 1.05rem; }
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 28px;
+}
+
+.crumbs a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}

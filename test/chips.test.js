@@ -25,7 +25,7 @@ function chipOf(rec) {
     const section = String(rec.category || "");
     if (section === "magic") return "mtg";
     if (section === "mattel") return "hot-wheels";
-    if (["matchbox", "pokemon", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "lego", "funko", "apple", "consoles"].includes(section)) return section;
+    if (["matchbox", "pokemon", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "designer", "lego", "funko", "apple", "consoles"].includes(section)) return section;
     return "other";
   }
   if (rec.kind === "catalog") {
@@ -64,7 +64,8 @@ const expected = {
   lorcana: 1,
   yugioh: 3,
   sports: 6,
-  sneakers: 9,
+  sneakers: 99,
+  designer: 31,
   lego: 22,
   funko: 8,
   apple: 6,

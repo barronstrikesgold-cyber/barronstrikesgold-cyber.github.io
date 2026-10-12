@@ -83,10 +83,10 @@ const feed = Market.latestFeed([
 assert(feed.map((item) => item.name).join(",") === "a,b", "latest feed is soonest first");
 
 const ids = file.sections.map((section) => section.id);
-["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "lego", "funko", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
+["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "designer", "lego", "funko", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
   assert(ids.indexOf(id) !== -1, "section " + id);
 });
-["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "lego", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
+["pokemon", "magic", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "designer", "lego", "apple", "consoles", "matchbox", "mattel"].forEach((id) => {
   const section = file.sections.find((row) => row.id === id);
   assert(section.items.length > 0, id + " has rows from a public source");
 });
@@ -130,10 +130,25 @@ file.sections.find((row) => row.id === "consoles").items.forEach((item) => {
   assert(/switch/i.test(item.name) && /system|bundle|edition/i.test(item.name), "console is a Switch 2 edition: " + item.name);
   assert(Number(item.retail) >= 400, "console price is a system price");
 });
+const sneakerBrands = ["Nike", "Jordan", "adidas", "New Balance", "ASICS", "Puma", "Travis Scott", "Off-White"];
+const designerBrands = ["Supreme", "Kith", "Palace"];
 file.sections.find((row) => row.id === "sneakers").items.forEach((item) => {
-  assert(Number(item.retail) > 0 && item.sold == null, "sneaker retail is Nike's and the resale average was not invented");
+  assert(sneakerBrands.indexOf(item.brand) !== -1, "sneaker brand is named: " + item.brand);
+  assert(item.sold == null, "sneaker resale stays an ask");
   assert(/ask/i.test(item.soldSource || ""), "sneaker note says asks were not used as solds");
+  assert(!item.photo, item.id + " has no unlicensed product photo");
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(item.release || ""), item.id + " has a release date");
+  assert(item.dropUrl || item.retailUrl, item.id + " has a drop or calendar link");
 });
+file.sections.find((row) => row.id === "designer").items.forEach((item) => {
+  assert(designerBrands.indexOf(item.brand) !== -1, "designer brand is named: " + item.brand);
+  assert(item.sold == null && /ask/i.test(item.soldSource || ""), "designer resale stays an ask");
+  assert(!item.photo, item.id + " has no unlicensed product photo");
+  assert(item.dropUrl, item.id + " links the official shop");
+});
+assert(refresh.includes("loadDesigner"), "daily refresh builds the designer calendar");
+assert(refresh.includes("justdrops.com/calendar/"), "daily refresh reads the sneaker calendar");
+assert(refresh.includes("WATCHED_WITHOUT_DATES") || refresh.includes("Louis Vuitton"), "houses without a public date are named and not invented");
 file.sections.find((row) => row.id === "onepiece").items.forEach((item) => {
   assert(Number(item.retail) > 0, "One Piece row keeps an official MSRP");
   assert(String(item.photo).startsWith("images/") && item.photo.endsWith(".webp"), item.id + " has a self-hosted product photo");

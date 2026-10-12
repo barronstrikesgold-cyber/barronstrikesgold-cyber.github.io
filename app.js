@@ -62,6 +62,7 @@
     calendarCategory: "all",
     navDepth: 0,
     marketBrand: "latest",
+    fashionBrand: "all",
     marketLimit: 24,
     marketId: "",
   };
@@ -711,7 +712,9 @@
   function homeDestinations() {
     return '<div class="home-destinations">' +
       '<button type="button" data-action="open-catalog"><b>Catalog</b><span>Full Hot Wheels book</span></button>' +
-      '<button type="button" data-action="open-stores"><b>Stores</b><span>Peg lists by store</span></button></div>';
+      '<button type="button" data-action="open-stores"><b>Stores</b><span>Peg lists by store</span></button>' +
+      '<button type="button" data-action="open-blog"><b>Blog</b><span>How a find is scored</span></button>' +
+      '<button type="button" data-action="open-coupons"><b>Coupons</b><span>Owner codes on this device</span></button></div>';
   }
 
   function catalogRecord(item) {
@@ -885,8 +888,9 @@
 
   function marketPhoto(item, zoom, index) {
     var src = licensedPhoto(item && item.photo);
-    if (!src) return "";
-    return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
+    if (src) return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
+    if (item && (item.section === "sneakers" || item.section === "designer")) return placeholderThumb(item.section === "sneakers" ? "sneaker" : "box");
+    return "";
   }
 
   function marketFoot(item) {
@@ -927,9 +931,10 @@
   function marketCard(item, index) {
     var when = item.releaseLabel || "";
     var photo = marketPhoto(item, false, index);
+    var word = item.brand ? '<span class="brand-word">' + esc(item.brand) + "</span>" : "";
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
-      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
+      '<span class="peg-copy">' + word + '<span class="peg-name">' + esc(item.name) + "</span>" +
       (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
       "</span>" +
       decisionBar("", item.verdict) +
@@ -937,6 +942,49 @@
       '<span class="peg-meta">' + esc(marketFoot(item)) + "</span></span></button>" +
       amazonBuyRow(item, item.verdict, []) +
       "</article>";
+  }
+
+  function fashionSection(id) {
+    return id === "sneakers" || id === "designer";
+  }
+
+  function authDisclaimer() {
+    return "Authentication: sneakers and designer pieces are widely counterfeited. A listing price is an ask, not proof the item is real or that it sold. Check the pair or the piece with a trusted authenticator before you pay or resell.";
+  }
+
+  function fashionPool(items) {
+    if (!fashionSection(state.marketBrand) || state.fashionBrand === "all") return items;
+    return items.filter(function (item) { return item.brand === state.fashionBrand; });
+  }
+
+  function brandChips(items) {
+    if (!fashionSection(state.marketBrand)) return "";
+    var brands = [];
+    items.forEach(function (item) {
+      if (item.brand && brands.indexOf(item.brand) === -1) brands.push(item.brand);
+    });
+    var buttons = '<button type="button" data-fashion-brand="all"' + (state.fashionBrand === "all" ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">All</button>" +
+      brands.map(function (brand) {
+        var on = state.fashionBrand === brand;
+        return '<button type="button" data-fashion-brand="' + esc(brand) + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + esc(brand) + "</button>";
+      }).join("");
+    return '<div class="hw-lines brand-chips" role="group" aria-label="Brand">' + buttons + "</div>";
+  }
+
+  function calendarList(page) {
+    if (!page.length) return '<p class="market-note">No dated drops for this brand. Nothing was invented.</p>';
+    var html = "";
+    var last = "";
+    page.forEach(function (item, index) {
+      if ((item.release || "") !== last) {
+        if (last) html += "</div>";
+        html += '<h2 class="section-label">' + esc(item.releaseLabel || item.release || "Date not set") + "</h2>" + '<div class="list">';
+        last = item.release || "";
+      }
+      html += marketCard(item, index);
+    });
+    if (last || page.length) html += "</div>";
+    return '<div id="drop-calendar">' + html + "</div>";
   }
 
   function renderMarketList() {
@@ -953,10 +1001,14 @@
       ? "Soonest release or restock from today forward. BUY needs a liquid sold whose net beats retail × 1.09 by $15. PASS loses at retail. CHECK is everything else."
       : ((current && current.note) || "");
     var items = marketPool();
-    var page = items.slice(0, state.marketLimit);
-    var body = page.length
-      ? '<div class="list">' + page.map(marketCard).join("") + "</div>"
-      : '<p class="market-note">No products on this feed. Nothing was invented.</p>';
+    var scoped = fashionPool(items);
+    var page = scoped.slice(0, state.marketLimit);
+    var body = fashionSection(state.marketBrand)
+      ? calendarList(page)
+      : (page.length
+        ? '<div class="list">' + page.map(marketCard).join("") + "</div>"
+        : '<p class="market-note">No products on this feed. Nothing was invented.</p>');
+    var auth = fashionSection(state.marketBrand) ? '<p class="auth-note">' + esc(authDisclaimer()) + "</p>" : "";
     var more = items.length > page.length
       ? '<button class="ghost hw-more" type="button" data-market-more>Show more</button>'
       : "";
@@ -964,6 +1016,8 @@
     return '<p class="kicker">' + esc(kicker) + "</p>" +
       '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. BUY, PASS, or CHECK.</p>' +
       chips +
+      brandChips(items) +
+      auth +
       (note ? '<p class="fine">' + esc(note) + "</p>" : "") +
       checked +
       body + more;
@@ -980,22 +1034,31 @@
         (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
     var shop = shopHref(item);
+    var dropLinks = (item.dropUrl ? externalAnchor(item.dropUrl, "Drop") : "") + (item.raffleUrl ? externalAnchor(item.raffleUrl, "Raffle") : "");
+    var dropBlock = dropLinks ? '<section class="tool"><p class="kicker">Drop</p><div class="link-row">' + dropLinks + "</div></section>" : "";
+    var auth = item.section === "sneakers" || item.section === "designer"
+      ? '<section class="tool"><p class="kicker">Authentication</p><p>' + esc(authDisclaimer()) + "</p></section>"
+      : "";
+    var word = item.brand ? '<p class="brand-word">' + esc(item.brand) + "</p>" : "";
     var retailLink = item.retailUrl && item.retailUrl !== shop
       ? '<div class="link-row">' + externalAnchor(item.retailUrl, item.retailSource || "Retail source") + "</div>"
       : "";
     var photoCredit = item.photoPage
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
-    return '<button class="back" type="button" data-back>Drops</button>' +
+    return '<button class="back" type="button" data-back>Calendar</button>' +
       marketPhoto(item, true) +
+      word +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
       '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      dropBlock +
       detailBuyLinks(item) +
       (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
-      '<section class="tool"><p class="kicker">Street</p><p>' + esc(item.streetNote || "No verified street price.") + "</p></section>" +
+      '<section class="tool"><p class="kicker">Resale</p><p>' + esc(item.streetNote || "Ask, not a verified sale.") + "</p></section>" +
+      auth +
       photoCredit;
   }
 
@@ -1024,6 +1087,7 @@
       return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-cal-category="' + esc(id) + '">' + esc(name) + "</button>";
     }).join("") + "</div>";
     return "<h1>Calendar</h1>" + offlineBanner() +
+      renderMarketList() +
       '<p class="digest">' + drops.length + " dated drops. Buy marks the dates that matter.</p>" +
       chips +
       '<p class="fine">' + shown.length + " of " + drops.length + "</p>" +
@@ -1564,7 +1628,7 @@
       var section = String(rec.category || "");
       if (section === "magic") return "mtg";
       if (section === "mattel") return "hot-wheels";
-      if (section === "matchbox" || section === "pokemon" || section === "onepiece" || section === "lorcana" || section === "yugioh" || section === "sports" || section === "sneakers" || section === "lego" || section === "funko" || section === "apple" || section === "consoles") return section;
+      if (section === "matchbox" || section === "pokemon" || section === "onepiece" || section === "lorcana" || section === "yugioh" || section === "sports" || section === "sneakers" || section === "designer" || section === "lego" || section === "funko" || section === "apple" || section === "consoles") return section;
       return "other";
     }
     if (rec.kind === "catalog") {
@@ -1759,6 +1823,7 @@
       ["yugioh", "Yu-Gi-Oh"],
       ["sports", "Sports cards"],
       ["sneakers", "Sneakers"],
+      ["designer", "Designer"],
       ["lego", "LEGO"],
       ["funko", "Funko"],
       ["apple", "Apple/Beats"],
@@ -2038,6 +2103,9 @@
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
       '<section class="tool"><p class="kicker">Data freshness</p><p>' + esc(fresh || "Not checked yet") + "</p><p>" +
       (checked ? "Last refresh · " + esc(formatWhen(checked)) : "No refresh yet") + "</p></section>" +
+      '<section class="tool" id="plans"><p class="kicker">Plans</p><p>Free on this website. Pro checkout uses Stripe on the web. An iOS app comes later.</p></section>' +
+      '<button class="ghost" type="button" data-action="open-blog">Blog</button>' +
+      '<button class="ghost" type="button" data-action="open-coupons">Coupons</button>' +
       '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
       '<button class="ghost" type="button" data-action="sources">Sources</button>' +
       '<p class="legal">Broken Beaker Labs LC</p>';
@@ -2108,6 +2176,8 @@
     if (state.view === "inv") return renderInvDetail();
     if (state.view === "inv-form") return invForm(state.invId ? findInv(state.invId) : null);
     if (state.view === "golf") return renderGolfDetail();
+    if (state.view === "blog") return renderBlog();
+    if (state.view === "coupons") return renderCoupons();
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
     if (state.view === "drops" || state.tab === "drops" || state.tab === "calendar") return renderDrops();
     if (state.view === "stores" || state.tab === "stores") return renderStores();
@@ -2232,6 +2302,8 @@
 
   function hashForState() {
     if (state.view === "estimate") return "#/profit";
+    if (state.view === "blog") return "#/blog";
+    if (state.view === "coupons") return "#/coupons";
     if (state.view === "archive") return "#/catalog";
     if (state.view === "stores") return "#/stores";
     if ((state.view === "lanes" || state.view === "store") && state.storeId) return "#/stores/" + encodeURIComponent(state.storeId);
@@ -2310,6 +2382,8 @@
       return;
     }
     if (head === "profit") { state.tab = "home"; state.view = "estimate"; return; }
+    if (head === "blog") { state.tab = "home"; state.view = "blog"; return; }
+    if (head === "coupons") { state.tab = "home"; state.view = "coupons"; return; }
     if (head === "item" && parts[1]) {
       var kind = parts[2] ? decodePart(parts[1]) : "catalog";
       var id = parts[2] ? decodePart(parts[2]) : decodePart(parts[1]);
@@ -2350,6 +2424,7 @@
     if (hash.indexOf("#/calendar/") === 0) return "#/calendar";
     if (hash === "#/tracked/bought" || hash === "#/tracked/edit") return "#/tracked";
     if (hash === "#/alerts/setup") return "#/alerts";
+    if (hash === "#/blog" || hash === "#/coupons") return "#/home";
     return "#/home";
   }
 
@@ -2438,6 +2513,7 @@
       yugioh: "Yu-Gi-Oh",
       sports: "Sports cards",
       sneakers: "Sneakers",
+      designer: "Designer",
       lego: "LEGO",
       funko: "Funko",
       apple: "Apple/Beats",
@@ -2449,6 +2525,8 @@
 
   function routeTitle() {
     if (state.view === "estimate") return "Profit calculator";
+    if (state.view === "blog") return "Blog";
+    if (state.view === "coupons") return "Coupons";
     if (state.view === "archive") return "Catalog";
     if (state.view === "stores") return "Stores";
     if (state.view === "lanes" || state.view === "store") {
@@ -2855,8 +2933,16 @@
     var marketBrand = event.target.closest("[data-market-brand]");
     if (marketBrand) {
       state.marketBrand = marketBrand.getAttribute("data-market-brand");
+      state.fashionBrand = "all";
       state.marketLimit = 24;
       render();
+      return;
+    }
+    var fashionBrand = event.target.closest("[data-fashion-brand]");
+    if (fashionBrand) {
+      state.fashionBrand = fashionBrand.getAttribute("data-fashion-brand");
+      state.marketLimit = 24;
+      render({ keepScroll: true });
       return;
     }
     var marketBtn = event.target.closest("[data-market]");
@@ -3012,6 +3098,15 @@
     if (actionName === "scan") { openScan(); return; }
     if (actionName === "open-catalog") { push({ view: "archive" }); return; }
     if (actionName === "open-stores") { push({ view: "stores" }); return; }
+    if (actionName === "open-blog") { push({ view: "blog" }); return; }
+    if (actionName === "open-coupons") { push({ view: "coupons" }); return; }
+    if (actionName === "claim-owner") {
+      try { localStorage.setItem("hunt-owner", "1"); } catch (err) {}
+      render();
+      return;
+    }
+    if (actionName === "save-coupon") { saveOwnerCoupon(); return; }
+    if (actionName === "remove-coupon") { removeOwnerCoupon(actionBtn.getAttribute("data-id")); return; }
     if (actionName === "open-estimate") { push({ view: "estimate" }); return; }
     if (actionName === "track-item") {
       var tracked = trackedList().filter(function (row) {
@@ -3644,6 +3739,10 @@
   }
 
   var huntLoaded = false;
+  var blogFile = null;
+  var blogFlight = null;
+  var couponFile = null;
+  var couponFlight = null;
   var huntFlight = null;
   var quietUntil = 0;
   var returnsBound = false;
@@ -3748,6 +3847,114 @@
       ]);
     }
     return libsPromise;
+  }
+
+  function ownerOn() {
+    try { return localStorage.getItem("hunt-owner") === "1"; } catch (err) { return false; }
+  }
+
+  function loadBlog() {
+    if (blogFile || blogFlight) return blogFlight;
+    blogFlight = fetchFreshJson("data/blog.json").then(function (part) {
+      blogFile = part.data || { posts: [] };
+      if (state.view === "blog") render();
+    }).catch(function () {
+      blogFile = { posts: [] };
+      if (state.view === "blog") render();
+    });
+    return blogFlight;
+  }
+
+  function loadCouponFile() {
+    if (couponFile || couponFlight) return couponFlight;
+    couponFlight = fetchFreshJson("data/coupons.json").then(function (part) {
+      couponFile = part.data || { codes: [] };
+      if (state.view === "coupons") render();
+    }).catch(function () {
+      couponFile = { codes: [] };
+      if (state.view === "coupons") render();
+    });
+    return couponFlight;
+  }
+
+  function ensureCoupons() {
+    if (window.ResellerCoupons) return Promise.resolve();
+    return loadScript("lib/coupons.js");
+  }
+
+  function renderBlog() {
+    if (!blogFile) {
+      loadBlog();
+      return '<button class="back" type="button" data-back>Home</button><h1>Blog</h1><div id="blog-list">' + skeletonList(2) + "</div>";
+    }
+    var posts = blogFile.posts || [];
+    var cards = posts.map(function (post) {
+      return '<article class="card"><h2><a href="blog/' + esc(post.slug) + '.html">' + esc(post.title) + "</a></h2>" +
+        '<p class="fine">' + esc(post.date || "") + "</p><p>" + esc(post.description || "") + "</p></article>";
+    }).join("");
+    var body = posts.length ? cards : '<p class="fine">No posts yet.</p>';
+    return '<button class="back" type="button" data-back>Home</button><h1>Blog</h1><div id="blog-list">' + body + "</div>";
+  }
+
+  function renderCoupons() {
+    if (!window.ResellerCoupons) {
+      ensureCoupons().then(function () {
+        if (state.view === "coupons") render();
+      });
+      return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' + skeletonList(2) + "</div>";
+    }
+    if (!couponFile) loadCouponFile();
+    var today = new Date().toISOString().slice(0, 10);
+    var local = readJson("hunt-coupons", []);
+    var prunedLocal = window.ResellerCoupons.pruneCoupons(local, today);
+    if (JSON.stringify(prunedLocal) !== JSON.stringify(local)) writeJson("hunt-coupons", prunedLocal);
+    var published = (couponFile && couponFile.codes) || [];
+    var prunedPublished = window.ResellerCoupons.pruneCoupons(published, today);
+    var shown = ownerOn() ? window.ResellerCoupons.activeCoupons(prunedPublished.concat(prunedLocal), today) : [];
+    var list = shown.length
+      ? shown.map(function (row) {
+        return '<article class="card"><h2>' + esc(row.label || "Code") + "</h2><p>" + esc(row.code) + '</p><p class="fine">Expires ' + esc(row.expires) + "</p>" +
+          '<button class="danger" type="button" data-action="remove-coupon" data-id="' + esc(row.id) + '">Remove</button></article>';
+      }).join("")
+      : '<p class="fine">No active codes.</p>';
+    var gate = ownerOn()
+      ? '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
+        '<label class="field" for="coupon-code"><span>Code</span><input id="coupon-code" autocomplete="off"></label>' +
+        '<label class="field" for="coupon-expires"><span>Expires</span><input id="coupon-expires" type="date"></label>' +
+        '<button class="btn-primary" type="button" data-action="save-coupon">Save code</button></form>'
+      : '<p class="digest">Coupons stay on this device for the owner. Live codes are not published.</p>' +
+        '<button class="btn-primary" type="button" data-action="claim-owner">This device is the owner</button>';
+    return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' +
+      '<p class="fine">Owner-only. Expired and inactive codes are removed.</p>' + list + gate + "</div>";
+  }
+
+  function saveOwnerCoupon() {
+    if (!ownerOn() || !window.ResellerCoupons) return;
+    var labelEl = document.getElementById("coupon-label");
+    var codeEl = document.getElementById("coupon-code");
+    var expEl = document.getElementById("coupon-expires");
+    var code = codeEl ? codeEl.value.trim() : "";
+    var expires = expEl ? expEl.value : "";
+    if (!code || !/^\d{4}-\d{2}-\d{2}$/.test(expires)) return;
+    var today = new Date().toISOString().slice(0, 10);
+    var local = readJson("hunt-coupons", []);
+    local.push({
+      id: "local-" + Date.now(),
+      label: labelEl ? labelEl.value.trim() : "",
+      code: code,
+      active: true,
+      expires: expires,
+    });
+    writeJson("hunt-coupons", window.ResellerCoupons.pruneCoupons(local, today));
+    render();
+  }
+
+  function removeOwnerCoupon(id) {
+    if (!window.ResellerCoupons) return;
+    var today = new Date().toISOString().slice(0, 10);
+    var next = readJson("hunt-coupons", []).filter(function (row) { return row && row.id !== id; });
+    writeJson("hunt-coupons", window.ResellerCoupons.pruneCoupons(next, today));
+    render();
   }
 
   function loadHuntData(isBoot, dropsPromise) {

@@ -14,6 +14,18 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { applyMarketComps } from "./market-comps.mjs";
+import {
+  AUTH_DISCLAIMER,
+  ASK_SOURCE,
+  WATCHED_WITHOUT_DATES,
+  addDays,
+  labelDate as fashionLabel,
+  parseSneakerCalendar,
+  applyOfficialSneakerNotes,
+  windowRows,
+  designerPrograms,
+  askFields,
+} from "./fashion-calendar.mjs";
 
 const require = createRequire(import.meta.url);
 const Market = require("../lib/market.js");
@@ -300,37 +312,57 @@ async function loadMagic() {
   return { items, note: "Release dates from Scryfall. No sealed MSRP and no sold price." };
 }
 
+function fashionItem(section, row) {
+  const ask = askFields();
+  return baseItem(Object.assign({}, ask, row, {
+    section,
+    releaseLabel: fashionLabel(row.release),
+    streetNote: ask.streetNote,
+    soldSource: ASK_SOURCE,
+    photo: "",
+    photoCredit: "",
+    photoPage: "",
+  }));
+}
+
+async function sneakerPages(today) {
+  const months = ["october", "november", "december"];
+  const year = today.slice(0, 4);
+  const pages = [];
+  const failed = [];
+  for (const month of months) {
+    const url = "https://justdrops.com/calendar/" + month + "-" + year;
+    try {
+      pages.push({ html: await getText(url, "text/html"), year });
+    } catch (err) {
+      failed.push(month + " " + String(err.message || err).slice(0, 60));
+    }
+    await sleep(80);
+  }
+  return { pages, failed };
+}
+
 async function loadSneakers() {
-  const data = await getJson("https://snkrs.services.nike.com/snkrs/content/v2/user/app/US/en/upcoming");
-  const items = (data.items || []).filter((row) => row && row.products && row.products[0]).map((row) => {
-    const product = row.products[0];
-    const retail = Number(product.msrp != null ? product.msrp : product.current_price);
-    const release = isoDate(product.commerce_start_date);
-    const asset = (product.assets || []).find((shot) => shot && shot.url) || {};
-    const photo = String(asset.url || "").replace(/,w_\d+/, ",w_640");
-    const slug = row.seo_slug || "";
-    const page = slug ? "https://www.nike.com/launch/t/" + slug : "https://www.nike.com/launch";
-    return baseItem({
-      id: "nike-" + String(product.style_color || product.product_id || row.thread_id).toLowerCase(),
-      section: "sneakers",
-      name: product.title || row.title,
-      photo,
-      photoAlt: (product.title || row.title) + " " + (product.subtitle || ""),
-      photoCredit: "Nike",
-      photoPage: page,
-      spot: [product.style_color, product.subtitle, row.subtitle].filter(Boolean).join(" · ") + ". SNKRS listing. Confirm the colorway on the Nike page.",
-      retail: Number.isFinite(retail) ? retail : null,
-      retailLabel: Number.isFinite(retail) ? moneyLabel(retail) : "MSRP not on the SNKRS feed",
-      retailSource: "Nike SNKRS",
-      retailUrl: page,
-      release,
-      releaseLabel: labelDate(release),
-      feed: true,
-      streetNote: "No verified StockX or GOAT average. Those sites did not return a public sold.",
-      soldSource: "No verified resale average.",
-    });
-  });
-  return { items, note: "Retail and dates are Nike SNKRS. Resale averages were not invented." };
+  const today = new Date().toISOString().slice(0, 10);
+  const end = addDays(today, 70);
+  const loaded = await sneakerPages(today);
+  if (!loaded.pages.length) throw new Error("Sneaker calendar did not load. " + loaded.failed.join("; "));
+  const rows = windowRows(applyOfficialSneakerNotes(parseSneakerCalendar(loaded.pages)), today, end);
+  const items = rows.map((row) => fashionItem("sneakers", row));
+  if (!items.length) throw new Error("Sneaker calendar had no dated adult rows in the next 70 days.");
+  let note = "Dates and retail are the public Just Drops calendar for Nike, Jordan, adidas, New Balance, ASICS, and Puma, plus a Nike.com price where one was checked. Kids' sizes and cleats are left off. Travis Scott and Off-White had no dated adult row in this window. Photos stay off because those image hosts are not licensed. " + AUTH_DISCLAIMER;
+  if (loaded.failed.length) note += " Some months failed: " + loaded.failed.join("; ") + ".";
+  return { items, note };
+}
+
+async function loadDesigner() {
+  const today = new Date().toISOString().slice(0, 10);
+  const end = addDays(today, 70);
+  const items = designerPrograms(today, end).map((row) => fashionItem("designer", row));
+  const note = "Streetwear: Supreme Thursdays, the Kith Monday program, and Palace Friday drops for the next 70 days. " +
+    WATCHED_WITHOUT_DATES.join(", ") +
+    " had no dated public drop in that window, so no SKU was invented. " + AUTH_DISCLAIMER;
+  return { items, note };
 }
 
 async function loadLego() {
@@ -817,6 +849,7 @@ async function main() {
     ["yugioh", "Yu-Gi-Oh", "TCG", () => loadYugioh()],
     ["sports", "Sports cards", "TCG", () => Promise.resolve(loadSports())],
     ["sneakers", "Sneakers", "Sneakers", () => loadSneakers()],
+    ["designer", "Designer", "Designer", () => loadDesigner()],
     ["lego", "LEGO", "Brands", () => loadLego()],
     ["funko", "Funko", "Brands", () => loadFunko()],
     ["apple", "Apple / Beats", "Brands", () => loadApple()],
