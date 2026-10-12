@@ -1002,22 +1002,23 @@ async function main() {
     process.stdout.write(year + " " + list.length + " photos " + photos + " mattel " + mattel + "\n");
   });
 
-  const indexItems = [];
+  const idxDir = path.join(outDir, "idx");
+  fs.mkdirSync(idxDir, { recursive: true });
+  let indexed = 0;
   yearStats.forEach((stat) => {
     const list = JSON.parse(fs.readFileSync(path.join(root, stat.file), "utf8")).items;
-    list.forEach((item) => {
-      indexItems.push({
-        id: item.id,
-        y: item.year,
-        n: item.name,
-        t: item.toy,
-        c: item.col,
-        s: item.series,
-        l: item.line,
-        w: item.worth ? 1 : 0,
-        v: item.worth ? item.worth.verdict : "",
-      });
+    const rows = list.map((item) => {
+      const row = { id: item.id, y: item.year, n: item.name, l: item.line || "mainline" };
+      if (item.toy) row.t = item.toy;
+      if (item.col) row.c = item.col;
+      if (item.series) row.s = item.series;
+      if (item.worth) row.w = 1;
+      if (item.worth && item.worth.verdict) row.v = item.worth.verdict;
+      if (item.image) row.i = item.image;
+      return row;
     });
+    indexed += rows.length;
+    fs.writeFileSync(path.join(idxDir, stat.year + ".json"), JSON.stringify({ items: rows }));
   });
   const totals = yearStats.reduce((sum, stat) => {
     sum.count += stat.count;
@@ -1039,7 +1040,7 @@ async function main() {
     years: yearStats,
   };
   fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
-  fs.writeFileSync(path.join(outDir, "index.json"), JSON.stringify({ items: indexItems }));
+  fs.writeFileSync(path.join(outDir, "index.json"), JSON.stringify({ chunked: true, count: indexed }) + "\n");
   process.stdout.write("TOTAL " + totals.count + " photos " + totals.photoPct + "% mattel " + totals.mattelPct + "% (" + totals.mattel + ")\n");
 }
 

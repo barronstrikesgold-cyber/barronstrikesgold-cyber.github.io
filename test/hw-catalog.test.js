@@ -51,6 +51,8 @@ async function main() {
   const root = path.join(__dirname, "..");
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "data/hw/manifest.json"), "utf8"));
   const index = JSON.parse(fs.readFileSync(path.join(root, "data/hw/index.json"), "utf8"));
+  assert(index.chunked === true && !index.items, "catalog index is a stub");
+  assert(fs.statSync(path.join(root, "data/hw/index.json")).size < 80, "catalog index stub stays tiny");
   const cards = require(path.join(root, "lib/resale-cards.js"));
   assert(manifest.years.length >= 59, "1968 through 2026 are in the manifest");
   const years = new Set(manifest.years.map((row) => row.year));
@@ -97,7 +99,23 @@ async function main() {
   assert(count === manifest.totals.count, "total count");
   assert(photos === manifest.totals.photos, "photo count");
   assert(mattel === manifest.totals.mattel, "mattel count");
-  assert(index.items.length === count, "search index covers every car");
+  assert(index.count === count, "search index covers every car");
+  let indexed = 0;
+  manifest.years.forEach((row) => {
+    const chunkPath = path.join(root, "data/hw/idx/" + row.year + ".json");
+    const chunk = JSON.parse(fs.readFileSync(chunkPath, "utf8"));
+    assert(chunk.items.length === row.count, "chunk count " + row.year);
+    assert(fs.statSync(chunkPath).size < 250000, "year chunk stays small " + row.year);
+    const yearFile = JSON.parse(fs.readFileSync(path.join(root, row.file), "utf8"));
+    const images = new Map(yearFile.items.map((item) => [item.id, item.image || ""]));
+    chunk.items.forEach((item) => {
+      indexed += 1;
+      assert(item.id && item.n && item.y === row.year && item.l, "chunk identity " + item.id);
+      assert((item.i || "") === (images.get(item.id) || ""), "chunk keeps the card image " + item.id);
+      assert(item.t == null || item.t !== "", "empty toy numbers are omitted " + item.id);
+    });
+  });
+  assert(indexed === count, "year chunks cover every car");
   assert(manifest.totals.photoPct >= 70, "photo coverage stays high");
   const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
   assert(app.includes('referrerpolicy="no-referrer"'), "catalog images omit the referrer");
@@ -107,9 +125,14 @@ async function main() {
   assert(worth >= 40, "hunt list cars are flagged in the catalog");
   const shell = fs.readFileSync(path.join(root, "sw.js"), "utf8");
   const precache = shell.slice(shell.indexOf("var SHELL"), shell.indexOf("self.addEventListener"));
-  assert(!precache.includes("data/hw/"), "year files stay out of the precache");
-  assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files are runtime-cached stale-while-revalidate");
+  assert(!precache.includes("./data/hw/index.json"), "the giant catalog index is not precached");
+  assert(!precache.includes("./data/hw/2026.json"), "year files load on demand");
+  assert(precache.includes("./data/hw/manifest.json"), "catalog manifest is precached");
+  assert(app.includes("data/hw/idx/"), "catalog loads a year chunk");
+  assert(shell.includes("/data/hw/") && shell.includes("staleWhileRevalidate"), "year files refresh after the precache");
   assert(app.includes('data-action="open-catalog"') && app.includes("function renderArchive"), "catalog folds into home");
+  assert(app.includes("function catalogShowing"), "catalog refresh follows the open view");
+  assert(app.includes("if (catalogShowing() && canRepaint()) render()"), "opening the catalog from Home repaints when the index arrives");
   console.log("hw-catalog.test.js OK", count, "photos", manifest.totals.photoPct + "%", "mattel", manifest.totals.mattelPct + "%", "worth", worth);
 }
 
