@@ -26,10 +26,12 @@ assert(html.includes('id="status-live"'), "status hook");
 assert(html.includes('id="checked-line"'), "checked hook");
 assert(html.includes('data-action="refresh"'), "refresh hook");
 assert(css.includes("height: calc(56px + env(safe-area-inset-top))"), "compact header");
-["Home", "Calendar", "Tracked", "Alerts", "Account"].forEach((name) => {
+["Home", "Catalog", "Scan"].forEach((name) => {
   assert(nav.includes(">" + name + "<"), "tab " + name);
 });
-["Catalog", "Stores", "Drops", "Inventory", "Profit"].forEach((name) => {
+assert(nav.includes("Drops &amp; Calendar"), "tab Drops & Calendar");
+assert(nav.includes(">My Stuff<"), "tab My Stuff");
+["Stores", "Inventory", "Profit", "Tracked", "Alerts", "Account"].forEach((name) => {
   assert(!nav.includes(">" + name + "<"), name + " is not a tab");
 });
 assert(!/>Dates</.test(first), "Dates is not a tab");
@@ -87,8 +89,11 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261012f"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261012e"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261012g"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261012f"), "previous shell cache is retired");
+assert(html.includes('id="global-q"'), "global search is in the header");
+assert(css.includes("top: calc(56px + env(safe-area-inset-top))"), "desktop nav sits under the header");
+assert(!css.includes("margin: 0 0 0 232px"), "desktop nav is not a side rail");
 assert(app.includes("data-fashion-brand"), "sneaker and designer drops have brand chips");
 assert(app.includes("id=\"drop-calendar\""), "dated drops render as a calendar");
 assert(app.includes("Authentication: sneakers and designer pieces"), "authentication disclaimer is on fashion drops");

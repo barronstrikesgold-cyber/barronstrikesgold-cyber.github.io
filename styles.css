@@ -145,8 +145,23 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
 }
 .brand {
   display: flex; align-items: center; gap: 10px;
-  min-width: 0; flex: 1;
+  min-width: 0; flex: 0 1 auto;
   color: inherit; text-decoration: none;
+}
+.global-search { flex: 1; min-width: 0; }
+@media (max-width: 719px) {
+  .brand { max-width: 46%; }
+}
+.global-search input {
+  width: 100%;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  padding: 0 12px;
+  font: inherit;
+  font-size: 0.92rem;
 }
 .header-back {
   display: none;
@@ -274,6 +289,16 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
 }
 .home-destinations b { display: block; font-size: 1.05rem; }
 .home-destinations span { display: block; margin-top: 4px; color: var(--muted); font-size: 0.85rem; }
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.crumbs a { color: var(--gold); min-height: 44px; display: inline-flex; align-items: center; }
+.crumb-sep { opacity: 0.7; }
 
 .screen {
   padding: 18px 16px 24px;
@@ -790,12 +815,19 @@ h2 {
   justify-content: center;
   gap: 2px;
   min-height: 44px;
-  font-size: 0.58rem;
+  min-width: 0;
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  padding: 4px 0 2px;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 4px 2px 2px;
   border-radius: 12px;
+}
+.tabbar button span {
+  display: block;
+  max-width: 100%;
+  line-height: 1.05;
+  text-align: center;
 }
 .tabbar button svg { width: 22px; height: 22px; }
 .tabbar button.is-on { color: var(--flame); background: rgba(255, 77, 0, 0.1); }
@@ -974,15 +1006,16 @@ h2 {
 @media (min-width: 1024px) {
   .app {
     display: block;
-    width: auto;
-    max-width: none;
-    margin: 0 0 0 232px;
+    width: min(var(--shell), 100%);
+    max-width: var(--shell);
+    margin: 0 auto;
     min-height: 100dvh;
+    padding-top: calc(108px + env(safe-area-inset-top));
   }
   .topbar {
-    left: 232px;
-    transform: none;
-    width: calc(100% - 232px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(var(--shell), 100%);
   }
   .screen { padding-bottom: 32px; }
   .category-row { flex-wrap: wrap; overflow: visible; }
@@ -993,32 +1026,35 @@ h2 {
   }
   .tabbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    transform: none;
-    width: 232px;
-    height: 100dvh;
-    min-height: 100dvh;
+    top: calc(56px + env(safe-area-inset-top));
+    left: 50%;
+    bottom: auto;
+    transform: translateX(-50%);
+    width: min(var(--shell), 100%);
+    height: 52px;
+    min-height: 52px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
     justify-content: flex-start;
     gap: 6px;
-    padding: calc(16px + env(safe-area-inset-top)) 12px 16px;
+    padding: 0 12px;
     border-top: 0;
-    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    border-right: 0;
+    z-index: 30;
   }
   .tabbar button {
     flex-direction: row;
     justify-content: flex-start;
-    gap: 12px;
-    min-height: 48px;
-    font-size: 1rem;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 0.95rem;
     text-transform: none;
     letter-spacing: 0;
-    padding: 0 14px;
+    padding: 0 12px;
   }
+  .tabbar button span { white-space: nowrap; }
   #account-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   #account-form .btn-primary { grid-column: 1 / -1; }
   .verdict-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr); gap: 16px; align-items: start; }
