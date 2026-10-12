@@ -225,8 +225,8 @@
 
   function pegPhoto(item, large) {
     var shot = photoFor(item);
-    if (shot && usablePhoto(shot.src)) {
-      shot = { src: usablePhoto(shot.src), alt: shot.alt || "" };
+    if (shot && displayPhoto(shot.src)) {
+      shot = { src: displayPhoto(shot.src), alt: shot.alt || "" };
       var w = item && Number(item.photoWidth);
       var h = item && Number(item.photoHeight);
       var dims = w && h ? ' width="' + w + '" height="' + h + '" style="aspect-ratio:' + w + " / " + h + '"' : "";
@@ -1189,7 +1189,19 @@
       };
     }
     if (kind === "golf") {
-      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, mark: "golf", tells: golf.note || "" };
+      var golfShot = golf.photos && golf.photos[id];
+      return {
+        kind: "golf",
+        id: id,
+        name: id,
+        line: "Golf",
+        sold: null,
+        cost: null,
+        sales: 0,
+        photo: golfShot ? licensedShot(golfShot) : null,
+        mark: "golf",
+        tells: golf.note || "",
+      };
     }
     if (kind === "market") {
       var marketItem = findMarket(id);
@@ -1225,14 +1237,6 @@
     };
   }
 
-  var PHOTO_HOSTS = {
-    "tcgplayer-cdn.tcgplayer.com": true,
-    "svgs.scryfall.io": true,
-    "cards.scryfall.io": true,
-    "c1.scryfall.io": true,
-    "images.scrydex.com": true
-  };
-
   var MARK_LABEL = { car: "Car", card: "Card pack", sneaker: "Sneaker", golf: "Golf", device: "Device", box: "Box" };
 
   var MARK_ICON = {
@@ -1255,13 +1259,16 @@
     return /\/logo(?:\/|\?|$)/i.test(src) || /(?:^|\/)logo\.(?:svg|png|jpe?g|webp)(?:\?|$)/i.test(src);
   }
 
-  function licensedPhoto(src) {
+  function displayPhoto(src) {
     var value = usablePhoto(src);
     if (!value || isLogoPhoto(value)) return "";
-    if (!/^https?:\/\//i.test(value)) return "";
-    var host = "";
-    try { host = new URL(value).hostname; } catch (err) { return ""; }
-    return PHOTO_HOSTS[host] ? value : "";
+    if (/^https?:\/\//i.test(value)) return value;
+    if (/^(?:\.\/)?(?:photos|images)\//.test(value)) return value;
+    return "";
+  }
+
+  function licensedPhoto(src) {
+    return displayPhoto(src);
   }
 
   function licensedShot(shot) {

@@ -229,9 +229,9 @@ async function pokemonSets() {
     id: "pkset-" + row.set.id,
     section: "pokemon",
     name: "Pokémon TCG · " + row.set.name,
-    photo: (row.set.images && (row.set.images.logo || row.set.images.symbol)) || "",
-    photoAlt: row.set.name,
-    photoCredit: "Pokémon TCG API",
+    photo: row.set.id === "me55" ? "images/pokemon-etb.webp" : ((row.set.images && (row.set.images.logo || row.set.images.symbol)) || ""),
+    photoAlt: row.set.id === "me55" ? "Representative Pokémon 30th Celebration Elite Trainer Box" : row.set.name,
+    photoCredit: row.set.id === "me55" ? "Bundled product photo photos/etb.jpg, converted to WebP" : "Pokémon TCG API",
     photoPage: row.set.id === "me55" ? "https://www.pokemon.com/us/pokemon-tcg/30th-celebration" : "https://pokemontcg.io/",
     spot: "Set logo from the public set feed. This is not a sealed SKU, an ETB price, or a street price.",
     retail: null,
@@ -647,6 +647,25 @@ function onePieceLink(name) {
   return "https://www.tcgplayer.com/search/one-piece-card-game/product?q=" + encodeURIComponent(name) + "&view=grid";
 }
 
+function onePiecePhoto(id) {
+  const shots = {
+    "op-chinese-3rd-anniversary-set": ["images/op-chinese-3rd-anniversary-set.webp", "Chinese 3rd Anniversary Set"],
+    "op-premium-card-collection-ace-sabo-luffy-": ["images/op-premium-card-collection-ace-sabo-luffy.webp", "Premium Card Collection Ace, Sabo, and Luffy"],
+    "op-premium-card-collection-6-assort-vol-2-": ["images/op-premium-card-collection-6-assort-vol-2.webp", "Premium Card Collection 6 assort volume 2"],
+    "op-playmat-card-set-luffy-bonney-": ["images/op-playmat-card-set-luffy-bonney.webp", "Playmat and card set, Luffy and Bonney"],
+    "op-limited-card-sleeve-championship-26-27-kv": ["images/op-limited-card-sleeve-championship-26-27-kv.webp", "Limited card sleeve, Championship 26-27"],
+    "op-limited-card-sleeve-one-piece-heroines-edition": ["images/op-limited-card-sleeve-one-piece-heroines-edition.webp", "Limited card sleeve, ONE PIECE Heroines Edition"],
+    "op-booster-pack-the-dominance-of-god-op-18-": ["images/op-booster-pack-the-dominance-of-god-op-18.webp", "Booster pack The Dominance of God OP-18"],
+    "op-gift-collection-one-piece-heroines-gc-2026-": ["images/op-gift-collection-one-piece-heroines-gc-2026.webp", "Gift Collection ONE PIECE Heroines GC-2026"],
+    "op-premium-card-collection-live-action-edition-vol-2-baroque-wo": ["images/op-premium-card-collection-live-action-edition-vol-2-baroque-wo.webp", "Premium Card Collection Live Action Baroque Works"],
+    "op-premium-card-collection-live-action-edition-vol-2-straw-hat-": ["images/op-premium-card-collection-live-action-edition-vol-2-straw-hat-.webp", "Premium Card Collection Live Action Straw Hat Crew"],
+    "op-mini-case-set-luffy-shanks-hancock-ts-03-": ["images/op-mini-case-set-luffy-shanks-hancock-ts-03.webp", "Mini Case Set Luffy, Shanks, and Hancock"],
+    "op-extra-booster-one-piece-heroines-edition-vol-2-eb-05-": ["images/op-extra-booster-one-piece-heroines-edition-vol-2-eb-05.webp", "Extra booster ONE PIECE Heroines Edition volume 2"],
+  };
+  const shot = shots[id];
+  return shot ? { photo: shot[0], alt: shot[1] } : null;
+}
+
 async function loadOnePiece() {
   const html = await getText("https://en.onepiece-cardgame.com/products/", "text/html");
   const blocks = html.match(/<li class="linkListColBox"[\s\S]*?<\/li>/g) || [];
@@ -656,15 +675,17 @@ async function loadOnePiece() {
     const cat = decodeHtml((block.match(/linkListColCat">([^<]+)/) || [])[1] || "");
     if (!name || !Number.isFinite(price)) return null;
     const page = onePieceLink(name);
+    const id = "op-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+    const saved = onePiecePhoto(id);
     return baseItem({
-      id: "op-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60),
+      id,
       section: "onepiece",
       name,
-      photo: "",
-      photoAlt: name,
-      photoCredit: "TCGplayer",
+      photo: saved ? saved.photo : "",
+      photoAlt: saved ? saved.alt : name,
+      photoCredit: saved ? "Official ONE PIECE CARD GAME product photo" : "TCGplayer",
       photoPage: page,
-      spot: (cat ? cat + ". " : "") + "MSRP from the official list. The official page is not reachable, so this opens a TCGplayer search.",
+      spot: (cat ? cat + ". " : "") + "MSRP from the official list. The product photo is saved in the app. This opens a TCGplayer search.",
       retail: price,
       retailLabel: moneyLabel(price),
       retailSource: "TCGplayer",

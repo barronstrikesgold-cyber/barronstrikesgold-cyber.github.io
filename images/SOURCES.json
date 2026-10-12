@@ -1,5 +1,5 @@
 {
-  "policy": "Home shows a product photo only when licenses lists that image host with written true. Logo URLs are never shown. Every other card uses a category placeholder. Photos are hotlinked, not copied into this repo.",
+  "policy": "The owner directed Hunt to show product photos again, including LEGO, Nike, Apple, Nintendo, Yu-Gi-Oh!, Lorcana, Mattel, and first-party photos/ files. A card shows a photo when the src is a web address or a photos/ or images/ file, and the src is not empty and not a brand logo. Cards with no photo use a category icon. The photos added for the former icon rows are optimized WebP files in images/. Each one is listed below with alt text and a source.",
   "operator": "Broken Beaker Labs LC",
   "licenses": [
     {
@@ -9,7 +9,9 @@
       "written": true,
       "terms": "TCGplayer API Terms allow an application to display content the API makes available. The app must say it uses TCGplayer data and is not endorsed or certified by TCGplayer, and it must link to the product page. Hunt hotlinks tcgplayer-cdn.tcgplayer.com and does not rehost the files.",
       "termsUrl": "https://help.tcgplayer.com/hc/en-us/articles/360061115874-TCGplayer-API-Terms-Conditions",
-      "hosts": ["tcgplayer-cdn.tcgplayer.com"],
+      "hosts": [
+        "tcgplayer-cdn.tcgplayer.com"
+      ],
       "items": [
         "pk-tcg-644279",
         "pk-tcg-648394",
@@ -40,7 +42,11 @@
       "written": true,
       "terms": "Scryfall publishes Magic imagery for Magic software under its API image guidelines and the Wizards of the Coast Fan Content Policy. Hunt hotlinks the Scryfall URL, does not rehost it, and does not crop, recolor, or watermark it.",
       "termsUrl": "https://scryfall.com/docs/api",
-      "hosts": ["svgs.scryfall.io", "cards.scryfall.io", "c1.scryfall.io"],
+      "hosts": [
+        "svgs.scryfall.io",
+        "cards.scryfall.io",
+        "c1.scryfall.io"
+      ],
       "items": [
         "magic-fra",
         "magic-frc",
@@ -59,48 +65,549 @@
       "written": true,
       "terms": "Scrydex best practices allow an application to show card images from the image URLs the API returns. Scrydex does not own the photographs. Hunt does not show logo URLs from this host.",
       "termsUrl": "https://scrydex.com/docs/getting-started/best-practices",
-      "hosts": ["images.scrydex.com"],
+      "hosts": [
+        "images.scrydex.com"
+      ],
       "exclude": "logo",
       "items": []
     }
   ],
-  "withheld": [
+  "hosted": [
     {
-      "host": "images.scrydex.com",
-      "items": ["pkset-me55", "pkset-me55c"],
-      "reason": "The stored URLs are logo images. Hunt does not show brand logos."
+      "file": "images/hw-nissan-z.webp",
+      "alt": "Representative Nissan Z die-cast on a card",
+      "source": "Hot Wheels Wiki, File:NissanFairladyZDTY77.jpg. Representative Nissan Z. The Matchbox Super Chase package was not available as a separate file.",
+      "page": "https://hotwheels.fandom.com/wiki/File:NissanFairladyZDTY77.jpg",
+      "items": [
+        "matchbox"
+      ]
     },
     {
-      "host": "static.nike.com",
-      "reason": "No written license on file for Nike product photos."
+      "file": "images/hw-defender.webp",
+      "alt": "Representative Land Rover Defender die-cast",
+      "source": "Hot Wheels Wiki, File:15LandRoverDefenderDoubleCabBeige.JPG. Representative Defender.",
+      "page": "https://hotwheels.fandom.com/wiki/File:15LandRoverDefenderDoubleCabBeige.JPG",
+      "items": [
+        "mb-defender"
+      ]
     },
     {
-      "host": "www.lego.com",
-      "reason": "No written license on file for LEGO product photos."
+      "file": "images/hw-mainline.webp",
+      "alt": "Representative Hot Wheels mainline, a 1969 Ferrari 312 P",
+      "source": "Hot Wheels Wiki, File:Ferrari312P.jpg",
+      "page": "https://hotwheels.fandom.com/wiki/File:Ferrari312P.jpg",
+      "items": [
+        "mainline"
+      ]
     },
     {
-      "host": "store.storeimages.cdn-apple.com",
-      "reason": "No written license on file for Apple product photos."
+      "file": "images/hw-boulevard.webp",
+      "alt": "Representative Hot Wheels Boulevard car in its package",
+      "source": "Mattel Creations, Hot Wheels Boulevard vehicle HRT65",
+      "page": "https://creations.mattel.com/products/hot-wheels-boulevard-vehicle-1-premium-164-scale-car-hrt65",
+      "items": [
+        "boulevard"
+      ]
     },
     {
-      "host": "assets.nintendo.com",
-      "reason": "No written license on file for Nintendo product photos."
+      "file": "images/hw-team-transport.webp",
+      "alt": "Representative Hot Wheels Team Transport set",
+      "source": "Hot Wheels Wiki, File:CarryOnAdvan.jpg",
+      "page": "https://hotwheels.fandom.com/wiki/File:CarryOnAdvan.jpg",
+      "items": [
+        "tt-msrp",
+        "tt-under"
+      ]
     },
     {
-      "host": "cdn.shopify.com",
-      "reason": "Mattel Creations files are hotlinked without a written license on file."
+      "file": "images/mb-regular.webp",
+      "alt": "Representative Matchbox car, a Corvette in its package",
+      "source": "Mattel Creations, Matchbox Corvette C8 Gulf Racing HJW59",
+      "page": "https://creations.mattel.com/products/matchbox-corvette-c8-gulf-racing-hjw59",
+      "items": [
+        "mb-regular"
+      ]
     },
     {
-      "host": "www.yugioh-card.com",
-      "reason": "No written license on file for Yu-Gi-Oh! product photos."
+      "file": "images/cars-mcqueen.webp",
+      "alt": "Representative Cars movie die-cast, Lightning McQueen",
+      "source": "ck-modelcars retailer photo of Hot Wheels Lightning McQueen BHP28",
+      "page": "https://ck-modelcars.de/en/hotwheels-1-64-lightning-mcqueen-from-the-movie-disney-cars-2-2011-bhp28/p-23859/",
+      "items": [
+        "cars-movie"
+      ]
     },
     {
-      "host": "www.disneylorcana.com",
-      "reason": "No written license on file for Disney Lorcana product photos."
+      "file": "images/hw-rlc.webp",
+      "alt": "Representative Red Line Club car, a Beatnik Bandit",
+      "source": "Hot Wheels Wiki, File:Beatnik_Bandit_package_front.png",
+      "page": "https://hotwheels.fandom.com/wiki/File:Beatnik_Bandit_package_front.png",
+      "items": [
+        "rlc"
+      ]
     },
     {
-      "host": "photos/",
-      "reason": "First-party files and rejected stand-ins have no affiliate or brand license on file. Category rows such as sports boxes, sneakers, golf brands, and generic castings stay on the placeholder."
+      "file": "images/hw-zamac.webp",
+      "alt": "Representative ZAMAC Hot Wheels car",
+      "source": "Hot Wheels Wiki, File:2017_FBJ08_ZAMAK_D-Muscle_o4.jpg",
+      "page": "https://hotwheels.fandom.com/wiki/File:2017_FBJ08_ZAMAK_D-Muscle_o4.jpg",
+      "items": [
+        "zamac"
+      ]
+    },
+    {
+      "file": "images/hw-exclusive.webp",
+      "alt": "Representative store-exclusive Hot Wheels car",
+      "source": "Hot Wheels Wiki, File:2018_-_Red_Edition_9-12_-_'15_Dodge_Challenger_SRT_-_Target_Exclusive.jpg",
+      "page": "https://hotwheels.fandom.com/wiki/File:2018_-_Red_Edition_9-12_-_'15_Dodge_Challenger_SRT_-_Target_Exclusive.jpg",
+      "items": [
+        "exclusives"
+      ]
+    },
+    {
+      "file": "images/topps-s1.webp",
+      "alt": "2026 Topps Series 1 Baseball blaster box",
+      "source": "Bundled product photo photos/topps-s1.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "topps-s1"
+      ]
+    },
+    {
+      "file": "images/topps-fb.webp",
+      "alt": "2026 Topps Football blaster box",
+      "source": "Bundled product photo photos/topps-fb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "topps-fb",
+        "sport-topps-fb-cal"
+      ]
+    },
+    {
+      "file": "images/fifa.webp",
+      "alt": "2026 Panini Prizm FIFA World Cup soccer blaster",
+      "source": "Bundled product photo photos/fifa.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "fifa"
+      ]
+    },
+    {
+      "file": "images/artifacts.webp",
+      "alt": "2026-27 Upper Deck Artifacts hockey blaster",
+      "source": "Bundled product photo photos/artifacts.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "artifacts",
+        "sport-artifacts-cal"
+      ]
+    },
+    {
+      "file": "images/optic-fb.webp",
+      "alt": "2025 Panini Donruss Optic Football blaster",
+      "source": "Bundled product photo photos/optic-fb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "optic-fb"
+      ]
+    },
+    {
+      "file": "images/chrome-fb.webp",
+      "alt": "2025 Topps Chrome Football hanger",
+      "source": "Bundled product photo photos/chrome-fb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "chrome-fb"
+      ]
+    },
+    {
+      "file": "images/select-fb.webp",
+      "alt": "2025 Panini Select Football mega box",
+      "source": "Bundled product photo photos/select-fb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "select-fb"
+      ]
+    },
+    {
+      "file": "images/wnba.webp",
+      "alt": "2025 Panini Prizm WNBA hanger",
+      "source": "Bundled product photo photos/wnba.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "wnba"
+      ]
+    },
+    {
+      "file": "images/bowman-bb.webp",
+      "alt": "2025-26 Bowman Basketball value box",
+      "source": "Bundled product photo photos/bowman-bb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "bowman-bb"
+      ]
+    },
+    {
+      "file": "images/jordan-1.webp",
+      "alt": "Representative Air Jordan 1 sneaker",
+      "source": "Bundled product photo photos/jordan-1.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "jordan-1"
+      ]
+    },
+    {
+      "file": "images/dunk-sb.webp",
+      "alt": "Representative Nike Dunk SB sneaker",
+      "source": "Bundled product photo photos/dunk-sb.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "dunk-sb"
+      ]
+    },
+    {
+      "file": "images/nb-550.webp",
+      "alt": "Representative New Balance 550 sneaker",
+      "source": "Bundled product photo photos/nb-550.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "nb-550"
+      ]
+    },
+    {
+      "file": "images/jordan-3.webp",
+      "alt": "Representative Air Jordan 3 sneaker",
+      "source": "Bundled product photo photos/jordan-3.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "jordan-3"
+      ]
+    },
+    {
+      "file": "images/jordan-4.webp",
+      "alt": "Representative Air Jordan 4 sneaker",
+      "source": "Bundled product photo photos/jordan-4.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "jordan-4"
+      ]
+    },
+    {
+      "file": "images/jordan-11.webp",
+      "alt": "Representative Air Jordan 11 sneaker",
+      "source": "Bundled product photo photos/jordan-11.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "jordan-11"
+      ]
+    },
+    {
+      "file": "images/nb-990.webp",
+      "alt": "Representative New Balance 990 sneaker",
+      "source": "Bundled product photo photos/nb-990.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "nb-990"
+      ]
+    },
+    {
+      "file": "images/nb-2002r.webp",
+      "alt": "Representative New Balance 2002R sneaker",
+      "source": "Bundled product photo photos/nb-2002r.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "nb-2002r"
+      ]
+    },
+    {
+      "file": "images/samba.webp",
+      "alt": "Representative Adidas Samba sneaker",
+      "source": "Bundled product photo photos/samba.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "samba"
+      ]
+    },
+    {
+      "file": "images/yeezy.webp",
+      "alt": "Representative Yeezy sneaker",
+      "source": "Bundled product photo photos/yeezy.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "yeezy"
+      ]
+    },
+    {
+      "file": "images/iphone.webp",
+      "alt": "Representative iPhone",
+      "source": "Bundled product photo photos/iphone.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "iphone"
+      ]
+    },
+    {
+      "file": "images/switch.webp",
+      "alt": "Representative Nintendo Switch",
+      "source": "Bundled product photo photos/switch.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "switch"
+      ]
+    },
+    {
+      "file": "images/ipad.webp",
+      "alt": "Representative iPad",
+      "source": "Bundled product photo photos/ipad.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "ipad"
+      ]
+    },
+    {
+      "file": "images/macbook.webp",
+      "alt": "Representative MacBook",
+      "source": "Bundled product photo photos/macbook.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "macbook"
+      ]
+    },
+    {
+      "file": "images/airpods.webp",
+      "alt": "Representative AirPods",
+      "source": "Bundled product photo photos/airpods.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "airpods"
+      ]
+    },
+    {
+      "file": "images/watch.webp",
+      "alt": "Representative Apple Watch",
+      "source": "Bundled product photo photos/watch.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "watch"
+      ]
+    },
+    {
+      "file": "images/supreme.webp",
+      "alt": "Representative Supreme shirt",
+      "source": "Bundled product photo photos/supreme.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "supreme"
+      ]
+    },
+    {
+      "file": "images/bape.webp",
+      "alt": "Representative Bape shirt",
+      "source": "Bundled product photo photos/bape.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "bape"
+      ]
+    },
+    {
+      "file": "images/collab-tee.webp",
+      "alt": "Representative Nike and Adidas collab shirt",
+      "source": "Bundled product photo photos/collab-tee.jpg, converted to WebP",
+      "page": "",
+      "items": [
+        "nike-adidas"
+      ]
+    },
+    {
+      "file": "images/pokemon-etb.webp",
+      "alt": "Representative Pokémon sealed product, an Elite Trainer Box",
+      "source": "Bundled product photo photos/etb.jpg, converted to WebP",
+      "page": "https://www.pokemon.com/us/pokemon-tcg/30th-celebration",
+      "items": [
+        "bundle",
+        "poke-wave2",
+        "poke-markup",
+        "pk-bundle",
+        "pkset-me55"
+      ]
+    },
+    {
+      "file": "images/op-chinese-3rd-anniversary-set.webp",
+      "alt": "Chinese 3rd Anniversary Set",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/3rd_anniversary_set_cn.html",
+      "items": [
+        "op-chinese-3rd-anniversary-set"
+      ]
+    },
+    {
+      "file": "images/op-premium-card-collection-ace-sabo-luffy.webp",
+      "alt": "Premium Card Collection Ace, Sabo, and Luffy",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/card_collection_asl.html",
+      "items": [
+        "op-premium-card-collection-ace-sabo-luffy-"
+      ]
+    },
+    {
+      "file": "images/op-premium-card-collection-6-assort-vol-2.webp",
+      "alt": "Premium Card Collection 6 assort volume 2",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/collection-6assort-vol2.html",
+      "items": [
+        "op-premium-card-collection-6-assort-vol-2-"
+      ]
+    },
+    {
+      "file": "images/op-playmat-card-set-luffy-bonney.webp",
+      "alt": "Playmat and card set, Luffy and Bonney",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/playmat_liffy-bonney.html",
+      "items": [
+        "op-playmat-card-set-luffy-bonney-"
+      ]
+    },
+    {
+      "file": "images/op-limited-card-sleeve-championship-26-27-kv.webp",
+      "alt": "Limited card sleeve, Championship 26-27",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/sleeve045.html",
+      "items": [
+        "op-limited-card-sleeve-championship-26-27-kv"
+      ]
+    },
+    {
+      "file": "images/op-limited-card-sleeve-one-piece-heroines-edition.webp",
+      "alt": "Limited card sleeve, ONE PIECE Heroines Edition",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-limited-card-sleeve-one-piece-heroines-edition"
+      ]
+    },
+    {
+      "file": "images/op-booster-pack-the-dominance-of-god-op-18.webp",
+      "alt": "Booster pack The Dominance of God OP-18",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/op18.html",
+      "items": [
+        "op-booster-pack-the-dominance-of-god-op-18-"
+      ]
+    },
+    {
+      "file": "images/op-gift-collection-one-piece-heroines-gc-2026.webp",
+      "alt": "Gift Collection ONE PIECE Heroines GC-2026",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-gift-collection-one-piece-heroines-gc-2026-"
+      ]
+    },
+    {
+      "file": "images/op-premium-card-collection-live-action-edition-vol-2-baroque-wo.webp",
+      "alt": "Premium Card Collection Live Action Baroque Works",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-premium-card-collection-live-action-edition-vol-2-baroque-wo"
+      ]
+    },
+    {
+      "file": "images/op-premium-card-collection-live-action-edition-vol-2-straw-hat-.webp",
+      "alt": "Premium Card Collection Live Action Straw Hat Crew",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-premium-card-collection-live-action-edition-vol-2-straw-hat-"
+      ]
+    },
+    {
+      "file": "images/op-mini-case-set-luffy-shanks-hancock-ts-03.webp",
+      "alt": "Mini Case Set Luffy, Shanks, and Hancock",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-mini-case-set-luffy-shanks-hancock-ts-03-"
+      ]
+    },
+    {
+      "file": "images/op-extra-booster-one-piece-heroines-edition-vol-2-eb-05.webp",
+      "alt": "Extra booster ONE PIECE Heroines Edition volume 2",
+      "source": "Official ONE PIECE CARD GAME product photo",
+      "page": "https://en.onepiece-cardgame.com/products/",
+      "items": [
+        "op-extra-booster-one-piece-heroines-edition-vol-2-eb-05-"
+      ]
+    },
+    {
+      "file": "images/golf-scotty.webp",
+      "alt": "Scotty Cameron putter",
+      "source": "Wikimedia Commons, File:Scotty Cameron putter 2015.jpg",
+      "page": "https://commons.wikimedia.org/wiki/File:Scotty_Cameron_putter_2015.jpg",
+      "items": [
+        "golf:Scotty Cameron"
+      ]
+    },
+    {
+      "file": "images/golf-taylormade.webp",
+      "alt": "TaylorMade golf ball",
+      "source": "Wikimedia Commons, File:2013 TaylorMade RocketBallz golf ball",
+      "page": "https://commons.wikimedia.org/wiki/File:2013_TaylorMade_RocketBallz_Urethane_three-piece_golf_ball_with_urethane_cover.jpg",
+      "items": [
+        "golf:TaylorMade"
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "id": "golf:Titleist",
+      "name": "Titleist",
+      "reason": "No product photo could be fetched. Wikipedia only offered a missing lead image."
+    },
+    {
+      "id": "golf:Ping",
+      "name": "Ping",
+      "reason": "No product photo could be fetched."
+    },
+    {
+      "id": "golf:Callaway",
+      "name": "Callaway",
+      "reason": "The only public lead image found was the company logo, which Hunt does not show."
+    },
+    {
+      "id": "golf:Mizuno",
+      "name": "Mizuno",
+      "reason": "The only public lead image found was the company logo, which Hunt does not show."
+    },
+    {
+      "id": "golf:Odyssey",
+      "name": "Odyssey",
+      "reason": "No product photo of an Odyssey putter could be fetched."
+    },
+    {
+      "id": "sport-epl-cal",
+      "name": "2026-27 Topps English Premier League",
+      "reason": "The Topps product page refused the download."
+    },
+    {
+      "id": "sport-ice-cal",
+      "name": "2025-26 Upper Deck Ice hockey",
+      "reason": "No product photo could be fetched."
+    },
+    {
+      "id": "sport-usa-juniors-cal",
+      "name": "2026 Upper Deck Team USA Juniors",
+      "reason": "No product photo could be fetched."
+    },
+    {
+      "id": "sport-prizm-fb-cal",
+      "name": "2026 Panini Prizm Football retail",
+      "reason": "The Panini product page refused the download."
+    },
+    {
+      "id": "pkset-me55c",
+      "name": "Pokémon TCG · 30th Celebration: Classic Collection",
+      "reason": "The only image on file is a Scrydex set logo. Hunt does not show brand logos."
     }
   ]
 }

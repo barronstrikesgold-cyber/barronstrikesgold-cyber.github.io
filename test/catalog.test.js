@@ -20,16 +20,20 @@ const seen = new Map();
 items.forEach((item) => {
   if (item.soldNum != null) assert(settledSale(item.id), item.id + " sold number is a trusted snapshot");
   if (item.photoMatched) {
-    assert(item.photo && item.photo.endsWith(".jpg"), item.id + " matched photo path");
+    assert(item.photo && /\.(?:jpg|webp)$/.test(item.photo), item.id + " matched photo path");
     const file = path.join(root, item.photo);
     const bytes = fs.readFileSync(file);
-    assert(bytes[0] === 0xff && bytes[1] === 0xd8, item.photo + " is a jpeg");
-    assert(!seen.has(item.photo), "unique matched photo " + item.photo);
-    seen.set(item.photo, item.id);
+    if (item.photo.endsWith(".jpg")) {
+      assert(bytes[0] === 0xff && bytes[1] === 0xd8, item.photo + " is a jpeg");
+      assert(!seen.has(item.photo), "unique matched photo " + item.photo);
+      seen.set(item.photo, item.id);
+      const hash = crypto.createHash("sha256").update(bytes).digest("hex");
+      assert(!seen.has("hash:" + hash), item.id + " reuses another casting's photo bytes");
+      seen.set("hash:" + hash, item.id);
+    } else {
+      assert(bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP", item.photo + " is a webp");
+    }
     assert(item.photoAlt && item.photoSource, item.id + " has alt and source");
-    const hash = crypto.createHash("sha256").update(bytes).digest("hex");
-    assert(!seen.has("hash:" + hash), item.id + " reuses another casting's photo bytes");
-    seen.set("hash:" + hash, item.id);
   } else {
     assert(!item.photo, item.id + " does not show an unmatched image");
   }
@@ -75,7 +79,7 @@ Object.entries(ownPackage).forEach(([id, photo]) => {
   assert(byId[id] && byId[id].photo === photo && byId[id].photoMatched === true, id + " keeps its own package photo");
 });
 ["mb-defender", "bundle", "mainline", "boulevard", "matchbox"].forEach((id) => {
-  assert(byId[id] && byId[id].photoMatched === false && !byId[id].photo, id + " stays unmatched");
+  assert(byId[id] && byId[id].photoMatched === true && String(byId[id].photo).startsWith("images/") && byId[id].photo.endsWith(".webp"), id + " has a representative photo");
 });
 assert(!items.some((item) => item.id === "palace" || item.id === "nb-991"), "unphotographed models stay off the list");
 assert(items.some((item) => item.id === "f40" && item.fitness === "Strong"), "F40 remains Strong");

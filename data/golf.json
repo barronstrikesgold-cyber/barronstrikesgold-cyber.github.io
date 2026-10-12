@@ -8,5 +8,15 @@
     "Callaway",
     "Mizuno",
     "Odyssey"
-  ]
+  ],
+  "photos": {
+    "Scotty Cameron": {
+      "src": "images/golf-scotty.webp",
+      "alt": "Scotty Cameron putter"
+    },
+    "TaylorMade": {
+      "src": "images/golf-taylormade.webp",
+      "alt": "TaylorMade golf ball"
+    }
+  }
 }
