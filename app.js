@@ -938,12 +938,14 @@
 
   function marketCard(item, index) {
     var when = item.releaseLabel || "";
+    var countdown = D.dropCountdown ? D.dropCountdown(item.launchAt, new Date()) : "";
     var photo = marketPhoto(item, false, index);
     var word = item.brand ? '<span class="brand-word">' + esc(item.brand) + "</span>" : "";
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
       '<span class="peg-copy">' + word + '<span class="peg-name">' + esc(item.name) + "</span>" +
       (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
+      (countdown ? '<span class="peg-meta">' + esc(countdown) + "</span>" : "") +
       "</span>" +
       decisionBar("", item.verdict) +
       '<span class="peg-foot"><span class="peg-tell">' + esc(item.spot || "") + "</span>" +
@@ -1021,7 +1023,10 @@
       ? '<button class="ghost hw-more" type="button" data-market-more>Show more</button>'
       : "";
     var checked = market.generatedAt ? '<p class="fine">Market file · ' + esc(formatWhen(market.generatedAt)) + "</p>" : "";
-    return '<p class="kicker">' + esc(kicker) + "</p>" +
+    var mattelSection = sections.filter(function (row) { return row.id === "mattel"; })[0];
+    var staleCopy = (current && current.stale) || (state.marketBrand === "latest" && mattelSection && mattelSection.stale);
+    var staleHtml = staleCopy ? '<p class="banner">Stale. Showing the last good copy.</p>' : "";
+    return staleHtml + '<p class="kicker">' + esc(kicker) + "</p>" +
       '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. BUY, PASS, or CHECK.</p>' +
       chips +
       brandChips(items) +
@@ -1059,7 +1064,8 @@
       marketPhoto(item, true) +
       word +
       "<h1>" + esc(item.name) + "</h1>" +
-      calendarButton(item.name, item.release, item.id) +
+      calendarButton(item.name, item.release, item.id, item.launchAt) +
+      (D.dropCountdown && D.dropCountdown(item.launchAt, new Date()) ? '<p class="digest">' + esc(D.dropCountdown(item.launchAt, new Date())) + "</p>" : "") +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
       '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
       dropBlock +
@@ -1082,9 +1088,11 @@
     }).join("") + "</nav>";
   }
 
-  function calendarButton(name, iso, id) {
+  function calendarButton(name, iso, id, launchAt) {
     if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return "";
-    return '<button class="btn-primary" type="button" data-action="add-calendar" data-cal-name="' + esc(name || "Hunt") + '" data-cal-date="' + esc(iso) + '" data-cal-id="' + esc(id || name || "hunt") + '">Add to calendar</button>';
+    var start = "";
+    if (launchAt && !isNaN(Date.parse(launchAt))) start = ' data-cal-start="' + esc(new Date(launchAt).toISOString()) + '"';
+    return '<button class="btn-primary" type="button" data-action="add-calendar" data-cal-name="' + esc(name || "Hunt") + '" data-cal-date="' + esc(iso) + '" data-cal-id="' + esc(id || name || "hunt") + '"' + start + '>Add to calendar</button>';
   }
 
   function catalogChipIds(chip) {
@@ -1746,7 +1754,7 @@
   }
 
   function isLogoPhoto(src) {
-    return /\/logo(?:\/|\?|$)/i.test(src) || /(?:^|\/)logo\.(?:svg|png|jpe?g|webp)(?:\?|$)/i.test(src);
+    return /\/logo(?:\/|\?|$)/i.test(src) || /(?:^|\/)logo\.(?:svg|png|jpe?g|webp)(?:\?|$)/i.test(src) || /calendar-logos|_logo|logo[-_]|[-_/]logo[-_.]/i.test(src);
   }
 
   function displayPhoto(src) {
@@ -3418,18 +3426,28 @@
       var calDate = actionBtn.getAttribute("data-cal-date") || "";
       var calId = actionBtn.getAttribute("data-cal-id") || "hunt";
       if (!/^\d{4}-\d{2}-\d{2}$/.test(calDate)) return;
+      var calStart = actionBtn.getAttribute("data-cal-start") || "";
       var stamp = calDate.replace(/-/g, "");
       var endDate = new Date(calDate + "T00:00:00Z");
       endDate.setUTCDate(endDate.getUTCDate() + 1);
       var endStamp = endDate.toISOString().slice(0, 10).replace(/-/g, "");
+      var dtStart = "DTSTART;VALUE=DATE:" + stamp;
+      var dtEnd = "DTEND;VALUE=DATE:" + endStamp;
+      if (/^\d{4}-\d{2}-\d{2}T/.test(calStart) && !isNaN(Date.parse(calStart))) {
+        var startUtc = new Date(calStart);
+        var endUtc = new Date(startUtc.getTime() + 60 * 60 * 1000);
+        var icsUtc = function (date) { return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z"); };
+        dtStart = "DTSTART:" + icsUtc(startUtc);
+        dtEnd = "DTEND:" + icsUtc(endUtc);
+      }
       var ics = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
         "PRODID:-//Broken Beaker Labs LC//Hunt//EN",
         "BEGIN:VEVENT",
         "UID:" + String(calId).replace(/[^A-Za-z0-9@._-]/g, "") + "@hunt",
-        "DTSTART;VALUE=DATE:" + stamp,
-        "DTEND;VALUE=DATE:" + endStamp,
+        dtStart,
+        dtEnd,
         "SUMMARY:" + String(calName).replace(/[\r\n,;\\]/g, " "),
         "END:VEVENT",
         "END:VCALENDAR",

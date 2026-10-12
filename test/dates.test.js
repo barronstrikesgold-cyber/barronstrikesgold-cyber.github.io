@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { APP_TODAY, releaseState } = require("../lib/dates.js");
+const { APP_TODAY, releaseState, dropCountdown } = require("../lib/dates.js");
 
 function assert(cond, msg) {
   if (!cond) {
@@ -28,5 +28,8 @@ drops.forEach((row) => {
   if (!row.photoMatched) assert(!row.photo, row.id + " unmatched drop has no photo");
 });
 assert(drops.some((row) => /Pok[eé]mon/.test(row.name) && row.iso === "2026-09-16"), "Pokémon stays on September 16");
+assert(dropCountdown("2026-10-15T16:00:00.000Z", new Date("2026-10-12T13:00:00.000Z")) === "Drops in 75 hours", "countdown uses hours inside a week");
+assert(dropCountdown("2026-10-12T16:00:00.000Z", new Date("2026-10-12T17:00:00.000Z")) === "", "a past launch has no countdown");
+assert(dropCountdown("2026-11-20T16:00:00.000Z", new Date("2026-10-12T16:00:00.000Z")) === "Drops in 39 days", "a far launch counts in days");
 
 console.log("dates.test.js OK");
