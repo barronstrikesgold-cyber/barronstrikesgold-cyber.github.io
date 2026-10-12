@@ -25,7 +25,8 @@ function chipOf(rec) {
     const section = String(rec.category || "");
     if (section === "magic") return "mtg";
     if (section === "mattel") return "hot-wheels";
-    if (["matchbox", "pokemon", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "designer", "lego", "funko", "apple", "consoles"].includes(section)) return section;
+      if (section === "games") return "video-games";
+      if (["matchbox", "pokemon", "onepiece", "lorcana", "yugioh", "sports", "sneakers", "designer", "lego", "funko", "apple", "consoles"].includes(section)) return section;
     return "other";
   }
   if (rec.kind === "catalog") {
@@ -73,11 +74,13 @@ const expected = {
   pokemon: 26,
   matchbox: 19,
   golf: 7,
+  "video-games": 25,
 };
 Object.keys(expected).forEach((chip) => {
   assert.strictEqual(counts[chip], expected[chip], chip + " chip count");
 });
-assert.strictEqual(drops.length, 12, "calendar drops");
+assert.strictEqual(drops.length, 37, "calendar drops");
+assert.strictEqual(drops.filter((row) => row.category === "Video games").length, 25, "video game calendar rows");
 
 const lanes = {
   sth: 26,

@@ -129,7 +129,7 @@ const sections = [
     name: "Calendar",
     doc: /Calendar/,
     app: html.includes('data-tab="calendar"') && app.includes("Drops &amp; Calendar") && app.includes('id="calendar-list"'),
-    data: Array.isArray(drops) && drops.length > 0 && drops.every(function (row) { return row.id && row.iso && row.name; }),
+    data: Array.isArray(drops) && drops.length > 0 && drops.every(function (row) { return row.id && row.name && (row.iso || row.dateLabel); }),
   },
   {
     name: "Blog",

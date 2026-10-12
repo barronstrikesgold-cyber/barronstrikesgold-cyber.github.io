@@ -420,7 +420,7 @@
     },
     {
       "file": "images/pokemon-etb.webp",
-      "alt": "Representative Pokémon sealed product, an Elite Trainer Box",
+      "alt": "Representative Pok\u00e9mon sealed product, an Elite Trainer Box",
       "source": "Bundled product photo photos/etb.jpg, converted to WebP",
       "page": "https://www.pokemon.com/us/pokemon-tcg/30th-celebration",
       "items": [
@@ -577,25 +577,25 @@
     },
     {
       "file": "images/hosted/nsw-nintendo-switch-2-system.webp",
-      "alt": "Nintendo Switch™ 2 System",
+      "alt": "Nintendo Switch\u2122 2 System",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://www.nintendo.com/us/store/hardware/"
     },
     {
       "file": "images/hosted/nsw-nintendo-switch-2-mario-kart-world-bundle.webp",
-      "alt": "Nintendo Switch™ 2 + Mario Kart™ World Bundle",
+      "alt": "Nintendo Switch\u2122 2 + Mario Kart\u2122 World Bundle",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://www.nintendo.com/us/store/hardware/"
     },
     {
       "file": "images/hosted/nsw-nintendo-switch-2-nintendo-switch-sports-resort-bundle.webp",
-      "alt": "Nintendo Switch™ 2 + Nintendo Switch Sports Resort™ Bundle",
+      "alt": "Nintendo Switch\u2122 2 +\u00a0Nintendo Switch Sports Resort\u2122\u00a0Bundle",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://www.nintendo.com/us/store/hardware/"
     },
     {
       "file": "images/hosted/nsw-nintendo-switch-2-the-legend-of-zelda-40th-anniversary-edition.webp",
-      "alt": "Nintendo Switch™ 2 - The Legend of Zelda™ – 40th Anniversary Edition",
+      "alt": "Nintendo Switch\u2122 2 - The Legend of Zelda\u2122 \u2013 40th Anniversary Edition",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://www.nintendo.com/us/store/hardware/"
     },
@@ -661,7 +661,7 @@
     },
     {
       "file": "images/hosted/mattel-JJY74.webp",
-      "alt": "Hot Wheels RLC Exclusive ’21 Ford Bronco With CHASE Version",
+      "alt": "Hot Wheels RLC Exclusive \u201921 Ford Bronco With CHASE Version",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-21-ford-bronco-with-chase-version-jjy74"
     },
@@ -706,6 +706,130 @@
       "alt": "Hot Wheels RLC Exclusive 1948 Chevy Fleetline With CHASE Version",
       "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
       "page": "https://creations.mattel.com/products/rlc-1948-chevy-fleetline-jjy66"
+    },
+    {
+      "file": "images/gta6.webp",
+      "alt": "Grand Theft Auto VI official cover art",
+      "source": "PlayStation Store",
+      "page": "https://store.playstation.com/en-us/concept/10000730",
+      "items": [
+        "gta6",
+        "gta6-ultimate"
+      ]
+    },
+    {
+      "file": "images/halo-ce.webp",
+      "alt": "Halo: Campaign Evolved official key art",
+      "source": "Xbox",
+      "page": "https://www.xbox.com/en-US/games/halo-campaign-evolved",
+      "items": [
+        "halo-ce",
+        "halo-ce-premium"
+      ]
+    },
+    {
+      "file": "images/halo-ce-collectors.webp",
+      "alt": "Halo: Campaign Evolved Collector's Edition box",
+      "source": "Xbox Game Studios Shop",
+      "page": "https://shop.xboxgamestudios.com/products/halo-campaign-evolved-collectors-edition",
+      "items": [
+        "halo-ce-collectors"
+      ]
+    },
+    {
+      "file": "images/gears-eday.webp",
+      "alt": "Gears of War: E-Day official image from Xbox Wire",
+      "source": "Xbox Wire",
+      "page": "https://news.xbox.com/en-us/2026/09/17/gears-of-war-e-day-gone-gold-pre-install-pc-specs/",
+      "items": [
+        "gears-eday",
+        "gears-eday-premium"
+      ]
+    },
+    {
+      "file": "images/gears-eday-ce.webp",
+      "alt": "Gears of War: E-Day Collector's Edition",
+      "source": "Xbox Game Studios Shop",
+      "page": "https://shop.xboxgamestudios.com/products/gears-of-war-e-day-collectors-edition",
+      "items": [
+        "gears-eday-ce"
+      ]
+    },
+    {
+      "file": "images/tomb-raider.webp",
+      "alt": "Tomb Raider: Legacy of Atlantis key art",
+      "source": "PlayStation Store",
+      "page": "https://store.playstation.com/en-us/product/UP5267-PPSA29000_00-TRLOASTND0000000",
+      "items": [
+        "tomb-raider",
+        "tomb-raider-deluxe",
+        "tomb-raider-ce"
+      ]
+    },
+    {
+      "file": "images/ffxiv-ce-switch2.webp",
+      "alt": "Final Fantasy XIV Online Complete Collector's Edition for Nintendo Switch 2",
+      "source": "Nintendo",
+      "page": "https://www.nintendo.com/us/store/products/final-fantasy-xiv-online-complete-collectors-edition-switch-2/",
+      "items": [
+        "ffxiv-ce-switch2"
+      ]
+    },
+    {
+      "file": "images/fable.webp",
+      "alt": "Fable Standard Edition box art",
+      "source": "Fable official site",
+      "page": "https://fablethegame.com/",
+      "items": [
+        "fable"
+      ]
+    },
+    {
+      "file": "images/fable-ce.webp",
+      "alt": "Fable Collector's Edition statue",
+      "source": "Fable official site",
+      "page": "https://fablethegame.com/",
+      "items": [
+        "fable-ce"
+      ]
+    },
+    {
+      "file": "images/gow-laufey.webp",
+      "alt": "God of War Laufey key art",
+      "source": "PlayStation Store",
+      "page": "https://store.playstation.com/en-us/product/UP9000-PPSA19249_00-LAUFEY0000000000",
+      "items": [
+        "gow-laufey",
+        "gow-laufey-deluxe"
+      ]
+    },
+    {
+      "file": "images/ff7-revelation.webp",
+      "alt": "Final Fantasy VII Revelation key art",
+      "source": "PlayStation Store",
+      "page": "https://store.playstation.com/en-us/product/UP0082-PPSA37338_00-0230363907481835",
+      "items": [
+        "ff7-revelation",
+        "ff7-revelation-premium"
+      ]
+    },
+    {
+      "file": "images/xbox-x25.webp",
+      "alt": "Xbox Series X25 Limited Edition with the X25 controller",
+      "source": "Xbox",
+      "page": "https://www.xbox.com/en-US/consoles/xbox-series-x",
+      "items": [
+        "xbox-x25"
+      ]
+    },
+    {
+      "file": "images/xbox-x25-controller.webp",
+      "alt": "Xbox Wireless Controller X25 Special Edition",
+      "source": "Xbox",
+      "page": "https://www.xbox.com/en-US/accessories/controllers/xbox-25th-anniversary",
+      "items": [
+        "xbox-x25-controller"
+      ]
     }
   ],
   "icons": [
@@ -756,7 +880,7 @@
     },
     {
       "id": "pkset-me55c",
-      "name": "Pokémon TCG · 30th Celebration: Classic Collection",
+      "name": "Pok\u00e9mon TCG \u00b7 30th Celebration: Classic Collection",
       "reason": "The only image on file is a Scrydex set logo. Hunt does not show brand logos."
     },
     {
