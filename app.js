@@ -1102,12 +1102,13 @@
   }
 
   function renderArchive() {
+    var back = state.view === "archive" ? '<button class="back" type="button" data-back>Home</button>' : "";
     if (hwBook.error && !hwBook.index) {
-      return "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
+      return back + "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
     }
     if (!hwBook.index) {
       loadHwBook();
-      return "<h1>Catalog</h1>" + stateCard("loading", "Loading", "Opening the Hot Wheels book.");
+      return back + "<h1>Catalog</h1>" + stateCard("loading", "Loading", "Opening the Hot Wheels book.");
     }
     var manifest = hwBook.manifest || { totals: {}, years: [] };
     var hits = filterHw();
@@ -1139,7 +1140,7 @@
     if (totals.mattelPct != null) digest += " · " + totals.mattelPct + "% official Mattel photos";
     digest += ". Lists from the Hot Wheels Wiki. Photos hotlink to Mattel Creations when the toy number matches, and to the wiki otherwise.";
     var countLabel = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
-    return "<h1>Catalog</h1>" +
+    return back + "<h1>Catalog</h1>" +
       '<p class="digest">' + esc(digest) + "</p>" +
       '<div class="hw-tools">' +
       '<label class="field"><span>Search</span><input id="archive-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Name, toy #, or series" value="' + esc(state.archiveQuery) + '"></label>' +
