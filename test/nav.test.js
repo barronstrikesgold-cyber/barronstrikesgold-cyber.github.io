@@ -38,5 +38,9 @@ assert(app.includes('"#/hw"'), "the Hot Wheels book has a deep link");
 assert(app.includes('aria-label="Breadcrumb"'), "pages have breadcrumbs");
 assert(app.includes('id="blog-list"') && app.includes('id="coupons-area"') && app.includes('id="calendar-list"'), "blog, coupons, and calendar stay in the app");
 assert(app.includes("addEventListener(\"offline\""), "offline updates the screen");
+assert(app.includes("function couponsOnScreen"), "coupons repaint when My Stuff is open");
+assert(app.includes("Just added") && app.includes("freshInvId"), "a new purchase stays visible on the inventory list");
+assert(css.includes("#scan-video"), "the scan tab preview uses the same frame as the sheet");
+assert(app.includes("scanBooting") && app.includes("parkedScan"), "a refresh does not restart an open camera");
 
 console.log("nav.test.js OK");

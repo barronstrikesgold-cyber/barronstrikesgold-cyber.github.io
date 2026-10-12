@@ -26,6 +26,7 @@
   var stream = null;
   var scanTimer = null;
   var scanGen = 0;
+  var scanBooting = false;
   var scanHit = false;
   var pendingScan = null;
 
@@ -1279,11 +1280,17 @@
   function inventoryListHtml() {
     var rows = inventoryRows();
     if (!rows.length) return stateCard("empty", "Nothing in this filter", "The book is still saved.");
+    var fresh = state.freshInvId ? rows.filter(function (item) { return item.id === state.freshInvId; }) : [];
+    var rest = fresh.length ? rows.filter(function (item) { return item.id !== state.freshInvId; }) : rows;
+    var freshHtml = fresh.length
+      ? '<p class="kicker">Just added</p><div class="list" id="just-added">' + fresh.map(invRow).join("") + "</div>"
+      : "";
     var grouped = !state.invQuery.trim() && state.invFilter === "all";
-    if (!grouped) return '<div class="list">' + rows.map(invRow).join("") + "</div>";
+    if (!grouped) return freshHtml + '<div class="list">' + rest.map(invRow).join("") + "</div>";
     var buckets = { sell: [], verify: [], duplicate: [], hand: [] };
-    rows.forEach(function (item) { buckets[sellBucket(item)].push(item); });
-    return '<p class="kicker">Sell first</p><div class="list">' + buckets.sell.map(invRow).join("") + "</div>" +
+    rest.forEach(function (item) { buckets[sellBucket(item)].push(item); });
+    return freshHtml +
+      '<p class="kicker">Sell first</p><div class="list">' + buckets.sell.map(invRow).join("") + "</div>" +
       '<p class="kicker">Verify the card</p><div class="list">' + buckets.verify.map(invRow).join("") + "</div>" +
       '<details class="leave"><summary>Duplicates (' + buckets.duplicate.length + ')</summary><div class="list">' + buckets.duplicate.map(invRow).join("") + "</div></details>" +
       '<details class="leave"><summary>Rest of the book (' + buckets.hand.length + ')</summary><div class="list">' + buckets.hand.map(invRow).join("") + "</div></details>";
@@ -2359,7 +2366,17 @@
   function render(opts) {
     opts = opts || {};
     var keepY = opts.keepScroll ? window.scrollY : (typeof opts.scrollY === "number" ? opts.scrollY : 0);
+    var parkedScan = null;
+    var liveScan = document.getElementById("scan-video");
+    if (liveScan && (liveScan.srcObject || liveScan.__srcObject) && state.tab === "scan" && state.view === "root") {
+      parkedScan = liveScan;
+      parkedScan.remove();
+    }
     screen.innerHTML = screenHtml();
+    if (parkedScan) {
+      var scanSlot = document.getElementById("scan-video");
+      if (scanSlot) scanSlot.replaceWith(parkedScan);
+    }
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
       var current = state.tab === "hunt" ? "home" : state.tab === "drops" ? "calendar" : state.tab;
@@ -2941,11 +2958,13 @@
       date: existing ? existing.date : new Date().toISOString().slice(0, 10),
       catalogId: existing ? existing.catalogId : null,
     };
-    Inv.upsertUser(invState, row);
+    var saved = Inv.upsertUser(invState, row);
     Inv.write(localStorage, invState);
     var leavingForm = snapNow();
     var formY = window.scrollY;
-    state.tab = "tracked";
+    state.freshInvId = saved && saved.id ? saved.id : "";
+    state.tab = "stuff";
+    state.stuffSegment = "inventory";
     state.view = "root";
     state.stack = [];
     state.moveFocus = true;
@@ -3045,6 +3064,7 @@
 
   function stopCamera() {
     scanGen += 1;
+    scanBooting = false;
     if (scanTimer) clearInterval(scanTimer);
     scanTimer = null;
     if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
@@ -3977,6 +3997,7 @@
   function beginScan() {
     stopCamera();
     var gen = scanGen;
+    scanBooting = true;
     ensureScan().then(function () {
       return requestCamera();
     }).then(function (media) {
@@ -4012,6 +4033,8 @@
       }
       var kind = err && err.kind ? err.kind : Scan.cameraErrorKind(err);
       setScanMessage(Scan.MESSAGES[kind] || Scan.MESSAGES["no-camera"], true);
+    }).then(function () {
+      if (gen === scanGen) scanBooting = false;
     });
   }
 
@@ -4019,6 +4042,7 @@
     if (state.tab !== "scan" || state.view !== "root") return;
     var video = document.getElementById("scan-video");
     if (video && (video.srcObject || video.__srcObject)) return;
+    if (scanBooting) return;
     pendingScan = null;
     scanHit = false;
     beginScan();
@@ -4162,14 +4186,20 @@
     return blogFlight;
   }
 
+  function couponsOnScreen() {
+    if (state.view === "coupons") return true;
+    return state.view === "root" && stuffSegment() === "coupons" &&
+      (state.tab === "stuff" || state.tab === "tracked" || state.tab === "inventory" || state.tab === "alerts" || state.tab === "account" || state.tab === "profit");
+  }
+
   function loadCouponFile() {
     if (couponFile || couponFlight) return couponFlight;
     couponFlight = fetchFreshJson("data/coupons.json").then(function (part) {
       couponFile = part.data || { codes: [] };
-      if (state.view === "coupons") render();
+      if (couponsOnScreen()) render();
     }).catch(function () {
       couponFile = { codes: [] };
-      if (state.view === "coupons") render();
+      if (couponsOnScreen()) render();
     });
     return couponFlight;
   }
@@ -4196,7 +4226,7 @@
   function renderCoupons() {
     if (!window.ResellerCoupons) {
       ensureCoupons().then(function () {
-        if (state.view === "coupons") render();
+        if (couponsOnScreen()) render();
       });
       return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' + skeletonList(2) + "</div>";
     }

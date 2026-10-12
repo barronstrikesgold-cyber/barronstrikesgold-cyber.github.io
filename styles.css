@@ -846,7 +846,8 @@ h2 {
 }
 .sheet::backdrop, .lightbox::backdrop { background: rgba(0, 0, 0, 0.72); }
 .sheet-body { padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); display: grid; gap: 12px; }
-.sheet video {
+.sheet video,
+#scan-video {
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;
@@ -855,7 +856,8 @@ h2 {
   border-radius: 16px;
   background: #000;
 }
-.sheet video[hidden] { display: none; }
+.sheet video[hidden],
+#scan-video[hidden] { display: none; }
 #scan-msg.is-error { color: var(--pass); font-weight: 700; }
 .scan-hits, #scan-hits { display: grid; gap: 8px; }
 
