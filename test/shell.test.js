@@ -87,8 +87,12 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261011g"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261011f"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261011h"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261011g"), "previous shell cache is retired");
+assert(sw.includes("./lib/flow.js"), "flow helper is in the shell");
+assert(app.includes('id="home-grid"'), "home lists the hunt grid");
+assert(app.includes('data-action="open-stores"'), "stores stay reachable from home");
+assert(app.includes("controllerchange"), "a new worker reloads the open page");
 assert(html.includes("lib/amazon.js"), "amazon helper is on the page");
 assert(sw.includes("./lib/amazon.js"), "amazon helper is in the shell");
 assert(html.includes("As an Amazon Associate I earn from qualifying purchases."), "associates disclosure is in the footer");
