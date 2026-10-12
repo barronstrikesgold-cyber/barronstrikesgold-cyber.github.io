@@ -265,7 +265,7 @@ try {
       await assertFullPackage(page.getByRole("button", { name: /Vanquish/ }), "mb-vanquish", "photos/mb-vanquish.jpg");
       const defender = page.getByRole("button", { name: /Defender 130/ });
       await defender.waitFor();
-      assert(/photo needed/i.test(await defender.innerText()), "defender stays Photo needed");
+      assert((await defender.locator("img").evaluate((el) => el.getAttribute("src") || el.getAttribute("data-src"))) === "images/hw-defender.webp", "defender has a product photo");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^F&F$/ }) }).click();
       await assertFullPackage(page.getByRole("button", { name: /Fast & Furious Supra/ }), "ff-supra", "photos/ff-supra.jpg");
@@ -276,7 +276,7 @@ try {
       await assertFullPackage(page.getByRole("button", { name: /M6a/ }), "m6a", "photos/m6a.jpg");
       const bundle = page.getByRole("button", { name: /Booster Bundle/ });
       await bundle.waitFor();
-      assert(/photo needed/i.test(await bundle.innerText()), "bundle stays Photo needed");
+      assert((await bundle.locator("img").first().evaluate((el) => el.getAttribute("src") || el.getAttribute("data-src"))) === "images/pokemon-etb.webp", "bundle has a product photo");
       await page.getByRole("button", { name: "Walmart", exact: true }).click();
       await page.locator("button.lane-card").filter({ has: page.locator("b", { hasText: /^Super TH$/ }) }).click();
       await page.getByRole("button", { name: /Gold '70 AAR Cuda Super/ }).click();

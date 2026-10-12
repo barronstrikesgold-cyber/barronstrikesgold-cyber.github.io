@@ -203,6 +203,7 @@
     if (value.indexOf("assets/hw/thumbs/") === 0) return value;
     if (value.indexOf("assets/hosted/") === 0) return value;
     if (value.indexOf("photos/") === 0) return value;
+    if (value.indexOf("images/") === 0) return value;
     if (value.indexOf("assets/") === 0) return value;
     return "";
   }
@@ -418,7 +419,7 @@
 
   function pegPhoto(item, large, index) {
     var shot = photoFor(item);
-    var src = shot ? usablePhoto(shot.src) : "";
+    var src = shot ? displayPhoto(shot.src) : "";
     if (src) return frameHtml(src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
     if (!large) return "";
     return frameHtml("", { kind: "hero", note: true });
@@ -1414,7 +1415,22 @@
       };
     }
     if (kind === "golf") {
-      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, mark: "golf", tells: golf.note || "", buyUrl: "", retailUrl: "", amazonUrl: "" };
+      var golfShot = golf.photos && golf.photos[id];
+      return {
+        kind: "golf",
+        id: id,
+        name: id,
+        line: "Golf",
+        sold: null,
+        cost: null,
+        sales: 0,
+        photo: golfShot ? licensedShot(golfShot) : null,
+        mark: "golf",
+        tells: golf.note || "",
+        buyUrl: "",
+        retailUrl: "",
+        amazonUrl: "",
+      };
     }
     if (kind === "market") {
       var marketItem = findMarket(id);
@@ -1459,14 +1475,6 @@
     };
   }
 
-  var PHOTO_HOSTS = {
-    "tcgplayer-cdn.tcgplayer.com": true,
-    "svgs.scryfall.io": true,
-    "cards.scryfall.io": true,
-    "c1.scryfall.io": true,
-    "images.scrydex.com": true
-  };
-
   var MARK_LABEL = { car: "Car", card: "Card pack", sneaker: "Sneaker", golf: "Golf", device: "Device", box: "Box" };
 
   var MARK_ICON = {
@@ -1489,16 +1497,16 @@
     return /\/logo(?:\/|\?|$)/i.test(src) || /(?:^|\/)logo\.(?:svg|png|jpe?g|webp)(?:\?|$)/i.test(src);
   }
 
-  function licensedPhoto(src) {
+  function displayPhoto(src) {
     var value = usablePhoto(src);
     if (!value || isLogoPhoto(value)) return "";
-    if (!/^https?:\/\//i.test(value)) {
-      if (value.indexOf("photos/") === 0 || value.indexOf("assets/") === 0) return value;
-      return "";
-    }
-    var host = "";
-    try { host = new URL(value).hostname; } catch (err) { return ""; }
-    return PHOTO_HOSTS[host] ? value : "";
+    if (/^https?:\/\//i.test(value)) return value;
+    if (/^(?:\.\/)?(?:photos|images|assets)\//.test(value)) return value;
+    return "";
+  }
+
+  function licensedPhoto(src) {
+    return displayPhoto(src);
   }
 
   function licensedShot(shot) {

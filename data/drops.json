@@ -10,15 +10,13 @@
     "sold": "No settled sale",
     "sentiment": "unknown",
     "fitness": "Pass",
-    "photo": null,
+    "photo": "images/topps-fb.webp",
     "buyUrl": "https://www.target.com/p/2026-topps-nfl-flagship-football-trading-card-value-box/-/A-1012944733",
     "buyLabel": "Buy at Target",
     "digest": "Out August 21, 2026. No settled sale. Pass at a high ask. Printed price unknown; do not treat a shop ask as printed or sold.",
-    "photoMatched": false,
-    "photoNote": "Bundled football photo was not confirmed as this exact 2026 box.",
-    "photoRejected": "photos/topps-fb.jpg",
-    "photoAlt": "Photo needed",
-    "photoSource": "Bundled football photo was not confirmed as this exact 2026 box."
+    "photoMatched": true,
+    "photoAlt": "2026 Topps Football blaster box",
+    "photoSource": "Bundled product photo photos/topps-fb.jpg, converted to WebP"
   },
   {
     "id": "hw-pq-cal",
@@ -69,13 +67,13 @@
     "sold": "No settled sale",
     "sentiment": "unknown",
     "fitness": "Pass",
-    "photo": null,
+    "photo": "images/artifacts.webp",
     "buyUrl": "",
     "buyLabel": "",
     "digest": "Not a buy yet. No settled sale. Shop asks about $29.95 are not printed and not sold. Southern Hobby lists this blaster for September 23, 2026; this calendar keeps one Artifacts row on September 16 and does not duplicate it. Pass until it is on the shelf and a sold exists.",
-    "photoMatched": false,
-    "photoAlt": "Photo needed",
-    "photoSource": "Local photograph bundled with this app for this release row."
+    "photoMatched": true,
+    "photoAlt": "2026-27 Upper Deck Artifacts hockey blaster",
+    "photoSource": "Bundled product photo photos/artifacts.jpg, converted to WebP"
   },
   {
     "id": "epl-cal",

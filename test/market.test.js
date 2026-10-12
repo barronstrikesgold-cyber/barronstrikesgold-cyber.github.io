@@ -136,8 +136,8 @@ file.sections.find((row) => row.id === "sneakers").items.forEach((item) => {
 });
 file.sections.find((row) => row.id === "onepiece").items.forEach((item) => {
   assert(Number(item.retail) > 0, "One Piece row keeps an official MSRP");
-  assert(!item.photo, item.id + " has no Bandai image to hotlink or self-host");
-  assert(!/onepiece-cardgame\.com/.test([item.retailUrl, item.photoPage, item.photo].join(" ")), item.id + " does not link the unreachable official host");
+  assert(String(item.photo).startsWith("images/") && item.photo.endsWith(".webp"), item.id + " has a self-hosted product photo");
+  assert(!/onepiece-cardgame\.com/.test(String(item.photo)), item.id + " does not hotlink the official image");
   assert(/^https:\/\/www\.tcgplayer\.com\/search\/one-piece-card-game\/product\?/.test(item.retailUrl), item.id + " links a TCGplayer search");
 });
 const nau = file.sections.find((row) => row.id === "magic").items.find((item) => item.id === "magic-nau");
