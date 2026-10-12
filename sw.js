@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261011h";
+var CACHE = "reseller-shell-20261012a";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -222,7 +222,8 @@ self.addEventListener("fetch", function (event) {
     return;
   }
   var shellFile = /\.(html|js|css)$/.test(url.pathname) || url.pathname.endsWith("/");
-  var pull = (isHuntData(url) || shellFile) ? fetch(event.request, { cache: "no-store" }) : fetch(event.request);
+  var imageFile = /\.(?:png|jpe?g|webp|gif|svg|avif)$/i.test(url.pathname);
+  var pull = (isHuntData(url) || shellFile || imageFile) ? fetch(event.request, { cache: "no-store" }) : fetch(event.request);
   event.respondWith(
     pull.then(function (res) {
       storeResponse(event.request, res);
