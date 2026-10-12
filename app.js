@@ -59,6 +59,7 @@
     archiveLimit: 24,
     invLimit: 24,
     homeLimit: 24,
+    calendarCategory: "all",
     marketBrand: "latest",
     fashionBrand: "all",
     marketLimit: 24,
@@ -701,10 +702,31 @@
       return "<p><b>" + label + "</b> " + esc(row.name) + " · " + esc(D.releaseState(row.iso)) + "</p>";
     }
     return '<button class="drops-strip" type="button" data-action="open-drops">' +
-      '<span class="kicker">Drops</span>' +
+      '<span class="kicker">Upcoming drops</span>' +
       line("Next", picked.next) +
       line("New", picked.fresh) +
       '<span class="chev" aria-hidden="true">›</span></button>';
+  }
+
+  function homeDestinations() {
+    return '<div class="home-destinations">' +
+      '<button type="button" data-action="open-catalog"><b>Catalog</b><span>Full Hot Wheels book</span></button>' +
+      '<button type="button" data-action="open-stores"><b>Stores</b><span>Peg lists by store</span></button></div>';
+  }
+
+  function catalogRecord(item) {
+    return { kind: "catalog", name: item.name, category: Rules.laneFor(item), ref: item };
+  }
+
+  function huntSection(laneId) {
+    var meta = Rules.laneMeta(laneId);
+    var items = laneItems(laneId);
+    if (!meta || !items.length) return "";
+    return '<section class="aisle" id="aisle-' + esc(laneId) + '">' +
+      '<p class="kicker">' + esc(meta.kicker) + "</p>" +
+      "<h2>" + esc(meta.title) + "</h2>" +
+      '<p class="digest">' + esc(meta.rule) + "</p>" +
+      '<div class="list">' + items.map(function (item, index) { return flowRow(catalogRecord(item), index); }).join("") + "</div></section>";
   }
 
   function renderHunt() {
@@ -1021,7 +1043,7 @@
     var photoCredit = item.photoPage
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
-    return '<button class="back" type="button" data-back>Drops</button>' +
+    return '<button class="back" type="button" data-back>Calendar</button>' +
       marketPhoto(item, true) +
       word +
       "<h1>" + esc(item.name) + "</h1>" +
@@ -1038,36 +1060,35 @@
   }
 
   function renderDrops() {
-    var featured = [];
-    var rest = [];
+    var categories = ["All"];
     drops.forEach(function (row) {
-      if (Rules.dropVerdict(row.id).verdict === "Buy") featured.push(row);
-      else rest.push(row);
+      if (row.category && categories.indexOf(row.category) === -1) categories.push(row.category);
+    });
+    var current = state.calendarCategory || "all";
+    var shown = drops.filter(function (row) {
+      return current === "all" || row.category === current;
     });
     function block(row) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
       var photo = pegPhoto(row, true);
-      if (rule.verdict === "Buy") {
-        return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
-          photo +
-          '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span></span>" +
-          decisionBar("Buy") +
-          '<span class="peg-foot"><span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
-          '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
-      }
       return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
         photo +
         '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
-        '<span class="peg-tell">' + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
+        '<span class="peg-tell">' + esc(row.category || "") + " · " + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
-    return "<h1>Drops</h1>" + offlineBanner() +
+    var chips = '<div class="chips category-row" role="group" aria-label="Drop category">' + categories.map(function (name) {
+      var id = name === "All" ? "all" : name;
+      var on = current === id;
+      return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-cal-category="' + esc(id) + '">' + esc(name) + "</button>";
+    }).join("") + "</div>";
+    return "<h1>Calendar</h1>" + offlineBanner() +
       renderMarketList() +
-      '<p class="digest">The dates that change a hunt. Other releases stay folded. Buy marks the dates that matter.</p>' +
-      restockNote() +
-      '<p class="kicker">On the buy list</p><div class="list">' + featured.map(block).join("") + "</div>" +
-      '<details class="leave"><summary>Other dates</summary><div class="list">' + rest.map(block).join("") + "</div></details>";
+      '<p class="digest">' + drops.length + " dated drops. Buy marks the dates that matter.</p>" +
+      chips +
+      '<p class="fine">' + shown.length + " of " + drops.length + "</p>" +
+      '<div class="list" id="calendar-list">' + shown.map(block).join("") + "</div>";
   }
 
   function renderDrop() {
@@ -1076,7 +1097,7 @@
     var status = D.releaseState(item.iso);
     var rule = Rules.dropVerdict(item.id);
     var photo = heroPhoto(item);
-    return '<button class="back" type="button" data-back>Drops</button>' + photo +
+    return '<button class="back" type="button" data-back>Calendar</button>' + photo +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + (rule.verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(rule.verdict) + "</strong><p>" + esc(rule.tells) + "</p></section>" +
       "<p>" + esc(item.dateLabel) + " · " + esc(status) + "</p>" +
@@ -1203,7 +1224,7 @@
     }).join("") + '</optgroup><optgroup label="Inventory">' + Inv.visible(invState).map(function (item) {
       return '<option value="i:' + esc(item.id) + '">' + esc(item.name) + "</option>";
     }).join("") + "</optgroup>";
-    return "<h1>Profit</h1>" +
+    return "<h1>Profit calculator</h1>" +
       '<p class="digest">Fees are 13%. Shipping is what you pay. A blank sold stays No sold data.</p>' +
       '<form id="profit-form" class="tool">' +
       '<label class="field"><span>Item</span><select id="profit-item">' + options + "</select></label>" +
@@ -1598,12 +1619,23 @@
   }
 
   function chipOf(rec) {
-    var blob = ((rec.name || "") + " " + (rec.category || "") + " " + (rec.categoryTitle || "")).toLowerCase();
-    var section = String(rec.category || "").toLowerCase();
-    if (blob.indexOf("matchbox") !== -1 || rec.category === "mbsc" || section === "matchbox") return "matchbox";
-    if (blob.indexOf("pokemon") !== -1 || blob.indexOf("pokémon") !== -1 || section === "pokemon") return "pokemon";
+    if (!rec) return "other";
     if (rec.kind === "golf" || rec.category === "golf") return "golf";
-    if (rec.kind === "catalog" || section === "mattel" || section === "cars") return "hot-wheels";
+    if (rec.kind === "market") {
+      var section = String(rec.category || "");
+      if (section === "magic") return "mtg";
+      if (section === "mattel") return "hot-wheels";
+      if (section === "matchbox" || section === "pokemon" || section === "onepiece" || section === "lorcana" || section === "yugioh" || section === "sports" || section === "sneakers" || section === "designer" || section === "lego" || section === "funko" || section === "apple" || section === "consoles") return section;
+      return "other";
+    }
+    if (rec.kind === "catalog") {
+      var lane = String(rec.category || "");
+      var id = rec.ref && rec.ref.id;
+      if (lane === "pokemon") return "pokemon";
+      if (lane === "mbsc" || id === "mb-regular") return "matchbox";
+      if (lane === "sports" || lane === "sneakers" || lane === "tech" || lane === "streetwear") return "other";
+      return "hot-wheels";
+    }
     return "other";
   }
 
@@ -1705,13 +1737,42 @@
       if (d) return d;
       return String(a.rec.name || "").localeCompare(String(b.rec.name || ""));
     });
-    var page = ranked.slice(0, state.homeLimit);
+    var showAll = state.category !== "all";
+    var page = showAll ? ranked : ranked.slice(0, state.homeLimit);
     var html = page.map(function (row, index) { return flowRow(row.rec, index); }).filter(Boolean);
     if (!html.length) return stateCard("no-results", "Leave it", "If it is not on the buy list, leave it.");
-    var more = ranked.length > page.length
+    var more = !showAll && ranked.length > page.length
       ? '<button class="ghost hw-more" type="button" data-home-more>Show more · ' + page.length + " of " + ranked.length + "</button>"
       : "";
     return '<div class="list" id="home-grid">' + html.join("") + "</div>" + more;
+  }
+
+  function recordsAfterLane(laneId, records) {
+    var ids = {};
+    laneItems(laneId).forEach(function (item) { ids[item.id] = true; });
+    return records.filter(function (rec) {
+      return !(rec.kind === "catalog" && rec.ref && ids[rec.ref.id]);
+    });
+  }
+
+  function moreSection(title, records) {
+    if (!records.length) return "";
+    var rows = records.map(function (rec, index) { return flowRow(rec, index); }).filter(Boolean);
+    if (!rows.length) return "";
+    return '<section class="aisle"><h2>' + esc(title) + "</h2>" +
+      '<p class="fine">' + rows.length + " items</p>" +
+      '<div class="list">' + rows.join("") + "</div></section>";
+  }
+
+  function categoryGuide(category, source) {
+    if (category === "hot-wheels") {
+      var lanes = ["sth", "cc", "ff", "exclusive", "premium", "multipack", "hw-main", "leave", "selective"];
+      var mattel = source.filter(function (rec) { return rec.kind === "market"; });
+      return lanes.map(huntSection).join("") + moreSection("Mattel Creations", mattel);
+    }
+    if (category === "matchbox") return huntSection("mbsc") + moreSection("More Matchbox", recordsAfterLane("mbsc", source));
+    if (category === "pokemon") return huntSection("pokemon") + moreSection("More Pokémon", recordsAfterLane("pokemon", source));
+    return "";
   }
 
   function homeResults() {
@@ -1736,29 +1797,43 @@
       if (!window.ResellerSearch || !huntLoaded) return skeletonList(4);
       return homeResults();
     }
-    var grid = huntLoaded && window.ResellerSearch
-      ? (function () {
-        var source = homeSource();
-        return '<h2 class="section-label">On the list</h2>' +
-          '<p class="fine">' + source.length + " items and deals</p>" +
-          homeCards(source);
-      })()
-      : skeletonList(4);
-    var soon = drops.length
-      ? '<h2 class="section-label">Dropping soon</h2>' + renderDropsStrip()
-      : "";
-    return grid + recentHtml() + soon +
-      '<div class="actions"><button class="ghost" type="button" data-action="open-catalog">Full catalog</button>' +
-      '<button class="ghost" type="button" data-action="open-stores">Stores</button></div>';
+    if (!(huntLoaded && window.ResellerSearch)) return skeletonList(4);
+    var source = homeSource();
+    var guide = categoryGuide(state.category, source);
+    var grid = guide
+      ? guide
+      : '<h2 class="section-label">On the list</h2>' +
+        '<p class="fine">' + source.length + " items and deals</p>" +
+        homeCards(source);
+    return grid + recentHtml();
   }
 
   function renderHome() {
-    var chips = [["all", "All"], ["hot-wheels", "Hot Wheels"], ["matchbox", "Matchbox"], ["pokemon", "Pokémon"], ["golf", "Golf"]];
+    var chips = [
+      ["all", "All"],
+      ["hot-wheels", "Hot Wheels"],
+      ["matchbox", "Matchbox"],
+      ["pokemon", "Pokémon"],
+      ["mtg", "MTG"],
+      ["onepiece", "One Piece"],
+      ["lorcana", "Lorcana"],
+      ["yugioh", "Yu-Gi-Oh"],
+      ["sports", "Sports cards"],
+      ["sneakers", "Sneakers"],
+      ["designer", "Designer"],
+      ["lego", "LEGO"],
+      ["funko", "Funko"],
+      ["apple", "Apple/Beats"],
+      ["consoles", "Consoles"],
+      ["golf", "Golf"],
+    ];
     return offlineBanner() +
       "<h1>What did you find?</h1>" +
+      renderDropsStrip() +
+      homeDestinations() +
       '<div class="search-row"><label class="search" for="hunt-q"><span class="sr-only">Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search name, casting, or UPC" value="' + esc(state.query) + '"></label>' +
       '<button class="scan" type="button" data-action="scan" aria-label="Scan barcode" title="Scan barcode"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg></button></div>' +
-      '<div class="chips" role="group" aria-label="Category">' + chips.map(function (chip) {
+      '<div class="chips category-row" role="group" aria-label="Category">' + chips.map(function (chip) {
         return '<button class="chip' + (state.category === chip[0] ? " is-on" : "") + '" type="button" data-category="' + chip[0] + '">' + chip[1] + "</button>";
       }).join("") + "</div>" +
       '<div id="hunt-body">' + homeBody() + "</div>";
@@ -1792,7 +1867,8 @@
       (subject.tells ? '<p class="digest">' + esc(subject.tells) + "</p>" : "") +
       detailBuyLinks(subject) +
       '<button class="btn-primary" type="button" data-action="track-item">Track this item</button>' +
-      '<button class="btn-secondary" type="button" data-action="set-alert">Set price alert</button></div></div>';
+      '<button class="btn-secondary" type="button" data-action="set-alert">Set price alert</button>' +
+      '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button></div></div>';
   }
 
   function trackedList() {
@@ -1853,6 +1929,7 @@
         : "";
       body = boughtSummary(book) +
         '<p class="fine">Realized profit uses a sold price you entered. Book targets are not live solds.</p>' +
+        '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
         (extra ? '<div class="list">' + extra + "</div>" : "") +
         '<div class="actions"><button class="solid" type="button" data-action="add-purchase">Add</button><button class="ghost" type="button" data-action="export-json">Export JSON</button><button class="ghost" type="button" data-action="export-csv">Export CSV</button><button class="ghost" type="button" data-action="import-json">Import JSON</button></div>' +
         '<div class="list" id="inventory-list">' + invPage.map(function (item, index) { return invRow(item, index); }).join("") + "</div>" +
@@ -2023,7 +2100,7 @@
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
       '<section class="tool"><p class="kicker">Data freshness</p><p>' + esc(fresh || "Not checked yet") + "</p><p>" +
       (checked ? "Last refresh · " + esc(formatWhen(checked)) : "No refresh yet") + "</p></section>" +
-      '<button class="ghost" type="button" data-action="open-estimate">Estimate a sale</button>' +
+      '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
       '<button class="ghost" type="button" data-action="sources">Sources</button>' +
       '<p class="legal">Broken Beaker Labs LC</p>';
   }
@@ -2094,7 +2171,7 @@
     if (state.view === "inv-form") return invForm(state.invId ? findInv(state.invId) : null);
     if (state.view === "golf") return renderGolfDetail();
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
-    if (state.view === "drops" || state.tab === "drops") return renderDrops();
+    if (state.view === "drops" || state.tab === "drops" || state.tab === "calendar") return renderDrops();
     if (state.view === "stores" || state.tab === "stores") return renderStores();
     if (state.tab === "inventory" || state.tab === "tracked") return renderTracked();
     if (state.tab === "profit") return renderProfit();
@@ -2114,11 +2191,12 @@
 
   function render(opts) {
     opts = opts || {};
-    var keepY = opts.keepScroll ? window.scrollY : null;
+    var scroller = document.querySelector(".app");
+    var keepY = opts.keepScroll && scroller ? scroller.scrollTop : 0;
     screen.innerHTML = screenHtml();
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
-      var current = state.tab === "hunt" ? "home" : state.tab === "inventory" ? "tracked" : state.tab;
+      var current = state.tab === "hunt" ? "home" : state.tab === "inventory" ? "tracked" : state.tab === "drops" ? "calendar" : state.tab;
       var on = btn.getAttribute("data-tab") === current;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
@@ -2134,7 +2212,7 @@
       checkedLine.textContent = checkedParts.join(" · ");
     }
     paintDataStatus();
-    if (keepY != null) window.scrollTo(0, keepY);
+    if (scroller) scroller.scrollTop = keepY;
     if (state.view === "estimate" || (state.tab === "profit" && state.view === "root")) bindProfit();
     evaluateAlerts();
     var hunt = document.getElementById("hunt-q");
@@ -2164,6 +2242,19 @@
       state.moveFocus = false;
     }
     observeLazy(screen);
+    observeHomeMore();
+  }
+
+  function observeHomeMore() {
+    var btn = document.querySelector("[data-home-more]");
+    if (!btn || !("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+      io.disconnect();
+      state.homeLimit += 24;
+      render({ keepScroll: true });
+    }, { root: document.querySelector(".app"), rootMargin: "280px" });
+    io.observe(btn);
   }
 
   function formatWhen(iso) {
@@ -2578,6 +2669,12 @@
       render({ keepScroll: true });
       return;
     }
+    var calBtn = event.target.closest("[data-cal-category]");
+    if (calBtn) {
+      state.calendarCategory = calBtn.getAttribute("data-cal-category");
+      render({ keepScroll: true });
+      return;
+    }
     var catBtn = event.target.closest("[data-category]");
     if (catBtn) {
       state.category = catBtn.getAttribute("data-category");
@@ -2663,7 +2760,7 @@
     if (!actionBtn) return;
     var actionName = actionBtn.getAttribute("data-action");
     if (actionName === "refresh") { refreshAll(); return; }
-    if (actionName === "open-drops") { push({ view: "drops" }); return; }
+    if (actionName === "open-drops") { setTab("calendar"); return; }
     if (actionName === "sources") { openSheet(sourcesHtml()); return; }
     if (actionName === "close-sheet") { closeSheet(); return; }
     if (actionName === "close-zoom") { closeZoom(); return; }

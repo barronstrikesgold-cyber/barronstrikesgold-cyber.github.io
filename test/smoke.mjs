@@ -131,7 +131,7 @@ try {
       await page.locator("#status-live").getByText("Updated just now").waitFor();
       assert(await page.locator("#update-banner").isHidden(), "update banner stays hidden until a new shell is waiting");
       await strip.click();
-      await page.getByRole("heading", { name: "Drops" }).waitFor();
+      await page.getByRole("heading", { name: "Calendar" }).waitFor();
       await page.getByRole("tab", { name: "Account", exact: true }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
       await page.locator(".store-pick").filter({ hasText: "Walmart" }).click();
@@ -297,7 +297,7 @@ try {
       await page.getByRole("tab", { name: "Home", exact: true }).click();
       await page.locator(".drops-strip").click();
       await page.getByText("Latest drops", { exact: true }).waitFor();
-      await page.getByText("On the buy list", { exact: true }).waitFor();
+      await page.getByText("dated drops", { exact: false }).waitFor();
       const sneakers = page.getByRole("button", { name: "Sneakers", exact: true });
       await sneakers.scrollIntoViewIfNeeded();
       await sneakers.click();
@@ -332,12 +332,12 @@ try {
       await pokemon.click();
       await page.locator("[data-market]").first().waitFor();
       assert(/BUY/.test(await page.locator("[data-market]").first().innerText()), "the 30th Celebration ETB can be BUY");
-      await page.getByText("On the buy list", { exact: true }).waitFor();
+      await page.locator("#calendar-list").waitFor();
       await page.getByText("Released").first().waitFor();
       await page.screenshot({ path: path.join(shots, "drops-390.png"), fullPage: false });
       await page.getByRole("tab", { name: "Account", exact: true }).click();
-      await page.getByRole("button", { name: "Estimate a sale" }).click();
-      await page.getByRole("heading", { name: "Profit" }).waitFor();
+      await page.getByRole("button", { name: "Profit calculator" }).click();
+      await page.getByRole("heading", { name: "Profit calculator" }).waitFor();
       await page.locator("#profit-item").selectOption("c:f40");
       await page.getByText("No sold data", { exact: true }).waitFor();
       await page.getByText("Enter Your sold to see an estimate. A blank field is not a return.").waitFor();
@@ -349,14 +349,14 @@ try {
       const target = await page.locator(".tabbar button").first().evaluate((el) => el.getBoundingClientRect().height);
       assert(target >= 44, "tab target is at least 44px");
       const clears = await page.evaluate(() => {
-        var screen = document.querySelector(".screen");
+        var footer = document.querySelector(".site-footer");
         var tab = document.querySelector(".tabbar");
-        var pad = parseFloat(getComputedStyle(screen).paddingBottom);
-        return pad >= tab.getBoundingClientRect().height + 24;
+        var pad = parseFloat(getComputedStyle(footer).paddingBottom);
+        return pad >= tab.getBoundingClientRect().height;
       });
-      assert(clears, "screen padding clears the tab bar");
+      assert(clears, "footer padding clears the tab bar");
       const disclosure = page.getByText("As an Amazon Associate I earn from qualifying purchases.", { exact: true });
-      await disclosure.waitFor();
+      await disclosure.scrollIntoViewIfNeeded();
       const visible = await disclosure.evaluate((el) => {
         var rect = el.getBoundingClientRect();
         var tab = document.querySelector(".tabbar").getBoundingClientRect();
@@ -365,7 +365,7 @@ try {
       });
       assert(visible, "associates disclosure sits above the tab bar");
       await page.getByRole("tab", { name: "Home", exact: true }).click();
-      await page.getByRole("button", { name: "Full catalog" }).click();
+      await page.getByRole("button", { name: /^Catalog/ }).click();
       await page.getByRole("heading", { name: "Catalog" }).waitFor();
       await page.waitForFunction(() => {
         const img = document.querySelector(".hw-card .hw-photo img");
