@@ -583,7 +583,8 @@
   }
 
   function renderStores() {
-    return "<h1>Stores</h1>" + offlineBanner() +
+    var back = state.view === "stores" ? '<button class="back" type="button" data-back>Home</button>' : "";
+    return back + "<h1>Stores</h1>" + offlineBanner() +
       '<p class="digest">Pick a store to open its buy list in this app.</p>' +
       restockNote() +
       '<p class="fine">That is not the retailer. Search on Walmart, Target, and the others is a button on the next screen. It leaves this app and opens their site. It does not filter this list, and it is not a shelf count.</p>' +
@@ -983,11 +984,11 @@
         var years = (hwBook.manifest.years || []).map(function (row) { return row.year; });
         state.archiveYear = years.length ? String(years[years.length - 1]) : "all";
       }
-      if (state.tab === "archive" && state.view === "root" && canRepaint()) render();
+      if (catalogVisible() && canRepaint()) render();
     }).catch(function () {
       hwBook.error = navigator.onLine ? "The catalog did not load." : "Offline. The catalog is not on this phone yet.";
       hwBook.flight = null;
-      if (state.tab === "archive" && state.view === "root") render();
+      if (catalogVisible()) render();
     });
     return hwBook.flight;
   }
@@ -1011,7 +1012,7 @@
       });
     })).then(function () {
       var list = document.getElementById("archive-list");
-      if (!list || state.tab !== "archive" || state.view !== "root") return;
+      if (!list || !catalogVisible()) return;
       var hits = filterHw();
       list.innerHTML = hwCardsHtml(hits.slice(0, state.archiveLimit), hits.length);
     }).catch(function () {
@@ -1216,10 +1217,11 @@
 
   function chipOf(rec) {
     var blob = ((rec.name || "") + " " + (rec.category || "") + " " + (rec.categoryTitle || "")).toLowerCase();
-    if (blob.indexOf("matchbox") !== -1 || rec.category === "mbsc") return "matchbox";
-    if (blob.indexOf("pokemon") !== -1 || blob.indexOf("pokémon") !== -1) return "pokemon";
+    var section = String(rec.category || "").toLowerCase();
+    if (blob.indexOf("matchbox") !== -1 || rec.category === "mbsc" || section === "matchbox") return "matchbox";
+    if (blob.indexOf("pokemon") !== -1 || blob.indexOf("pokémon") !== -1 || section === "pokemon") return "pokemon";
     if (rec.kind === "golf" || rec.category === "golf") return "golf";
-    if (rec.kind === "catalog") return "hot-wheels";
+    if (rec.kind === "catalog" || section === "mattel" || section === "cars") return "hot-wheels";
     return "other";
   }
 
@@ -1246,6 +1248,7 @@
   function recordKind(rec) {
     if (rec.kind === "inventory") return "inventory";
     if (rec.kind === "golf") return "golf";
+    if (rec.kind === "market") return "market";
     return "catalog";
   }
 
@@ -1274,12 +1277,57 @@
     writeJson("hunt-recent", list);
   }
 
-  function homeResults() {
-    var hits = S.searchRecords(searchPool(), state.query).filter(function (rec) {
+  function marketRecords() {
+    var records = [];
+    (market.sections || []).forEach(function (section) {
+      (section.items || []).forEach(function (item) {
+        records.push({
+          kind: "market",
+          name: item.name,
+          notes: item.spot || "",
+          category: section.id,
+          categoryTitle: section.title || "",
+          fitness: item.verdict || "CHECK",
+          ref: item,
+        });
+      });
+    });
+    return records;
+  }
+
+  function homeSource() {
+    return searchPool().concat(marketRecords()).filter(function (rec) {
+      if (rec.kind === "inventory") return false;
       return state.category === "all" || chipOf(rec) === state.category;
     });
+  }
+
+  function verdictRank(verdict) {
+    if (verdict === "BUY") return 0;
+    if (verdict === "CHECK") return 1;
+    return 2;
+  }
+
+  function homeCards(records) {
+    var ranked = records.map(function (rec) {
+      var subject = subjectOf(recordKind(rec), recordId(rec));
+      var math = subject && window.HuntFlow ? window.HuntFlow.breakdown(subject, huntSettings()) : { verdict: "CHECK" };
+      return { rec: rec, verdict: (math && math.verdict) || "CHECK" };
+    });
+    ranked.sort(function (a, b) {
+      var d = verdictRank(a.verdict) - verdictRank(b.verdict);
+      if (d) return d;
+      return String(a.rec.name || "").localeCompare(String(b.rec.name || ""));
+    });
+    var html = ranked.map(function (row) { return flowRow(row.rec); }).filter(Boolean);
+    if (!html.length) return stateCard("no-results", "Leave it", "If it is not on the buy list, leave it.");
+    return '<div class="list" id="home-grid">' + html.join("") + "</div>";
+  }
+
+  function homeResults() {
+    var hits = S.searchRecords(homeSource(), state.query);
     if (!hits.length) return stateCard("no-results", "Leave it", "If it is not on the buy list, leave it.");
-    return '<h2 class="section-label">Results</h2><div class="list">' + hits.slice(0, 40).map(flowRow).join("") + "</div>";
+    return '<h2 class="section-label">Results</h2>' + homeCards(hits);
   }
 
   function recentHtml() {
@@ -1294,10 +1342,15 @@
 
   function homeBody() {
     if (state.query.trim()) return homeResults();
-    return recentHtml() +
+    var source = homeSource();
+    return '<h2 class="section-label">On the list</h2>' +
+      '<p class="fine">' + source.length + " items and deals</p>" +
+      homeCards(source) +
+      recentHtml() +
       '<h2 class="section-label">Dropping soon</h2>' +
       renderDropsStrip() +
-      '<button class="ghost" type="button" data-action="open-catalog">Full catalog</button>';
+      '<div class="actions"><button class="ghost" type="button" data-action="open-catalog">Full catalog</button>' +
+      '<button class="ghost" type="button" data-action="open-stores">Stores</button></div>';
   }
 
   function renderHome() {
@@ -1614,6 +1667,10 @@
     if (dirty) writeJson("hunt-alerts", list);
   }
 
+  function catalogVisible() {
+    return state.view === "archive" || (state.tab === "archive" && state.view === "root");
+  }
+
   function screenHtml() {
     if (bootError && state.tab !== "inventory" && state.tab !== "tracked" && state.tab !== "archive" && state.view !== "archive") {
       return stateCard("error", "Hunt hit a problem", bootError) + '<button class="solid" type="button" data-action="retry">Try again</button>';
@@ -1632,7 +1689,7 @@
     if (state.view === "golf") return renderGolfDetail();
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
     if (state.view === "drops" || state.tab === "drops") return renderDrops();
-    if (state.tab === "stores") return renderStores();
+    if (state.view === "stores" || state.tab === "stores") return renderStores();
     if (state.tab === "inventory" || state.tab === "tracked") return renderTracked();
     if (state.tab === "profit") return renderProfit();
     if (state.tab === "alerts") return renderAlerts();
@@ -2035,7 +2092,7 @@
     var storeBtn = event.target.closest("[data-store]");
     if (storeBtn) {
       var storeId = storeBtn.getAttribute("data-store");
-      if (state.tab === "stores") push({ view: "store", storeId: storeId });
+      if (state.tab === "stores" || state.view === "stores") push({ view: "store", storeId: storeId });
       else push({ view: "lanes", storeId: storeId });
       return;
     }
@@ -2185,6 +2242,7 @@
     if (actionName === "archive-retry") { reloadHwBook(); return; }
     if (actionName === "scan") { openScan(); return; }
     if (actionName === "open-catalog") { push({ view: "archive" }); return; }
+    if (actionName === "open-stores") { push({ view: "stores" }); return; }
     if (actionName === "open-estimate") { push({ view: "estimate" }); return; }
     if (actionName === "track-item") {
       var tracked = trackedList().filter(function (row) {
