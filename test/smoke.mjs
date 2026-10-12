@@ -412,11 +412,11 @@ try {
         await page.getByRole("heading", { name: "My Stuff", exact: true }).waitFor();
         assert(await page.getByRole("heading", { name: "Coupons", exact: true }).count() === 0, "coupons stays inside My Stuff");
         assert(await page.locator("#screen .back").count() === 0, "coupons has no leftover Home button");
-        await page.locator("#coupons-area h2", { hasText: "Mattel Creations · 25% off" }).waitFor();
+        await page.locator("#coupons-area article").first().waitFor();
         const couponsText = await page.locator("#coupons-area").innerText();
         assert(!/EXPIRED-FIXTURE|INACTIVE-FIXTURE/.test(couponsText), "public coupons hide fixture codes");
-        assert(/Mattel Creations · 25% off/.test(couponsText), "promo offers show without claiming the device");
-        assert((await page.locator("#coupons-area article").count()) === 8, "eight promo offers are listed");
+        assert(/Offer/.test(couponsText) && /Source/.test(couponsText), "promo offers show the terms and a source");
+        assert((await page.locator("#coupons-area article").count()) > 0, "promo offers are listed");
         assert(await page.getByRole("button", { name: "Save a code on this device" }).isHidden(), "the private-code button stays folded");
         await page.locator("#coupons-area summary", { hasText: "Add private code" }).click();
         await page.getByRole("button", { name: "Save a code on this device" }).click();

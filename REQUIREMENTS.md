@@ -16,7 +16,7 @@ Photos load, are centered, and appear on detail pages, with buy links. iPhone sc
 
 The legal pages name Broken Beaker Labs LC. Product photos are licensed photos only, and the cards show no logos.
 
-Coupons are private and owner-only. The coupons area shows only active codes and will auto-remove dead ones. Live codes are not stored in this public repository.
+Public promotions from official store and brand pages, and from affiliate coupon feeds, are shown in full: the offer, a publicly posted code when the page prints one, minimum spend, exclusions, eligible items, start and end dates, stacking, in-store or online, the source link, and when it was last verified. Tap a code to copy it. Codes the owner types stay owner-only on this device. The coupons area shows only active codes and will auto-remove dead ones. Leaked or private codes are not stored.
 
 The site includes an SEO blog.
 

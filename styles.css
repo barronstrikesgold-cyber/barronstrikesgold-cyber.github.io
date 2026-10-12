@@ -809,6 +809,11 @@ h2 {
 .private-code summary:focus-visible { outline-offset: 4px; }
 .private-code .digest { margin-top: 8px; }
 .private-code .tool { margin-top: 8px; }
+.promo-facts { display: grid; gap: 4px; }
+.promo-facts p { margin: 0; }
+.code-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; }
+.code-line b { letter-spacing: 0.04em; }
+.code-line .ghost { min-height: 44px; padding: 0 14px; }
 .chip {
   border: 1px solid var(--line);
   background: var(--bg-raise);

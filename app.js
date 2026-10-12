@@ -716,7 +716,9 @@
     var offers = promoOffers();
     var chips = offers && offers.length
       ? offers.map(function (row) {
-        return '<button type="button" data-action="open-coupons"><b>' + esc(row.store || "Offer") + "</b><span>" + esc(row.discount || "See the offer") + "</span></button>";
+        var detail = row.offer || row.discount || "See the offer";
+        if (row.code) detail += " · " + row.code;
+        return '<button type="button" data-action="open-coupons"><b>' + esc(row.store || "Offer") + "</b><span>" + esc(detail) + "</span></button>";
       }).join("")
       : '<button type="button" data-action="open-coupons"><b>Promos</b><span>' + (offers ? "No active promos" : "Loading promos") + "</span></button>";
     return '<section class="promo-strip" aria-label="Promos">' +
@@ -3512,6 +3514,10 @@
       if (checkedLine) checkedLine.textContent = state.note;
       return;
     }
+    if (actionName === "copy-code") {
+      copyPromoCode(actionBtn.getAttribute("data-code") || "", actionBtn);
+      return;
+    }
     if (actionName === "claim-owner") {
       try { localStorage.setItem("hunt-owner", "1"); } catch (err) {}
       state.privateCodeOpen = true;
@@ -4359,31 +4365,75 @@
     var local = readJson("hunt-coupons", []);
     var prunedLocal = window.ResellerCoupons.pruneCoupons(local, today);
     if (JSON.stringify(prunedLocal) !== JSON.stringify(local)) writeJson("hunt-coupons", prunedLocal);
-    var published = (couponFile && couponFile.codes) || [];
-    var prunedPublished = window.ResellerCoupons.pruneCoupons(published, today);
-    var shown = ownerOn() ? window.ResellerCoupons.activeCoupons(prunedPublished.concat(prunedLocal), today) : [];
+    var shown = ownerOn() ? window.ResellerCoupons.activeCoupons(prunedLocal, today) : [];
     var offers = window.ResellerCoupons.activeOffers ? window.ResellerCoupons.activeOffers((couponFile && couponFile.offers) || [], today) : [];
     var updated = '<p class="fine">Last updated ' + esc(couponFile && couponFile.updatedAt ? formatWhen(couponFile.updatedAt) : "not yet") + "</p>";
     var codeList = shown.map(function (row) {
-      return '<article class="card"><h2>' + esc(row.label || "Code") + "</h2><p>" + esc(row.code) + '</p><p class="fine">Expires ' + esc(row.expires) + "</p>" +
+      return '<article class="card"><h2>' + esc(row.label || "Private code") + "</h2>" +
+        '<p class="code-line"><b>' + esc(row.code) + '</b> <button class="ghost" type="button" data-action="copy-code" data-code="' + esc(row.code) + '">Copy</button></p>' +
+        '<p class="fine">Ends ' + esc(row.expires) + " · On this device</p>" +
         '<button class="danger" type="button" data-action="remove-coupon" data-id="' + esc(row.id) + '">Remove</button></article>';
     }).join("");
-    var offerList = offers.map(function (row) {
-      return '<article class="card"><h2>' + esc(row.label || row.store || "Offer") + "</h2><p>" + esc(row.discount || "See the official page") + "</p>" +
-        '<p class="fine">' + esc(row.store || "") + " · Expires " + esc(row.expires || "") + " · Checked " + esc(row.lastChecked ? formatWhen(row.lastChecked) : "") + "</p>" +
-        (row.sourceUrl ? '<div class="link-row">' + externalAnchor(row.sourceUrl, "Source") + "</div>" : "") + "</article>";
-    }).join("");
-    var list = (offerList || codeList) ? offerList + codeList : '<p class="fine">No active promos.</p>';
-    var privateForm = ownerOn()
-      ? '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
+    var offerList = offers.map(promoCard).join("");
+    var list = offerList || '<p class="fine">No active promos.</p>';
+    var privateForm = (ownerOn()
+      ? codeList + '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
         '<label class="field" for="coupon-code"><span>Code</span><input id="coupon-code" autocomplete="off"></label>' +
         '<label class="field" for="coupon-expires"><span>Expires</span><input id="coupon-expires" type="date"></label>' +
         '<button class="btn-primary" type="button" data-action="save-coupon">Save code</button></form>'
-      : '<p class="digest">A private code stays on this device.</p>' +
-        '<button class="btn-primary" type="button" data-action="claim-owner">Save a code on this device</button>';
+      : '<p class="digest">A private code stays on this device. It is not a public promotion.</p>' +
+        '<button class="btn-primary" type="button" data-action="claim-owner">Save a code on this device</button>');
     var gate = '<details class="private-code"' + (state.privateCodeOpen ? " open" : "") + '><summary>Add private code</summary><div class="private-code-body">' + privateForm + "</div></details>";
     return '<div id="coupons-area">' +
-      '<p class="fine">Promos from official pages. Expired offers are removed.</p>' + updated + list + gate + "</div>";
+      '<p class="fine">Public promos from official pages and affiliate feeds. Expired and broken codes are removed.</p>' + updated + list + gate + "</div>";
+  }
+
+  function promoSaid(value) {
+    var text = String(value || "").trim();
+    return text || "Not stated";
+  }
+
+  function promoCard(row) {
+    var code = String(row.code || "").trim();
+    var codeLine = code
+      ? '<p class="code-line"><b>Code</b> <b>' + esc(code) + '</b> <button class="ghost" type="button" data-action="copy-code" data-code="' + esc(code) + '">Copy</button></p>'
+      : "<p><b>Code</b> Not stated</p>";
+    var ends = row.expiryStated ? promoSaid(row.expires) : "Not stated";
+    return '<article class="card"><h2>' + esc(row.label || row.store || "Offer") + "</h2>" +
+      '<div class="promo-facts">' +
+      "<p><b>Offer</b> " + esc(promoSaid(row.offer || row.discount)) + "</p>" +
+      codeLine +
+      "<p><b>Minimum</b> " + esc(promoSaid(row.minimum)) + "</p>" +
+      "<p><b>Exclusions</b> " + esc(promoSaid(row.exclusions)) + "</p>" +
+      "<p><b>Eligible</b> " + esc(promoSaid(row.eligible)) + "</p>" +
+      "<p><b>Starts</b> " + esc(promoSaid(row.starts)) + "</p>" +
+      "<p><b>Ends</b> " + esc(ends) + "</p>" +
+      "<p><b>Stacking</b> " + esc(promoSaid(row.stacking)) + "</p>" +
+      "<p><b>Where</b> " + esc(promoSaid(row.channel)) + "</p>" +
+      "</div>" +
+      '<p class="fine">' + esc(row.store || "") + " · Last verified " + esc(row.lastChecked ? formatWhen(row.lastChecked) : "not yet") + "</p>" +
+      (row.sourceUrl ? '<div class="link-row">' + externalAnchor(row.sourceUrl, "Source") + "</div>" : "") +
+      "</article>";
+  }
+
+  function copyPromoCode(code, button) {
+    var value = String(code || "").trim();
+    if (!value) return;
+    function done() { if (button) button.textContent = "Copied"; }
+    function fallback() {
+      var input = document.createElement("input");
+      input.value = value;
+      input.setAttribute("aria-hidden", "true");
+      document.body.appendChild(input);
+      input.select();
+      try { document.execCommand("copy"); done(); } catch (err) { if (button) button.textContent = "Copy"; }
+      input.remove();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(done).catch(fallback);
+      return;
+    }
+    fallback();
   }
 
   function saveOwnerCoupon() {
