@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261012c";
+var CACHE = "reseller-shell-20261012d";
 var SHELL = [
   "./404.html",
   "./app.js",
