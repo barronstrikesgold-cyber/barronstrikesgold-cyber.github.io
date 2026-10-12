@@ -893,6 +893,21 @@ async function loadFunko() {
   }
 }
 
+function loadGames() {
+  const file = path.join(root, "data", "games.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const items = (data.items || []).map((item) => baseItem(Object.assign({
+    section: "games",
+    feed: Boolean(item.release),
+  }, blankSold("No settled sale fetched."), item, {
+    releaseLabel: item.releaseLabel || item.dateLabel || (item.release ? "" : "TBA"),
+  })));
+  return {
+    items,
+    note: data.note || "Video game releases from publisher and retailer pages. No date or price was invented.",
+  };
+}
+
 async function main() {
   const prev = loadPrevious();
   const mattel = (prev.sections || []).find((section) => section.id === "mattel");
@@ -920,6 +935,7 @@ async function main() {
     ["consoles", "Consoles", "Brands", () => loadConsoles()],
     ["matchbox", "Matchbox", "Brands", () => Promise.resolve(loadMatchbox())],
     ["mattel", "Mattel Creations", "Brands", (prevFile) => loadMattel(prevFile)],
+    ["games", "Video games", "Games", () => Promise.resolve(loadGames())],
   ];
   const sections = [];
   const sources = [];

@@ -966,7 +966,8 @@
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
       '<span class="peg-copy">' + word + '<span class="peg-name">' + esc(item.name) + "</span>" +
-      (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
+      (when ? '<span class="peg-meta">' + esc(when) + (!item.release && when !== "TBA" ? " · TBA" : "") + "</span>" : "") +
+      (item.platforms ? '<span class="peg-meta">' + esc(item.platforms) + "</span>" : "") +
       (countdown ? '<span class="peg-meta">' + esc(countdown) + "</span>" : "") +
       "</span>" +
       decisionBar("", item.verdict) +
@@ -1092,7 +1093,8 @@
       '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
       dropBlock +
       detailBuyLinks(item) +
-      (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
+      (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + (!item.release && item.releaseLabel !== "TBA" ? " · TBA" : "") + "</p></section>" : "") +
+      (item.platforms ? '<section class="tool"><p class="kicker">Platforms</p><p>' + esc(item.platforms) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
       '<section class="tool"><p class="kicker">Resale</p><p>' + esc(item.streetNote || "Ask, not a verified sale.") + "</p></section>" +
@@ -1126,6 +1128,7 @@
     if (chip === "lego") return ["lego"];
     if (chip === "funko") return ["funko"];
     if (chip === "tech") return ["apple", "consoles"];
+    if (chip === "video-games") return ["games"];
     return null;
   }
 
@@ -1140,6 +1143,7 @@
       ["lego", "LEGO"],
       ["funko", "Funko"],
       ["tech", "Tech"],
+      ["video-games", "Video games"],
       ["golf", "Golf"],
     ];
     var chip = state.catalogChip || "all";
@@ -1262,11 +1266,17 @@
     function block(row, index) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
+      var when = row.dateLabel || status;
+      var whenLine = when + (status && status !== when ? " · " + status : "");
       var photo = dropPhoto(row, false, index);
+      var facts = row.category === "Video games"
+        ? [row.format, row.printed].filter(Boolean).join(" · ")
+        : "";
       return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
         photo +
         '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
-        '<span class="peg-tell">' + esc(row.category || "") + " · " + esc(row.dateLabel) + " · " + esc(status) + "</span>" +
+        '<span class="peg-tell">' + esc(row.category || "") + " · " + esc(whenLine) + "</span>" +
+        (facts ? '<span class="peg-meta">' + esc(facts) + "</span>" : "") +
         '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
     }
     var chips = '<div class="chips category-row" role="group" aria-label="Drop category">' + categories.map(function (name) {
@@ -1296,8 +1306,8 @@
       calendarButton(item.name, item.iso, item.id) +
       '<section class="call call-' + (rule.verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(rule.verdict) + "</strong><p>" + esc(rule.tells) + "</p></section>" +
       "<p>" + esc(item.dateLabel) + " · " + esc(status) + "</p>" +
-      "<p>Format · " + esc(item.format) + "</p>" +
-      "<p>Printed · " + esc(item.printed || "unknown") + "</p>" +
+      "<p>" + (item.category === "Video games" ? "Platforms" : "Format") + " · " + esc(item.format) + "</p>" +
+      "<p>" + (item.category === "Video games" ? "MSRP" : "Printed") + " · " + esc(item.printed || "unknown") + "</p>" +
       "<p>No sold data</p>" +
       detailBuyLinks(item) +
       "<section class=\"tool\"><p class=\"kicker\">Check</p>" + allCheckLinks(item.name) + "</section>";
@@ -1849,6 +1859,7 @@
       var section = String(rec.category || "");
       if (section === "magic") return "mtg";
       if (section === "mattel") return "hot-wheels";
+      if (section === "games") return "video-games";
       if (section === "matchbox" || section === "pokemon" || section === "onepiece" || section === "lorcana" || section === "yugioh" || section === "sports" || section === "sneakers" || section === "designer" || section === "lego" || section === "funko" || section === "apple" || section === "consoles") return section;
       return "other";
     }
@@ -2049,6 +2060,7 @@
       ["funko", "Funko"],
       ["apple", "Apple/Beats"],
       ["consoles", "Consoles"],
+      ["video-games", "Video games"],
       ["golf", "Golf"],
     ];
     return offlineBanner() +
@@ -2832,6 +2844,7 @@
       funko: "Funko",
       apple: "Apple/Beats",
       consoles: "Consoles",
+      "video-games": "Video games",
       golf: "Golf",
     };
     return labels[id] || id;
