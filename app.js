@@ -68,6 +68,7 @@
     marketId: "",
     catalogChip: "all",
     stuffSegment: "watchlist",
+    privateCodeOpen: false,
   };
 
   var hwBook = { manifest: null, chunks: {}, pending: {}, years: {}, error: "", flight: null };
@@ -1201,7 +1202,7 @@
       ["alerts", "Alerts"],
       ["settings", "Settings"],
     ];
-    var chips = '<div class="chips category-row" role="group" aria-label="My Stuff">' + items.map(function (pair) {
+    var chips = '<div class="chips stuff-segments" role="group" aria-label="My Stuff">' + items.map(function (pair) {
       var on = seg === pair[0];
       return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-stuff="' + pair[0] + '">' + pair[1] + "</button>";
     }).join("") + "</div>";
@@ -3513,6 +3514,7 @@
     }
     if (actionName === "claim-owner") {
       try { localStorage.setItem("hunt-owner", "1"); } catch (err) {}
+      state.privateCodeOpen = true;
       render();
       return;
     }
@@ -4350,7 +4352,7 @@
       ensureCoupons().then(function () {
         if (couponsOnScreen()) render();
       });
-      return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' + skeletonList(2) + "</div>";
+      return '<div id="coupons-area">' + skeletonList(2) + "</div>";
     }
     if (!couponFile) loadCouponFile();
     var today = new Date().toISOString().slice(0, 10);
@@ -4372,14 +4374,15 @@
         (row.sourceUrl ? '<div class="link-row">' + externalAnchor(row.sourceUrl, "Source") + "</div>" : "") + "</article>";
     }).join("");
     var list = (offerList || codeList) ? offerList + codeList : '<p class="fine">No active promos.</p>';
-    var gate = ownerOn()
+    var privateForm = ownerOn()
       ? '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
         '<label class="field" for="coupon-code"><span>Code</span><input id="coupon-code" autocomplete="off"></label>' +
         '<label class="field" for="coupon-expires"><span>Expires</span><input id="coupon-expires" type="date"></label>' +
         '<button class="btn-primary" type="button" data-action="save-coupon">Save code</button></form>'
-      : '<p class="digest">These promos are on for this site. A private code can still be saved on this device.</p>' +
+      : '<p class="digest">A private code stays on this device.</p>' +
         '<button class="btn-primary" type="button" data-action="claim-owner">Save a code on this device</button>';
-    return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' +
+    var gate = '<details class="private-code"' + (state.privateCodeOpen ? " open" : "") + '><summary>Add private code</summary><div class="private-code-body">' + privateForm + "</div></details>";
+    return '<div id="coupons-area">' +
       '<p class="fine">Promos from official pages. Expired offers are removed.</p>' + updated + list + gate + "</div>";
   }
 

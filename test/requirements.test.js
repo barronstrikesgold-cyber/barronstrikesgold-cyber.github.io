@@ -140,7 +140,7 @@ const sections = [
   {
     name: "Coupons",
     doc: /Coupons/,
-    app: app.includes('data-action="open-coupons"') && app.includes("<h1>Coupons</h1>") && app.includes('id="coupons-area"') && app.includes("data/coupons.json") && app.includes("ResellerCoupons.activeCoupons") && app.includes("ResellerCoupons.pruneCoupons") && /ownerOn\(\)\s*\?\s*[^;\n]*ResellerCoupons\.activeCoupons/.test(app),
+    app: app.includes('data-action="open-coupons"') && app.includes('["coupons", "Coupons"]') && !app.includes("<h1>Coupons</h1>") && app.includes("Add private code") && app.includes('id="coupons-area"') && app.includes("data/coupons.json") && app.includes("ResellerCoupons.activeCoupons") && app.includes("ResellerCoupons.pruneCoupons") && /ownerOn\(\)\s*\?\s*[^;\n]*ResellerCoupons\.activeCoupons/.test(app),
     data: false,
   },
 ];

@@ -1,4 +1,4 @@
-import { saleIso, parseSwappaSales, averageSales, parseHwAverage, parseBricklinkNew, acceptProduct, hwScore } from "../scripts/market-comps.mjs";
+import { saleIso, parseSwappaSales, averageSales, parseHwAverage, parseBricklinkNew, acceptProduct, hwScore, humanSoldUrl, isApiSoldHost, tcgProductUrl } from "../scripts/market-comps.mjs";
 
 function assert(cond, msg) {
   if (!cond) {
@@ -41,5 +41,11 @@ assert(acceptProduct("BOOSTER PACK -THE DOMINANCE OF GOD- [OP-18]", "The Dominan
 assert(!acceptProduct("BOOSTER PACK -THE DOMINANCE OF GOD- [OP-18]", "The Dominance of God Booster Box"), "a booster pack is not the box");
 assert(hwScore("Hot Wheels RLC Exclusive 1993 Mazda RX-7 R1", "/item/2026-red-line-club-1993-mazda-rx-7-r1/") === 1, "RLC mazda slug matches the casting");
 assert(hwScore("'85 Porsche 911 Rally Super Chase", "/item/2025-mainlines-porsche-911-rallye/") < 0.8, "a Hot Wheels mainline is not a full Matchbox name match");
+assert(humanSoldUrl("https://infinite-api.tcgplayer.com/price/history/704143?range=month") === tcgProductUrl("704143"), "a TCGplayer history URL becomes the product page");
+assert(tcgProductUrl("704143") === "https://www.tcgplayer.com/product/704143", "the product page is the human TCGplayer URL");
+assert(isApiSoldHost("https://infinite-api.tcgplayer.com/price/history/704143?range=month"), "the history host is an API host");
+assert(isApiSoldHost("https://mp-search-api.tcgplayer.com/v1/search"), "a search API host is an API host");
+assert(!isApiSoldHost("https://www.tcgplayer.com/product/704143"), "the product page is not an API host");
+assert(!isApiSoldHost("https://www.bricklink.com/v2/catalog/catalogitem.page?S=1"), "BrickLink is not an API host");
 
 console.log("market-comps.test.mjs OK");
