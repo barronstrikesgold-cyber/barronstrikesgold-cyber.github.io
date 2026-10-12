@@ -2375,6 +2375,14 @@ function renderDrops() {
       '<button class="ghost" type="button" data-action="open-coupons">Coupons</button>' +
       '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
       '<button class="ghost" type="button" data-action="sources">Sources</button>' +
+      '<section class="tool" id="device-data"><p class="kicker">Your data</p>' +
+      '<p>There is no sign-in. These buttons use only this device.</p>' +
+      '<div class="actions">' +
+      '<button class="ghost" type="button" data-action="export-device-data">Export my data</button>' +
+      '<button class="danger" type="button" data-action="delete-device-data">Delete my data on this device</button>' +
+      "</div>" +
+      (navigator.globalPrivacyControl === true ? '<p class="fine">Your browser sent Global Privacy Control. Hunt does not sell or share personal information.</p>' : "") +
+      '<p class="fine"><a href="privacy.html">Privacy</a> · <a href="privacy.html#your-privacy-choices">Your privacy choices</a> · <a href="terms.html">Terms</a> · <a href="delete-account.html">Delete a future account</a></p></section>' +
       '<p class="legal">Broken Beaker Labs LC</p>';
   }
 
@@ -3240,6 +3248,60 @@ function renderDrops() {
       '<button class="solid full" type="button" data-action="close-sheet">Close</button>';
   }
 
+  function deviceDataKeys() {
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && (key.indexOf("hunt-") === 0 || key.indexOf("reseller-") === 0)) keys.push(key);
+      }
+    } catch (err) {
+      return keys;
+    }
+    keys.sort();
+    return keys;
+  }
+
+  function exportDeviceData() {
+    var keys = {};
+    deviceDataKeys().forEach(function (key) {
+      var raw = null;
+      try { raw = localStorage.getItem(key); } catch (err) { raw = null; }
+      if (raw == null) return;
+      var value = raw;
+      try {
+        var parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") value = parsed;
+      } catch (err) { /* keep the stored text */ }
+      keys[key] = value;
+    });
+    var stamp = "";
+    try { stamp = new Date().toISOString().slice(0, 10); } catch (err) { stamp = "export"; }
+    download("hunt-export-" + stamp + ".json", JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      device: true,
+      keys: keys,
+    }, null, 2), "application/json");
+    state.note = "Export downloaded.";
+  }
+
+  function deleteDeviceData() {
+    var seedIds = [];
+    try {
+      ((seedFile && seedFile.items) || []).forEach(function (item) {
+        if (item && item.id) seedIds.push(item.id);
+      });
+    } catch (err) {
+      seedIds = [];
+    }
+    deviceDataKeys().forEach(function (key) {
+      try { localStorage.removeItem(key); } catch (err) { /* this browser blocked storage */ }
+    });
+    invState = { version: 2, items: [], tombstones: seedIds, migratedBought: true };
+    try { Inv.write(localStorage, invState); } catch (err) { /* leave storage empty if the write fails */ }
+    try { document.documentElement.removeAttribute("data-theme"); } catch (err) { /* theme can stay */ }
+  }
+
   function download(filename, text, type) {
     var blob = new Blob([text], { type: type });
     var link = document.createElement("a");
@@ -3724,6 +3786,21 @@ function renderDrops() {
       state.stack = [];
       state.moveFocus = true;
       commitRoute("push", leavingInv, invY);
+      render();
+      return;
+    }
+    if (actionName === "export-device-data") {
+      exportDeviceData();
+      return;
+    }
+    if (actionName === "delete-device-data") {
+      openSheet("<h2>Delete my data on this device?</h2><p>This removes every hunt and reseller key in this browser, including tracked items, alerts, inventory, settings, coupons, and theme. Nothing is deleted on a server, because there is no account. Hunt then saves an empty inventory record so the starter book is not copied back.</p><button class=\"danger full\" type=\"button\" data-action=\"confirm-delete-device-data\">Delete my data on this device</button><button class=\"ghost full\" type=\"button\" data-action=\"close-sheet\">Cancel</button>");
+      return;
+    }
+    if (actionName === "confirm-delete-device-data") {
+      deleteDeviceData();
+      closeSheet();
+      state.note = "Data on this device was deleted.";
       render();
       return;
     }

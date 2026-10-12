@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Privacy · Hunt</title>
-    <meta name="description" content="Privacy notice for Hunt, operated by Broken Beaker Labs LC." />
+    <meta name="description" content="US privacy notice for Hunt, operated by Broken Beaker Labs LC." />
     <link rel="canonical" href="https://barronstrikesgold-cyber.github.io/privacy.html" />
     <link rel="stylesheet" href="pages.css" />
   </head>
@@ -12,11 +12,64 @@
     <main class="wrap">
       <a class="brand" href="./">Hunt</a>
       <h1>Privacy</h1>
-      <p>Hunt is operated by Broken Beaker Labs LC. This website stores hunt settings, tracked items, and owner coupons in the browser on this device. Those coupons are not published with the site.</p>
-      <p>The site does not run a public account. Pro checkout, when it is offered, uses Stripe on the web. Amazon affiliate links use the tag hempsply02-20. As an Amazon Associate I earn from qualifying purchases.</p>
-      <p>Product photos are shown only from a licensed host. Logo images are not used.</p>
+      <p>Hunt is operated by Broken Beaker Labs LC. This notice is for people in the United States, including California residents under the CCPA and CPRA. Hunt is not offered to people in the EU or the UK, and this notice is not a GDPR policy.</p>
+      <p>Updated October 12, 2026.</p>
+
+      <h2>What is stored on this device now</h2>
+      <p>Hunt has no account and no server copy of your hunt. What you save stays in this browser’s localStorage until you export it, delete it, or clear site data. There are no advertising or analytics cookies. The service worker cache stores the app shell so Hunt can open offline. That cache is not a profile of you.</p>
+      <p>These are the localStorage keys the app reads or writes, and what each one is for:</p>
+      <ul>
+        <li><code>hunt-tracked</code> — items you track.</li>
+        <li><code>hunt-alerts</code> — alert rules. If you type an email for a future email fallback, that address stays in this key on this device. Hunt does not send that email.</li>
+        <li><code>hunt-settings</code> — marketplace fee percent, shipping and supplies, minimum profit, and minimum sales.</li>
+        <li><code>hunt-stores</code> — stores you pick for stock alerts.</li>
+        <li><code>hunt-theme</code> — appearance: system, light, or dark.</li>
+        <li><code>hunt-recent</code> — items you opened recently on this device.</li>
+        <li><code>hunt-coupons</code> — coupons saved on this device. Owner coupons are not published with the site.</li>
+        <li><code>hunt-owner</code> — a flag that this browser turned on the owner coupon tools.</li>
+        <li><code>reseller-inventory-v2</code> — the inventory book: packages, cost, status, and sold history.</li>
+        <li><code>reseller-bought</code> — an older inventory list. Hunt reads it once and copies it into <code>reseller-inventory-v2</code>.</li>
+        <li><code>reseller-books</code> — an older inventory list. Hunt reads it once and copies it into <code>reseller-inventory-v2</code>.</li>
+        <li><code>reseller-ship</code> — the shipping amount in the profit calculator.</li>
+        <li><code>reseller-tax</code> — the optional tax amount in the profit calculator.</li>
+        <li><code>reseller-grade</code> — the grade you set on a catalog item.</li>
+        <li><code>reseller-stock</code> — on shelf, not here, or sold out marks.</li>
+        <li><code>reseller-sizes</code> — the size you set on shoes or clothes.</li>
+        <li><code>reseller-shelf</code> — a shelf price you type.</li>
+        <li><code>reseller-checked-at</code> — the time of the last refresh on this device.</li>
+        <li><code>reseller-provider-log</code> — the last source-check result stored on this device.</li>
+      </ul>
+      <p>Search text is not saved under its own key. Categories of information on this device are the identifiers you choose to type (such as an alert email), and your app activity (tracked items, alerts, inventory, and settings).</p>
+
+      <h2>Planned accounts</h2>
+      <p>Sign-in is not in this version. A later version is planned for people in the United States: Continue with Google, and an email magic link, using Supabase. Sign in with Apple comes after Broken Beaker Labs LC has an Apple Developer account. Guest use stays. You will still be able to use Hunt with nothing stored on a server.</p>
+      <p>When an account exists, the plan is to sync tracked items, inventory, alerts, and settings, plus a profile with email, an age confirmation, and whether you opted in to email. Recent items (<code>hunt-recent</code>) stay on the device. Owner coupon keys (<code>hunt-coupons</code> and <code>hunt-owner</code>) are not uploaded. A session token may then be stored in localStorage under a key that starts with <code>sb-</code>. That key is not written today.</p>
+      <p>Accounts will be for people 13 and older. Someone under 13 will not get an account, and nothing about that person will be stored on a server. Pro checkout, if it is offered, will be for people 18 and older and will use Stripe on the web.</p>
+
+      <h2 id="your-privacy-choices">Your privacy choices</h2>
+      <p>Broken Beaker Labs LC does not sell personal information. Broken Beaker Labs LC does not share personal information for cross-context behavioral advertising. You will not be treated differently for asking to know, delete, or correct your information.</p>
+      <p>Amazon links use the Associates tag <code>hempsply02-20</code>. As an Amazon Associate I earn from qualifying purchases. Hunt does not send your personal information to Amazon. After you leave Hunt, Amazon may set its own cookies on amazon.com. That commission link is not a sale of your personal information.</p>
+      <p>Hunt honors Global Privacy Control. If your browser sends the Global Privacy Control signal, Hunt treats that as an opt-out of sale and sharing. Hunt already does not sell or share personal information, so the signal does not turn on a separate tracker.</p>
+      <p>On this device, open My Stuff, then Settings. <strong>Export my data</strong> downloads a JSON file of every <code>hunt-</code> and <code>reseller-</code> key. <strong>Delete my data on this device</strong> asks you to confirm, then removes those keys. After that, Hunt keeps an empty inventory record so the starter book is not copied back onto the device.</p>
+
+      <h2>Age</h2>
+      <p>Hunt is for people 13 and older. Under the Children’s Online Privacy Protection Act (COPPA), Hunt does not knowingly collect personal information from a child under 13. There is no account to create in this version. When accounts exist, a person under 13 will stay in guest mode and nothing about them will be stored on a server.</p>
+
+      <h2>Retention</h2>
+      <p>Information in localStorage stays on this device until you delete it or clear the browser. Planned account information, once accounts exist, is kept while the account is active. A deletion request will be completed within 30 days. Backup copies, once a paid Supabase plan is in use, are planned to roll off within 7 days. An inactive account is planned to get a warning at 23 months and to be deleted at 24 months. Authentication logs are planned to be kept for 90 days. None of that account data exists yet.</p>
+
+      <h2>Access, deletion, and correction</h2>
+      <p>You can take a copy with <strong>Export my data</strong>, and you can erase this device with <strong>Delete my data on this device</strong>, both under My Stuff → Settings. For a future account, the public page <a href="delete-account.html">Delete account</a> explains what deletion will cover. You can also ask to know, delete, or correct information by email.</p>
+      <p>Privacy contact: <code>CONTACT_EMAIL</code>. TODO: replace CONTACT_EMAIL with the operator’s privacy address. Do not invent one. Hunt will respond within 45 days.</p>
+      <p>Postal address: <code>POSTAL_ADDRESS</code>. TODO: replace POSTAL_ADDRESS with the operator’s mailing address. Do not invent one.</p>
+
+      <h2>Security</h2>
+      <p>Security contact: <code>CONTACT_EMAIL</code>. TODO: replace CONTACT_EMAIL with the operator’s security address. Do not invent one. If a breach of personal information requires notice, Broken Beaker Labs LC will notify affected people, and California residents, without unreasonable delay, as state law requires.</p>
+
       <nav class="crumbs">
+        <a href="privacy.html#your-privacy-choices">Your privacy choices</a>
         <a href="terms.html">Terms</a>
+        <a href="delete-account.html">Delete account</a>
         <a href="./">Home</a>
       </nav>
     </main>
