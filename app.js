@@ -60,6 +60,7 @@
     invLimit: 24,
     homeLimit: 24,
     marketBrand: "latest",
+    fashionBrand: "all",
     marketLimit: 24,
     marketId: "",
   };
@@ -862,8 +863,9 @@
 
   function marketPhoto(item, zoom, index) {
     var src = licensedPhoto(item && item.photo);
-    if (!src) return "";
-    return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
+    if (src) return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
+    if (item && (item.section === "sneakers" || item.section === "designer")) return placeholderThumb(item.section === "sneakers" ? "sneaker" : "box");
+    return "";
   }
 
   function marketFoot(item) {
@@ -904,9 +906,10 @@
   function marketCard(item, index) {
     var when = item.releaseLabel || "";
     var photo = marketPhoto(item, false, index);
+    var word = item.brand ? '<span class="brand-word">' + esc(item.brand) + "</span>" : "";
     return '<article class="peg"><button class="peg-open is-stack' + (photo ? "" : " no-photo") + '" type="button" data-market="' + esc(item.id) + '">' +
       photo +
-      '<span class="peg-copy"><span class="peg-name">' + esc(item.name) + "</span>" +
+      '<span class="peg-copy">' + word + '<span class="peg-name">' + esc(item.name) + "</span>" +
       (when ? '<span class="peg-meta">' + esc(when) + "</span>" : "") +
       "</span>" +
       decisionBar("", item.verdict) +
@@ -914,6 +917,49 @@
       '<span class="peg-meta">' + esc(marketFoot(item)) + "</span></span></button>" +
       amazonBuyRow(item, item.verdict, []) +
       "</article>";
+  }
+
+  function fashionSection(id) {
+    return id === "sneakers" || id === "designer";
+  }
+
+  function authDisclaimer() {
+    return "Authentication: sneakers and designer pieces are widely counterfeited. A listing price is an ask, not proof the item is real or that it sold. Check the pair or the piece with a trusted authenticator before you pay or resell.";
+  }
+
+  function fashionPool(items) {
+    if (!fashionSection(state.marketBrand) || state.fashionBrand === "all") return items;
+    return items.filter(function (item) { return item.brand === state.fashionBrand; });
+  }
+
+  function brandChips(items) {
+    if (!fashionSection(state.marketBrand)) return "";
+    var brands = [];
+    items.forEach(function (item) {
+      if (item.brand && brands.indexOf(item.brand) === -1) brands.push(item.brand);
+    });
+    var buttons = '<button type="button" data-fashion-brand="all"' + (state.fashionBrand === "all" ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">All</button>" +
+      brands.map(function (brand) {
+        var on = state.fashionBrand === brand;
+        return '<button type="button" data-fashion-brand="' + esc(brand) + '"' + (on ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + esc(brand) + "</button>";
+      }).join("");
+    return '<div class="hw-lines brand-chips" role="group" aria-label="Brand">' + buttons + "</div>";
+  }
+
+  function calendarList(page) {
+    if (!page.length) return '<p class="market-note">No dated drops for this brand. Nothing was invented.</p>';
+    var html = "";
+    var last = "";
+    page.forEach(function (item, index) {
+      if ((item.release || "") !== last) {
+        if (last) html += "</div>";
+        html += '<h2 class="section-label">' + esc(item.releaseLabel || item.release || "Date not set") + "</h2>" + '<div class="list">';
+        last = item.release || "";
+      }
+      html += marketCard(item, index);
+    });
+    if (last || page.length) html += "</div>";
+    return '<div id="drop-calendar">' + html + "</div>";
   }
 
   function renderMarketList() {
@@ -930,10 +976,14 @@
       ? "Soonest release or restock from today forward. BUY needs a liquid sold whose net beats retail × 1.09 by $15. PASS loses at retail. CHECK is everything else."
       : ((current && current.note) || "");
     var items = marketPool();
-    var page = items.slice(0, state.marketLimit);
-    var body = page.length
-      ? '<div class="list">' + page.map(marketCard).join("") + "</div>"
-      : '<p class="market-note">No products on this feed. Nothing was invented.</p>';
+    var scoped = fashionPool(items);
+    var page = scoped.slice(0, state.marketLimit);
+    var body = fashionSection(state.marketBrand)
+      ? calendarList(page)
+      : (page.length
+        ? '<div class="list">' + page.map(marketCard).join("") + "</div>"
+        : '<p class="market-note">No products on this feed. Nothing was invented.</p>');
+    var auth = fashionSection(state.marketBrand) ? '<p class="auth-note">' + esc(authDisclaimer()) + "</p>" : "";
     var more = items.length > page.length
       ? '<button class="ghost hw-more" type="button" data-market-more>Show more</button>'
       : "";
@@ -941,6 +991,8 @@
     return '<p class="kicker">' + esc(kicker) + "</p>" +
       '<p class="digest">Photo, how to spot, retail, verified sold, and net. Net is sold × 0.87 − $5. BUY, PASS, or CHECK.</p>' +
       chips +
+      brandChips(items) +
+      auth +
       (note ? '<p class="fine">' + esc(note) + "</p>" : "") +
       checked +
       body + more;
@@ -957,6 +1009,12 @@
         (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
     var shop = shopHref(item);
+    var dropLinks = (item.dropUrl ? externalAnchor(item.dropUrl, "Drop") : "") + (item.raffleUrl ? externalAnchor(item.raffleUrl, "Raffle") : "");
+    var dropBlock = dropLinks ? '<section class="tool"><p class="kicker">Drop</p><div class="link-row">' + dropLinks + "</div></section>" : "";
+    var auth = item.section === "sneakers" || item.section === "designer"
+      ? '<section class="tool"><p class="kicker">Authentication</p><p>' + esc(authDisclaimer()) + "</p></section>"
+      : "";
+    var word = item.brand ? '<p class="brand-word">' + esc(item.brand) + "</p>" : "";
     var retailLink = item.retailUrl && item.retailUrl !== shop
       ? '<div class="link-row">' + externalAnchor(item.retailUrl, item.retailSource || "Retail source") + "</div>"
       : "";
@@ -965,14 +1023,17 @@
       : "";
     return '<button class="back" type="button" data-back>Drops</button>' +
       marketPhoto(item, true) +
+      word +
       "<h1>" + esc(item.name) + "</h1>" +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
       '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
+      dropBlock +
       detailBuyLinks(item) +
       (item.releaseLabel ? '<section class="tool"><p class="kicker">Release</p><p>' + esc(item.releaseLabel) + "</p></section>" : "") +
       '<section class="tool"><p class="kicker">Sold</p>' + soldBlock + "</section>" +
       '<section class="tool"><p class="kicker">Net</p><p>' + esc(netLine) + '</p><p class="fine">Net is sold × 0.87 − $5.</p></section>' +
-      '<section class="tool"><p class="kicker">Street</p><p>' + esc(item.streetNote || "No verified street price.") + "</p></section>" +
+      '<section class="tool"><p class="kicker">Resale</p><p>' + esc(item.streetNote || "Ask, not a verified sale.") + "</p></section>" +
+      auth +
       photoCredit;
   }
 
@@ -2468,8 +2529,16 @@
     var marketBrand = event.target.closest("[data-market-brand]");
     if (marketBrand) {
       state.marketBrand = marketBrand.getAttribute("data-market-brand");
+      state.fashionBrand = "all";
       state.marketLimit = 24;
       render();
+      return;
+    }
+    var fashionBrand = event.target.closest("[data-fashion-brand]");
+    if (fashionBrand) {
+      state.fashionBrand = fashionBrand.getAttribute("data-fashion-brand");
+      state.marketLimit = 24;
+      render({ keepScroll: true });
       return;
     }
     var marketBtn = event.target.closest("[data-market]");
