@@ -423,10 +423,11 @@ async function walk(browser, profile, contextOptions) {
     await page.getByRole("button", { name: /^Coupons/ }).click();
     await page.getByRole("heading", { name: "My Stuff", exact: true }).waitFor();
     if (await page.getByRole("heading", { name: "Coupons", exact: true }).count()) throw new Error("coupons repeats its own heading");
-    await page.locator("#coupons-area h2", { hasText: "Mattel Creations · 25% off" }).waitFor();
+    await page.locator("#coupons-area article").first().waitFor();
     const hidden = await page.locator("#coupons-area").innerText();
     if (/EXPIRED-FIXTURE|INACTIVE-FIXTURE/.test(hidden)) throw new Error("fixture codes are visible");
-    if ((await page.locator("#coupons-area article").count()) !== 8) throw new Error("expected eight promo offers");
+    if (!/Offer/.test(hidden) || !/Source/.test(hidden)) throw new Error("promo terms are missing");
+    if ((await page.locator("#coupons-area article").count()) < 1) throw new Error("expected promo offers");
     await page.locator("#coupons-area summary", { hasText: "Add private code" }).click();
     await page.getByRole("button", { name: "Save a code on this device" }).click();
     await page.locator("#coupon-code").fill("OWNER-DEAD");

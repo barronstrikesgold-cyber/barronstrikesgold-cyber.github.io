@@ -222,9 +222,13 @@ assert(Coupons.activeCoupons([{ code: "TODAY", active: true, expires: today }], 
 assert(Coupons.activeCoupons(sample, today).every(function (row) { return row.example !== true && row.active !== false; }), "fixtures and inactive codes stay hidden");
 
 const published = JSON.parse(read("data/coupons.json"));
-assert(published.audience === "owner", "coupons are owner-only");
-assert(Coupons.activeCoupons(published.codes, today).length === 0, "the public repo has no live coupon code");
-assert(Coupons.pruneCoupons(published.codes, today).length === 0, "published fixtures are dead and get removed");
+assert(published.audience === "public", "published promos are the public official set");
+(published.codes || []).forEach(function (row) {
+  assert(row && (row.sourceKind === "official" || row.sourceKind === "affiliate"), "a published code needs an official or affiliate source");
+  assert(/^https:\/\//.test(row.sourceUrl || ""), "a published code needs a source URL");
+  assert(row.example !== true, "a fixture code is not a public promotion");
+});
+assert(Coupons.pruneCoupons(published.codes, today).every(function (row) { return row.example !== true; }), "published fixtures are dead and get removed");
 assert(!html.includes("EXPIRED-FIXTURE") && !app.includes("EXPIRED-FIXTURE"), "fixture codes stay out of the shell");
 
 const blog = JSON.parse(read("data/blog.json"));
