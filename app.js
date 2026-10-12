@@ -252,6 +252,7 @@
       if (pack) img += ' loading="eager"';
       if (pack && pack.srcset) img += ' srcset="' + esc(pack.srcset) + '" sizes="' + esc(pack.sizes) + '"';
     }
+    if (opts.mark) img += ' data-mark="' + esc(opts.mark) + '"';
     if (!pack) img += ' data-fallback="1"';
     img += ">";
     if (opts.zoom && resolved) {
@@ -417,8 +418,10 @@
 
   function pegPhoto(item, large, index) {
     var shot = photoFor(item);
-    if (!shot) return frameHtml("", { kind: large ? "hero" : "card", note: !!large, index: index });
-    return frameHtml(shot.src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
+    var src = shot ? usablePhoto(shot.src) : "";
+    if (src) return frameHtml(src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
+    if (!large) return "";
+    return frameHtml("", { kind: "hero", note: true });
   }
 
   function decisionBar(verdict, resaleVerdict) {
@@ -803,7 +806,8 @@
 
   function heroPhoto(item) {
     var shot = photoFor(item);
-    if (shot) return frameHtml(shot.src, { alt: shot.alt, kind: "hero", zoom: true, hint: true });
+    var src = shot ? usablePhoto(shot.src) : "";
+    if (src) return frameHtml(src, { alt: shot.alt, kind: "hero", zoom: true, hint: true });
     return frameHtml("", { kind: "hero", note: true }) +
       '<div class="photo-needed" role="img" aria-label="Photo needed"><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
   }
@@ -856,7 +860,9 @@
   }
 
   function marketPhoto(item, zoom, index) {
-    return frameHtml(item && item.photo, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
+    var src = licensedPhoto(item && item.photo);
+    if (!src) return "";
+    return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
   }
 
   function marketFoot(item) {
@@ -870,7 +876,10 @@
     var found = null;
     (market.sections || []).forEach(function (section) {
       (section.items || []).forEach(function (item) {
-        if (item.id === id) found = item;
+        if (item.id === id) {
+          found = item;
+          if (!found.section) found.section = section.id;
+        }
       });
     });
     return found;
@@ -1394,7 +1403,8 @@
         sold: soldPrice,
         cost: inv.cost,
         sales: soldPrice == null ? 0 : huntSettings().minSales,
-        photo: photoFor(inv),
+        photo: licensedShot(photoFor(inv)),
+        mark: markOf("inventory", inv),
         tells: inv.notes || "",
         catalogId: inv.catalogId || "",
         buyUrl: inv.buyUrl || "",
@@ -1404,7 +1414,7 @@
       };
     }
     if (kind === "golf") {
-      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, tells: golf.note || "", buyUrl: "", retailUrl: "", amazonUrl: "" };
+      return { kind: "golf", id: id, name: id, line: "Golf", sold: null, cost: null, sales: 0, photo: null, mark: "golf", tells: golf.note || "", buyUrl: "", retailUrl: "", amazonUrl: "" };
     }
     if (kind === "market") {
       var marketItem = findMarket(id);
@@ -1417,7 +1427,8 @@
         sold: marketItem.sold,
         cost: marketItem.retail,
         sales: marketItem.nRecentSales || 0,
-        photo: marketItem.photo ? { src: marketItem.photo, alt: marketItem.name } : null,
+        photo: licensedShot({ src: marketItem.photo, alt: marketItem.name }),
+        mark: markOf("market", marketItem),
         tells: "",
         buyUrl: marketItem.buyUrl || "",
         buyLabel: marketItem.buyLabel || "",
@@ -1437,7 +1448,8 @@
       sold: resale.soldValue,
       cost: resale.retail != null ? resale.retail : item.shelfNum,
       sales: resale.nRecentSales || 0,
-      photo: item.photoMatched && item.photo ? { src: item.photo, alt: item.photoAlt || item.name } : null,
+      photo: item.photoMatched ? licensedShot({ src: item.photo, alt: item.photoAlt || item.name }) : null,
+      mark: markOf("catalog", item),
       tells: Rules.tellsFor(item),
       catalogId: item.id,
       buyUrl: item.buyUrl || "",
@@ -1445,6 +1457,75 @@
       retailUrl: item.retailUrl || resale.retailUrl || "",
       amazonUrl: item.amazonUrl || "",
     };
+  }
+
+  var PHOTO_HOSTS = {
+    "tcgplayer-cdn.tcgplayer.com": true,
+    "svgs.scryfall.io": true,
+    "cards.scryfall.io": true,
+    "c1.scryfall.io": true,
+    "images.scrydex.com": true
+  };
+
+  var MARK_LABEL = { car: "Car", card: "Card pack", sneaker: "Sneaker", golf: "Golf", device: "Device", box: "Box" };
+
+  var MARK_ICON = {
+    car: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14l2.2-5.2A2 2 0 0 1 7 7.5h10a2 2 0 0 1 1.8 1.3L21 14"/><path d="M4 14h16v3.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><circle cx="7.5" cy="16.2" r="1.1"/><circle cx="16.5" cy="16.2" r="1.1"/></svg>',
+    card: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
+    sneaker: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.5c1.8-3.2 4-5 7.2-5 2.4 0 3.6 1.4 5.3 1.4H21v2.2c0 1.2-1 2.2-2.4 2.2H5.2C3.8 16.3 3 15.5 3 15.5z"/><path d="M14 10.5v4"/></svg>',
+    golf: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V4"/><path d="M12 4.5l6.5 2.6L12 10"/><path d="M8 21h8"/></svg>',
+    device: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>',
+    box: '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/></svg>'
+  };
+
+  function usablePhoto(src) {
+    var value = String(src == null ? "" : src).trim();
+    if (!value || value === "undefined" || value === "null" || value === "#") return "";
+    if (/^javascript:/i.test(value)) return "";
+    return value;
+  }
+
+  function isLogoPhoto(src) {
+    return /\/logo(?:\/|\?|$)/i.test(src) || /(?:^|\/)logo\.(?:svg|png|jpe?g|webp)(?:\?|$)/i.test(src);
+  }
+
+  function licensedPhoto(src) {
+    var value = usablePhoto(src);
+    if (!value || isLogoPhoto(value)) return "";
+    if (!/^https?:\/\//i.test(value)) {
+      if (value.indexOf("photos/") === 0 || value.indexOf("assets/") === 0) return value;
+      return "";
+    }
+    var host = "";
+    try { host = new URL(value).hostname; } catch (err) { return ""; }
+    return PHOTO_HOSTS[host] ? value : "";
+  }
+
+  function licensedShot(shot) {
+    var src = licensedPhoto(shot && shot.src);
+    if (!src) return null;
+    return { src: src, alt: (shot && shot.alt) || "" };
+  }
+
+  function markOf(kind, item) {
+    var cat = String((item && (item.category || item.section)) || "").toLowerCase();
+    var name = String((item && item.name) || "").toLowerCase();
+    var lane = "";
+    if (kind === "catalog" && item && window.Rules && Rules.laneFor) {
+      try { lane = String(Rules.laneFor(item) || ""); } catch (err) { lane = ""; }
+    }
+    if (kind === "golf" || cat === "golf" || lane === "golf") return "golf";
+    if (cat === "sneakers" || lane === "sneakers" || /jordan|yeezy|samba|dunk|new balance|adidas/.test(name)) return "sneaker";
+    if (cat === "tech" || cat === "apple" || cat === "consoles" || lane === "tech" || /iphone|ipad|macbook|airpod|apple watch|nintendo switch|playstation|xbox/.test(name)) return "device";
+    if (cat === "sports" || cat === "pokemon" || cat === "magic" || cat === "onepiece" || cat === "lorcana" || cat === "yugioh" || lane === "sports" || lane === "pokemon" || /pokémon|pokemon|topps|panini|bowman|upper deck|prizm|booster|elite trainer|lorcana|yu-gi-oh|yugioh|one piece/.test(name)) return "card";
+    if (cat === "streetwear" || cat === "lego" || cat === "funko" || lane === "streetwear" || /lego|funko|supreme|bape/.test(name)) return "box";
+    if (cat === "cars" || cat === "mattel" || cat === "matchbox" || kind === "catalog") return "car";
+    return "box";
+  }
+
+  function placeholderThumb(mark) {
+    var key = MARK_ICON[mark] ? mark : "box";
+    return '<span class="flow-thumb is-placeholder" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + MARK_ICON[key] + "</span>";
   }
 
   function chipOf(rec) {
@@ -1466,11 +1547,13 @@
   }
 
   function flowThumb(subject, index) {
-    var photo = subject && subject.photo;
-    return frameHtml(photo && photo.src, {
-      alt: (photo && photo.alt) || (subject && subject.name) || "",
+    var src = licensedPhoto(subject && subject.photo && subject.photo.src);
+    if (!src) return placeholderThumb(subject && subject.mark);
+    return frameHtml(src, {
+      alt: (subject.photo && subject.photo.alt) || (subject && subject.name) || "",
       kind: "flow",
       index: index,
+      mark: (subject && subject.mark) || "box",
     });
   }
 
@@ -2272,16 +2355,19 @@
   }
 
   function openZoom(src, alt) {
-    var img = document.getElementById("zoom-img");
-    img.referrerPolicy = "no-referrer";
-    img.src = catalogSrc(src) || "assets/states/photo-needed.svg";
-    img.alt = alt || "";
+    var frame = document.getElementById("zoom-frame");
+    var safe = usablePhoto(src);
+    if (!frame || !safe) return;
+    var shown = /^https?:\/\//i.test(safe) ? safe.replace(/^http:\/\//i, "https://") : catalogSrc(safe);
+    if (!usablePhoto(shown)) shown = "assets/states/photo-needed.svg";
+    frame.innerHTML = '<img id="zoom-img" alt="' + esc(alt || "") + '" referrerpolicy="no-referrer" src="' + esc(shown) + '">';
     if (!zoom.open) zoom.showModal();
   }
 
   function closeZoom() {
     if (zoom.open) zoom.close();
-    document.getElementById("zoom-img").removeAttribute("src");
+    var frame = document.getElementById("zoom-frame");
+    if (frame) frame.innerHTML = "";
   }
 
   function stopCamera() {
@@ -2326,6 +2412,11 @@
     if (img.closest && !img.closest("#screen, .lightbox, .sheet")) return;
     img.setAttribute("data-fallback", "1");
     img.removeAttribute("srcset");
+    var flow = img.closest && img.closest(".flow-thumb");
+    if (flow) {
+      flow.outerHTML = placeholderThumb(img.getAttribute("data-mark"));
+      return;
+    }
     img.src = "assets/states/photo-needed.svg";
   }, true);
 

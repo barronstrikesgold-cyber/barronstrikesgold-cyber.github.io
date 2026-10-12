@@ -1,0 +1,106 @@
+{
+  "policy": "Home shows a product photo only when licenses lists that image host with written true. Logo URLs are never shown. Every other card uses a category placeholder. Photos are hotlinked, not copied into this repo.",
+  "operator": "Broken Beaker Labs LC",
+  "licenses": [
+    {
+      "id": "tcgplayer",
+      "source": "TCGplayer",
+      "kind": "product",
+      "written": true,
+      "terms": "TCGplayer API Terms allow an application to display content the API makes available. The app must say it uses TCGplayer data and is not endorsed or certified by TCGplayer, and it must link to the product page. Hunt hotlinks tcgplayer-cdn.tcgplayer.com and does not rehost the files.",
+      "termsUrl": "https://help.tcgplayer.com/hc/en-us/articles/360061115874-TCGplayer-API-Terms-Conditions",
+      "hosts": ["tcgplayer-cdn.tcgplayer.com"],
+      "items": [
+        "pk-tcg-644279",
+        "pk-tcg-648394",
+        "pk-tcg-644282",
+        "pk-tcg-648415",
+        "pk-tcg-539385",
+        "pk-tcg-236379",
+        "pk-tcg-623029",
+        "pk-tcg-575294",
+        "pk-tcg-616302",
+        "pk-tcg-616301",
+        "pk-tcg-532030",
+        "pk-tcg-532027",
+        "funko-138728",
+        "funko-136248",
+        "funko-146791",
+        "funko-159348",
+        "funko-167490",
+        "funko-524236",
+        "funko-154140",
+        "funko-139376"
+      ]
+    },
+    {
+      "id": "scryfall",
+      "source": "Scryfall",
+      "kind": "product",
+      "written": true,
+      "terms": "Scryfall publishes Magic imagery for Magic software under its API image guidelines and the Wizards of the Coast Fan Content Policy. Hunt hotlinks the Scryfall URL, does not rehost it, and does not crop, recolor, or watermark it.",
+      "termsUrl": "https://scryfall.com/docs/api",
+      "hosts": ["svgs.scryfall.io", "cards.scryfall.io", "c1.scryfall.io"],
+      "items": [
+        "magic-fra",
+        "magic-frc",
+        "magic-mbc",
+        "magic-trk",
+        "magic-trc",
+        "magic-nau",
+        "magic-mdc",
+        "magic-mdd"
+      ]
+    },
+    {
+      "id": "scrydex",
+      "source": "Scrydex",
+      "kind": "product",
+      "written": true,
+      "terms": "Scrydex best practices allow an application to show card images from the image URLs the API returns. Scrydex does not own the photographs. Hunt does not show logo URLs from this host.",
+      "termsUrl": "https://scrydex.com/docs/getting-started/best-practices",
+      "hosts": ["images.scrydex.com"],
+      "exclude": "logo",
+      "items": []
+    }
+  ],
+  "withheld": [
+    {
+      "host": "images.scrydex.com",
+      "items": ["pkset-me55", "pkset-me55c"],
+      "reason": "The stored URLs are logo images. Hunt does not show brand logos."
+    },
+    {
+      "host": "static.nike.com",
+      "reason": "No written license on file for Nike product photos."
+    },
+    {
+      "host": "www.lego.com",
+      "reason": "No written license on file for LEGO product photos."
+    },
+    {
+      "host": "store.storeimages.cdn-apple.com",
+      "reason": "No written license on file for Apple product photos."
+    },
+    {
+      "host": "assets.nintendo.com",
+      "reason": "No written license on file for Nintendo product photos."
+    },
+    {
+      "host": "cdn.shopify.com",
+      "reason": "Mattel Creations files are hotlinked without a written license on file."
+    },
+    {
+      "host": "www.yugioh-card.com",
+      "reason": "No written license on file for Yu-Gi-Oh! product photos."
+    },
+    {
+      "host": "www.disneylorcana.com",
+      "reason": "No written license on file for Disney Lorcana product photos."
+    },
+    {
+      "host": "photos/",
+      "reason": "First-party files and rejected stand-ins have no affiliate or brand license on file. Category rows such as sports boxes, sneakers, golf brands, and generic castings stay on the placeholder."
+    }
+  ]
+}

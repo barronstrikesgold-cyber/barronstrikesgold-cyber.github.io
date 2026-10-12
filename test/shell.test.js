@@ -87,9 +87,22 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261012a"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261011j"), "previous shell cache is retired");
-assert(!sw.includes("reseller-shell-20261011h"), "main shell cache is retired");
+assert(sw.includes("reseller-shell-20261012b"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261012a"), "previous shell cache is retired");
+assert(sw.includes("png|jpe?g|webp|gif|svg|avif"), "same-origin images bypass the http cache");
+assert(app.includes("is-placeholder"), "missing photos use a category placeholder");
+assert(app.includes("function licensedPhoto"), "product photos require a licensed host");
+assert(!html.includes('id="zoom-img"'), "the page does not ship an image with an empty src");
+assert(html.includes("This product uses TCGplayer data but is not endorsed or certified by TCGplayer."), "tcgplayer notice is on the page");
+const sources = JSON.parse(fs.readFileSync(path.join(root, "images/SOURCES.json"), "utf8"));
+assert(sources.operator === "Broken Beaker Labs LC", "photo licenses name the operator");
+assert(Array.isArray(sources.licenses) && sources.licenses.length > 0, "photo licenses are on file");
+sources.licenses.forEach((license) => {
+  assert(license.written === true, license.id + " license is written");
+  (license.hosts || []).forEach((host) => {
+    assert(app.includes(host), "app allows licensed host " + host);
+  });
+});
 assert(sw.includes("./lib/flow.js"), "flow helper is in the shell");
 assert(app.includes('id="home-grid"'), "home lists the hunt grid");
 assert(app.includes('data-action="open-stores"'), "stores stay reachable from home");

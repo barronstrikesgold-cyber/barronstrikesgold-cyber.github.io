@@ -226,7 +226,7 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
 }
 
 .screen {
-  padding: 18px 16px calc(var(--tab-h) + 88px);
+  padding: 18px 16px calc(var(--tab-h) + 120px);
   scroll-padding-bottom: calc(var(--tab-h) + 72px);
   display: flex;
   flex-direction: column;
@@ -1008,10 +1008,16 @@ h2 {
   object-fit: contain;
   object-position: center center;
 }
-.flow-thumb.is-empty {
+.flow-thumb.is-empty,
+.flow-thumb.is-placeholder {
   display: grid;
   place-items: center;
+  padding: 0;
+  color: var(--ink);
+  background: var(--ghost);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
+.flow-thumb.is-placeholder svg { width: 22px; height: 22px; display: block; opacity: 0.78; }
 .pill { font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 999px; flex: none; }
 .pill-buy { background: rgba(8, 116, 67, 0.16); color: var(--ok); }
 .pill-check { background: rgba(122, 86, 0, 0.16); color: var(--gold); }
