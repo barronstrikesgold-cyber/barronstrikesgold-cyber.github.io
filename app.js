@@ -1732,14 +1732,18 @@
         kind: "market",
         id: marketItem.id,
         name: marketItem.name,
-        line: marketItem.section || "Market",
+        line: marketItem.section === "games" ? "Video games" : (marketItem.section || "Market"),
         sold: marketItem.sold,
         cost: marketItem.retail,
         sales: marketItem.nRecentSales || 0,
         photo: licensedShot({ src: marketItem.photo, alt: marketItem.name }),
         mark: markOf("market", marketItem),
-        tells: "",
-        buyUrl: marketItem.buyUrl || "",
+        tells: marketItem.section === "games" ? (marketItem.spot || "") : "",
+        release: marketItem.release || "",
+        releaseLabel: marketItem.section === "games" ? (marketItem.releaseLabel || "") : "",
+        platforms: marketItem.platforms || "",
+        retailLabel: marketItem.section === "games" ? (marketItem.retailLabel || "") : "",
+        buyUrl: marketItem.buyUrl || (marketItem.section === "games" ? marketItem.retailUrl : "") || "",
         buyLabel: marketItem.buyLabel || "",
         retailUrl: marketItem.retailUrl || "",
         amazonUrl: marketItem.amazonUrl || "",
@@ -1916,9 +1920,11 @@
     var subject = subjectOf(kind, id);
     if (!subject) return "";
     var math = window.HuntFlow.breakdown(subject, huntSettings());
+    var sub = rowSubtitle(math);
+    if (subject.platforms) sub = [subject.releaseLabel || "TBA", subject.platforms, sub].filter(Boolean).join(" · ");
     return '<button class="flow-row" type="button" data-open-verdict="' + esc(kind) + '" data-open-id="' + esc(id) + '">' +
       flowThumb(subject, index) +
-      '<span class="flow-copy"><b>' + esc(subject.name) + "</b><span>" + esc(rowSubtitle(math)) + "</span></span>" +
+      '<span class="flow-copy"><b>' + esc(subject.name) + "</b><span>" + esc(sub) + "</span></span>" +
       flowPill(math.verdict) + "</button>";
   }
 
@@ -2096,6 +2102,9 @@
       frameHtml(subject.photo && subject.photo.src, { alt: subject.name, kind: "hero", zoom: true, hint: true }) +
       "<h1>" + esc(subject.name) + "</h1>" +
       (subject.line ? '<p class="fine">' + esc(subject.line) + "</p>" : "") +
+      (subject.releaseLabel ? "<p>" + esc(subject.releaseLabel) + (!subject.release && subject.releaseLabel !== "TBA" ? " · TBA" : "") + "</p>" : "") +
+      (subject.platforms ? "<p>Platforms · " + esc(subject.platforms) + "</p>" : "") +
+      (subject.retailLabel ? "<p>MSRP · " + esc(subject.retailLabel) + "</p>" : "") +
       '<p class="verdict-word is-' + word + '">' + esc(math.verdict) + "</p>" +
       (math.profit == null ? "" : '<p class="profit-hero">' + esc(signedMoney(math.profit)) + " profit</p>") +
       '<p class="fine">' + esc(evidence) + "</p></section>" +
