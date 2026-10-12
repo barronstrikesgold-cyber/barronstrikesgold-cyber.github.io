@@ -415,17 +415,18 @@ async function walk(browser, profile, contextOptions) {
     await page.getByRole("heading", { name: "What did you find?" }).waitFor();
   });
 
-  await check(page, profile, "Coupons stay private", [
+  await check(page, profile, "Promos are visible and codes stay private", [
     "Open Home and tap Coupons.",
-    "Expect no published codes.",
-    "Claim the device, save an expired code, then a future code, then remove it.",
+    "Expect the published promo offers and no fixture codes.",
+    "Save a code on this device, save an expired code, then a future code, then remove it.",
   ], async () => {
     await page.getByRole("button", { name: /^Coupons/ }).click();
     await page.getByRole("heading", { name: "Coupons", exact: true }).waitFor();
-    await page.getByText("No active codes.").waitFor();
+    await page.locator("#coupons-area h2", { hasText: "Mattel Creations · 25% off" }).waitFor();
     const hidden = await page.locator("#coupons-area").innerText();
     if (/EXPIRED-FIXTURE|INACTIVE-FIXTURE/.test(hidden)) throw new Error("fixture codes are visible");
-    await page.getByRole("button", { name: "This device is the owner" }).click();
+    if ((await page.locator("#coupons-area article").count()) !== 8) throw new Error("expected eight promo offers");
+    await page.getByRole("button", { name: "Save a code on this device" }).click();
     await page.locator("#coupon-code").fill("OWNER-DEAD");
     await page.locator("#coupon-expires").fill("2020-01-01");
     await page.getByRole("button", { name: "Save code" }).click();

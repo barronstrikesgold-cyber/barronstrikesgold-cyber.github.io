@@ -299,6 +299,39 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
   align-self: center;
   color: var(--gold);
 }
+.promo-strip { display: grid; gap: 8px; margin: 12px 0; }
+.promo-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.promo-head .kicker { color: var(--drops-kicker); margin: 0; }
+.promo-head button {
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  font-weight: 800;
+}
+.promo-row {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x mandatory;
+}
+.promo-row button {
+  flex: none;
+  scroll-snap-align: start;
+  min-width: 148px;
+  min-height: 72px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 77, 0, 0.45);
+  background: var(--card);
+  color: var(--ink);
+  text-align: left;
+}
+.promo-row b { display: block; font-size: 0.95rem; }
+.promo-row span { display: block; margin-top: 4px; color: var(--muted); font-size: 0.85rem; }
 .home-destinations { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .home-destinations button {
   text-align: left;
@@ -1160,6 +1193,18 @@ dialog:not([open]) { display: none !important; }
   border-radius: 0;
 }
 .flow-thumb.is-wide svg { width: 42px; height: 42px; }
+.flow-thumb.is-art {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.flow-thumb.is-wide.is-art svg,
+.flow-thumb.is-art .art-scene {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  display: block;
+}
 .photo-frame.market-photo,
 .photo-frame.photo-frame-hero,
 .photo-frame.hero-photo {

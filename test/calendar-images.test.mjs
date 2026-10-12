@@ -77,6 +77,7 @@ assert(app.includes("function dropPhoto") && app.includes("dropPhoto(row, false,
 assert(app.includes("marketPhoto(item, false, index)") && app.includes("marketPhoto(item, true)"), "market rows and the detail card share marketPhoto");
 assert(app.includes('loading="lazy"') && app.includes('referrerpolicy="no-referrer"'), "calendar images lazy-load and omit the referrer");
 assert(app.includes("function placeholderThumb"), "missing photos use a category placeholder");
+assert(app.includes("function categoryArt") && app.includes("is-art"), "wide placeholders are branded category art");
 assert(!/img \+= ' data-src=/.test(app), "lazy images are not left without a src");
 
 console.log("calendar images ok", { total: rows.length, hosted, localWebp, localOther, hotlink, placeholder });

@@ -44,9 +44,16 @@ assert(Coupons.activeOffers([{ ...offers[0], code: "SAVE20" }], today).length ==
 
 const published = JSON.parse(fs.readFileSync(path.join(root, "data/coupons.json"), "utf8"));
 assert(Coupons.activeCoupons(published.codes, today).length === 0, "the public repo has no live coupon code");
+assert((published.offers || []).length === 8, "eight promo offers are published");
+assert(Coupons.activeOffers(published.offers, today).length === 8, "all eight offers are active on the audit date");
 assert(!(published.offers || []).some((row) => row && String(row.code || "").trim()), "published offers do not contain code strings");
 assert(fs.readFileSync(path.join(root, ".github/workflows/refresh-coupons.yml"), "utf8").includes('cron: "0 */6 * * *"'), "coupons refresh every 6 hours");
-assert(fs.readFileSync(path.join(root, "app.js"), "utf8").includes("Last updated"), "the coupons screen shows last updated");
+const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
+assert(app.includes("Last updated"), "the coupons screen shows last updated");
+assert(app.includes("function renderPromoStrip"), "promos have a strip");
+assert(app.includes("renderPromoStrip()"), "the promo strip is rendered");
+assert(/var offers = window\.ResellerCoupons\.activeOffers/.test(app), "promo offers show without the owner gate");
+assert(/ownerOn\(\)\s*\?\s*[^;\n]*ResellerCoupons\.activeCoupons/.test(app), "saved codes stay owner-only");
 
 const self = pathToFileURL(path.join(root, "scripts/refresh-coupons.mjs")).href;
 assert(self.includes("refresh-coupons.mjs"), "coupon refresh module is wired");
