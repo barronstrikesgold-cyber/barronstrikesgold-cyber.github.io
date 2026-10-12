@@ -803,6 +803,11 @@
 
   function renderStores() {
     var back = state.view === "stores" ? '<button class="back" type="button" data-back>Home</button>' : "";
+    if (!stores.length) {
+      if (!huntLoaded) return back + "<h1>Stores</h1>" + skeletonList(4);
+      return back + "<h1>Stores</h1>" + stateCard("error", "Stores didn't load", "The store list came back empty.") +
+        '<button class="solid" type="button" data-action="retry">Try again</button>';
+    }
     return back + "<h1>Stores</h1>" + offlineBanner() +
       '<p class="digest">Pick a store to open its buy list in this app.</p>' +
       restockNote() +
@@ -2354,6 +2359,20 @@
     return renderHome();
   }
 
+  function paintedScreen() {
+    var html = "";
+    try {
+      html = screenHtml();
+    } catch (err) {
+      html = "";
+    }
+    if (!html || !String(html).replace(/\s/g, "")) {
+      return stateCard("error", "This page didn't load", "The screen came back empty. Try again.") +
+        '<button class="solid" type="button" data-action="retry">Try again</button>';
+    }
+    return html;
+  }
+
   function paintDataStatus() {
     var live = document.getElementById("status-live");
     if (!live || !window.ResellerHuntDrops) return;
@@ -2372,15 +2391,14 @@
       parkedScan = liveScan;
       parkedScan.remove();
     }
-    screen.innerHTML = screenHtml();
+    screen.innerHTML = paintedScreen();
     if (parkedScan) {
       var scanSlot = document.getElementById("scan-video");
       if (scanSlot) scanSlot.replaceWith(parkedScan);
     }
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
-      var current = state.tab === "hunt" ? "home" : state.tab === "drops" ? "calendar" : state.tab;
-      if (current === "tracked" || current === "inventory" || current === "alerts" || current === "account" || current === "profit") current = "stuff";
+      var current = activeTab();
       var on = btn.getAttribute("data-tab") === current;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
@@ -2431,6 +2449,29 @@
     window.scrollTo(0, keepY);
     observeLazy(screen);
     observeHomeMore();
+    dismissStaleOverlay();
+  }
+
+  var overlayRoute = "";
+
+  function dismissStaleOverlay() {
+    var key = (state.tab || "") + ":" + (state.view || "");
+    if (overlayRoute && overlayRoute !== key) {
+      var sheetEl = document.getElementById("sheet");
+      var zoomEl = document.getElementById("zoom");
+      if (sheetEl && sheetEl.open) closeSheet();
+      if (zoomEl && zoomEl.open) closeZoom();
+    }
+    overlayRoute = key;
+  }
+
+  function activeTab() {
+    var current = state.tab;
+    if (state.view === "stores" || state.view === "lanes" || state.view === "store" || state.view === "lane" || current === "stores" || current === "hunt") return "home";
+    if (state.view === "archive" || current === "archive") return "catalog";
+    if (state.view === "estimate" || state.view === "coupons" || current === "profit" || current === "tracked" || current === "inventory" || current === "alerts" || current === "account") return "stuff";
+    if (current === "drops") return "calendar";
+    return current;
   }
 
   function observeHomeMore() {
@@ -2558,7 +2599,7 @@
       return;
     }
     if (head === "account") { state.tab = "stuff"; state.stuffSegment = "settings"; return; }
-    if (head === "hw") { state.tab = "catalog"; state.view = "archive"; return; }
+    if (head === "hw" || head === "archive") { state.tab = "catalog"; state.view = "archive"; return; }
     if (head === "catalog") {
       state.tab = "catalog";
       if (parts[1] === "hot-wheels") { state.view = "archive"; return; }
@@ -2597,9 +2638,11 @@
       state.homeLimit = 24;
       return;
     }
-    if (head === "profit") { state.tab = "home"; state.view = "estimate"; return; }
+    if (head === "profit") { state.tab = "stuff"; state.stuffSegment = "profit"; state.view = "estimate"; return; }
+    if (head === "inventory") { state.tab = "stuff"; state.stuffSegment = "inventory"; state.view = "root"; return; }
+    if (head === "hunt") { state.tab = "home"; state.view = "root"; return; }
     if (head === "blog") { state.tab = "home"; state.view = "blog"; return; }
-    if (head === "coupons") { state.tab = "home"; state.view = "coupons"; return; }
+    if (head === "coupons") { state.tab = "stuff"; state.stuffSegment = "coupons"; state.view = "root"; return; }
     if (head === "item" && parts[1]) {
       var kind = parts[2] ? decodePart(parts[1]) : "catalog";
       var id = parts[2] ? decodePart(parts[2]) : decodePart(parts[1]);
@@ -2809,6 +2852,7 @@
   }
 
   function setTab(tab) {
+    var nextView = "root";
     if (tab === "tracked" || tab === "inventory") {
       state.stuffSegment = tab === "inventory" ? "inventory" : "watchlist";
       tab = "stuff";
@@ -2818,15 +2862,26 @@
     } else if (tab === "account" || tab === "profit") {
       state.stuffSegment = tab === "profit" ? "profit" : "settings";
       tab = "stuff";
+    } else if (tab === "coupons") {
+      state.stuffSegment = "coupons";
+      tab = "stuff";
     } else if (tab === "drops") {
       tab = "calendar";
+    } else if (tab === "stores") {
+      tab = "home";
+      nextView = "stores";
+    } else if (tab === "archive") {
+      tab = "catalog";
+      nextView = "archive";
+    } else if (tab === "hunt") {
+      tab = "home";
     }
     if (state.tab === "scan" && tab !== "scan" && stream) stopCamera();
     var leaving = snapNow();
     var y = window.scrollY;
     state.stack = [];
     state.tab = tab;
-    state.view = "root";
+    state.view = nextView;
     state.query = "";
     state.category = "all";
     state.lane = "";
@@ -3400,7 +3455,7 @@
     }
     if (actionName === "save-coupon") { saveOwnerCoupon(); return; }
     if (actionName === "remove-coupon") { removeOwnerCoupon(actionBtn.getAttribute("data-id")); return; }
-    if (actionName === "open-estimate") { push({ view: "estimate" }); return; }
+    if (actionName === "open-estimate") { push({ tab: "stuff", stuffSegment: "profit", view: "estimate" }); return; }
     if (actionName === "track-item") {
       var tracked = trackedList().filter(function (row) {
         return !(row.kind === state.itemKind && row.id === state.itemId);
