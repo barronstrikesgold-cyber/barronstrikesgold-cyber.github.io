@@ -87,9 +87,15 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261012d"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261012c"), "previous shell cache is retired");
-assert(css.includes("position: sticky; top: 0; z-index: 40"), "header stays pinned");
+assert(sw.includes("reseller-shell-20261012e"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261012d"), "previous shell cache is retired");
+assert(css.includes("position: fixed; top: 0; z-index: 40"), "header stays pinned");
+assert(css.includes("padding-top: calc(56px + env(safe-area-inset-top))"), "content clears the fixed header");
+assert(html.includes('href="#/home"'), "wordmark links home");
+assert(html.includes('id="header-back"'), "sub-views get a header back button");
+assert(app.includes("popstate"), "back navigation listens for history");
+assert(app.includes('"#/calendar"'), "calendar has a route");
+assert(app.includes('"#/item/"'), "items have a route");
 assert(html.includes("© 2026 Broken Beaker Labs LC"), "footer names the operator");
 assert(sw.includes("png|jpe?g|webp|gif|svg|avif"), "same-origin images bypass the http cache");
 assert(app.includes("is-placeholder"), "missing photos use a category placeholder");
