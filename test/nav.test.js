@@ -42,5 +42,17 @@ assert(app.includes("function couponsOnScreen"), "coupons repaint when My Stuff 
 assert(app.includes("Just added") && app.includes("freshInvId"), "a new purchase stays visible on the inventory list");
 assert(css.includes("#scan-video"), "the scan tab preview uses the same frame as the sheet");
 assert(app.includes("scanBooting") && app.includes("parkedScan"), "a refresh does not restart an open camera");
+assert(app.includes("function activeTab"), "the highlighted tab follows the screen");
+assert(app.includes('head === "hw" || head === "archive"'), "archive deep links open the Hot Wheels book");
+assert(app.includes('head === "inventory"'), "inventory deep links open My Stuff");
+assert(app.includes('head === "hunt"'), "hunt deep links open Home");
+assert(app.includes('state.stuffSegment = "profit"'), "profit deep links open My Stuff");
+assert(app.includes('state.stuffSegment = "coupons"'), "coupon deep links open My Stuff");
+assert(app.includes("function paintedScreen"), "a blank screen shows an error instead of an empty page");
+assert(app.includes("Stores didn't load"), "stores show an error when the list is empty");
+assert(app.includes("function dismissStaleOverlay"), "a route change closes a leftover sheet");
+assert(css.includes("dialog:not([open])") && css.includes("display: none !important"), "a closed dialog cannot cover the page");
+assert(css.includes(".lightbox[open]"), "the photo lightbox only grids when it is open");
+assert(css.includes(".topbar.is-sub .brand-copy"), "a narrow subview header gives the search field room");
 
 console.log("nav.test.js OK");
