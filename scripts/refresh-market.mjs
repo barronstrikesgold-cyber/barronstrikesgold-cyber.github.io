@@ -359,7 +359,7 @@ async function loadDesigner() {
   const today = new Date().toISOString().slice(0, 10);
   const end = addDays(today, 70);
   const items = designerPrograms(today, end).map((row) => fashionItem("designer", row));
-  const note = "Supreme Thursdays, the Kith Monday program, and Palace Friday drops for the next 70 days. " +
+  const note = "Streetwear: Supreme Thursdays, the Kith Monday program, and Palace Friday drops for the next 70 days. " +
     WATCHED_WITHOUT_DATES.join(", ") +
     " had no dated public drop in that window, so no SKU was invented. " + AUTH_DISCLAIMER;
   return { items, note };

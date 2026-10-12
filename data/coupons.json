@@ -1,0 +1,22 @@
+{
+  "audience": "owner",
+  "note": "Live coupon codes are not stored in this public repository. The rows below are dead fixtures so the coupons area can prove it hides them and removes them.",
+  "codes": [
+    {
+      "id": "expired-fixture",
+      "label": "Expired fixture",
+      "code": "EXPIRED-FIXTURE",
+      "active": true,
+      "expires": "2020-01-01",
+      "example": true
+    },
+    {
+      "id": "inactive-fixture",
+      "label": "Inactive fixture",
+      "code": "INACTIVE-FIXTURE",
+      "active": false,
+      "expires": "2099-12-31",
+      "example": true
+    }
+  ]
+}
