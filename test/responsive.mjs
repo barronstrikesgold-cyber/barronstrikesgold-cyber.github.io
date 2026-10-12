@@ -115,9 +115,9 @@ try {
         assert(info.wordmark === "Hunt", `${name} ${width} ${theme} wordmark`);
         assert(info.theme === theme, `${name} ${width} ${theme} data-theme is ${info.theme}`);
         assert(!info.overflow, `${name} ${width} ${theme} horizontal overflow`);
-        const side = info.tabW < info.viewW * 0.45 && Math.abs(info.tabX - info.appX) <= 2 && info.tabH > info.viewH * 0.7;
+        const top = info.tabW > info.viewW * 0.8 && info.tabY < 160 && info.tabH < 100;
         const bottom = info.tabW > info.viewW * 0.8 && info.tabY > info.viewH * 0.55;
-        if (width >= 1024) assert(side, `${name} ${width} ${theme} side nav (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabX)},${Math.round(info.tabY)})`);
+        if (width >= 1024) assert(top, `${name} ${width} ${theme} top nav (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabX)},${Math.round(info.tabY)})`);
         else assert(bottom, `${name} ${width} ${theme} bottom tabs (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabY)})`);
         const expectedCols = width >= 1440 ? 4 : width >= 1100 ? 3 : width >= 700 ? 2 : 1;
         assert(info.columns === expectedCols, `${name} ${width} ${theme} grid columns ${info.columns} expected ${expectedCols}`);
@@ -133,10 +133,11 @@ try {
       await page.getByRole("button", { name: "Set price alert" }).waitFor();
       assert(await page.locator(".verdict-word").innerText() !== "", `${name} ${theme} verdict word`);
       await page.getByRole("button", { name: "Track this item" }).click();
+      await page.getByRole("heading", { name: "My Stuff" }).waitFor();
       await page.getByRole("heading", { name: "Tracked" }).waitFor();
       await page.getByRole("tab", { name: /Bought/ }).click();
       await page.locator("#bought-summary").waitFor();
-      await page.getByRole("tab", { name: "Account" }).click();
+      await page.getByRole("button", { name: "Settings", exact: true }).click();
       await page.getByText("Broken Beaker Labs LC", { exact: true }).waitFor();
       await page.getByRole("button", { name: theme === "dark" ? "Light" : "Dark" }).click();
       const flipped = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));

@@ -96,13 +96,13 @@ try {
     await page.getByRole("heading", { name: "What did you find?" }).waitFor();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert(!overflow, `horizontal overflow at ${width}`);
-    const tabs = ["Home", "Tracked", "Alerts", "Account"];
+    const tabs = ["Home", "Drops & Calendar", "Catalog", "Scan", "My Stuff"];
     for (const name of tabs) {
       const tab = page.getByRole("tab", { name, exact: true });
       await tab.click();
       assert(await tab.getAttribute("aria-selected") === "true", `${name} selected at ${width}`);
     }
-    await page.getByRole("tab", { name: "Tracked", exact: true }).click();
+    await page.getByRole("tab", { name: "My Stuff", exact: true }).click();
     await page.getByRole("tab", { name: /Bought/ }).click();
     await page.locator("[data-inv]").first().waitFor();
     for (let step = 0; step < 6 && (await page.locator("[data-inv]").count()) < 78; step++) {
@@ -131,8 +131,9 @@ try {
       await page.locator("#status-live").getByText("Updated just now").waitFor();
       assert(await page.locator("#update-banner").isHidden(), "update banner stays hidden until a new shell is waiting");
       await strip.click();
-      await page.getByRole("heading", { name: "Calendar" }).waitFor();
-      await page.getByRole("tab", { name: "Account", exact: true }).click();
+      await page.getByRole("heading", { name: "Drops & Calendar" }).waitFor();
+      await page.getByRole("tab", { name: "My Stuff", exact: true }).click();
+      await page.getByRole("button", { name: "Settings", exact: true }).click();
       await page.getByRole("heading", { name: "Where are you?" }).waitFor();
       await page.locator(".store-pick").filter({ hasText: "Walmart" }).click();
       await page.getByRole("heading", { name: "Walmart", exact: true }).waitFor();
@@ -289,7 +290,8 @@ try {
       await page.locator("#home-grid").getByRole("button", { name: /Black Nissan Skyline/ }).waitFor();
       assert(await page.locator("#home-grid").getByRole("button", { name: /Skyline/ }).count() >= 1, "home search filters the deal grid");
       await page.locator("#hunt-q").fill("");
-      await page.getByRole("tab", { name: "Account", exact: true }).click();
+      await page.getByRole("tab", { name: "My Stuff", exact: true }).click();
+      await page.getByRole("button", { name: "Settings", exact: true }).click();
       await page.locator(".store-pick").filter({ hasText: "Target" }).click();
       await page.getByRole("heading", { name: "Target", exact: true }).waitFor();
       await page.locator("button.lane-card").first().waitFor();
@@ -335,8 +337,8 @@ try {
       await page.locator("#calendar-list").waitFor();
       await page.getByText("Released").first().waitFor();
       await page.screenshot({ path: path.join(shots, "drops-390.png"), fullPage: false });
-      await page.getByRole("tab", { name: "Account", exact: true }).click();
-      await page.getByRole("button", { name: "Profit calculator" }).click();
+      await page.getByRole("tab", { name: "My Stuff", exact: true }).click();
+      await page.getByRole("button", { name: "Profit", exact: true }).click();
       await page.getByRole("heading", { name: "Profit calculator" }).waitFor();
       await page.locator("#profit-item").selectOption("c:f40");
       await page.getByText("No sold data", { exact: true }).waitFor();
@@ -365,8 +367,11 @@ try {
       });
       assert(visible, "associates disclosure sits above the tab bar");
       await page.getByRole("tab", { name: "Home", exact: true }).click();
-      await page.getByRole("button", { name: /^Catalog/ }).click();
-      await page.getByRole("heading", { name: "Catalog" }).waitFor();
+      await page.getByRole("tab", { name: "Catalog", exact: true }).click();
+      await page.getByRole("heading", { name: "Catalog", exact: true }).waitFor();
+      await page.getByRole("button", { name: "Hot Wheels/Matchbox", exact: true }).click();
+      await page.getByRole("button", { name: /Full Hot Wheels book/ }).click();
+      await page.getByRole("heading", { name: "Hot Wheels book" }).waitFor();
       await page.waitForFunction(() => {
         const img = document.querySelector(".hw-card .hw-photo img");
         if (!img) return false;

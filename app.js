@@ -26,6 +26,7 @@
   var stream = null;
   var scanTimer = null;
   var scanGen = 0;
+  var scanBooting = false;
   var scanHit = false;
   var pendingScan = null;
 
@@ -65,6 +66,8 @@
     fashionBrand: "all",
     marketLimit: 24,
     marketId: "",
+    catalogChip: "all",
+    stuffSegment: "watchlist",
   };
 
   var hwBook = { manifest: null, chunks: {}, pending: {}, years: {}, error: "", flight: null };
@@ -711,7 +714,7 @@
 
   function homeDestinations() {
     return '<div class="home-destinations">' +
-      '<button type="button" data-action="open-catalog"><b>Catalog</b><span>Full Hot Wheels book</span></button>' +
+      '<button type="button" data-action="open-catalog"><b>Hot Wheels book</b><span>Every casting from 1968</span></button>' +
       '<button type="button" data-action="open-stores"><b>Stores</b><span>Peg lists by store</span></button>' +
       '<button type="button" data-action="open-blog"><b>Blog</b><span>How a find is scored</span></button>' +
       '<button type="button" data-action="open-coupons"><b>Coupons</b><span>Owner codes on this device</span></button></div>';
@@ -1046,10 +1049,12 @@
     var photoCredit = item.photoPage
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
       : "";
-    return '<button class="back" type="button" data-back>Calendar</button>' +
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar", href: "#/calendar" }, { label: item.name }]) +
+      '<button class="back" type="button" data-back>Calendar</button>' +
       marketPhoto(item, true) +
       word +
       "<h1>" + esc(item.name) + "</h1>" +
+      calendarButton(item.name, item.release, item.id) +
       '<section class="call call-' + callClass + '"><strong>' + esc(item.verdict || "CHECK") + "</strong><p>" + esc(item.spot || "Read the package.") + "</p></section>" +
       '<section class="tool"><p class="kicker">Retail</p><p>' + esc(item.retailLabel || "MSRP not on the source") + "</p>" + retailLink + "</section>" +
       dropBlock +
@@ -1060,6 +1065,154 @@
       '<section class="tool"><p class="kicker">Resale</p><p>' + esc(item.streetNote || "Ask, not a verified sale.") + "</p></section>" +
       auth +
       photoCredit;
+  }
+
+  function crumbs(parts) {
+    return '<nav class="crumbs" aria-label="Breadcrumb">' + parts.map(function (part, index) {
+      var last = index === parts.length - 1;
+      var node = part.href && !last
+        ? '<a href="' + esc(part.href) + '">' + esc(part.label) + "</a>"
+        : "<span>" + esc(part.label) + "</span>";
+      return (index ? '<span class="crumb-sep" aria-hidden="true">/</span>' : "") + node;
+    }).join("") + "</nav>";
+  }
+
+  function calendarButton(name, iso, id) {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return "";
+    return '<button class="btn-primary" type="button" data-action="add-calendar" data-cal-name="' + esc(name || "Hunt") + '" data-cal-date="' + esc(iso) + '" data-cal-id="' + esc(id || name || "hunt") + '">Add to calendar</button>';
+  }
+
+  function catalogChipIds(chip) {
+    if (chip === "hw") return ["matchbox", "mattel"];
+    if (chip === "tcg") return ["pokemon", "magic", "onepiece", "lorcana", "yugioh"];
+    if (chip === "sports") return ["sports"];
+    if (chip === "sneakers") return ["sneakers"];
+    if (chip === "designer") return ["designer"];
+    if (chip === "lego") return ["lego"];
+    if (chip === "funko") return ["funko"];
+    if (chip === "tech") return ["apple", "consoles"];
+    return null;
+  }
+
+  function renderBrandCatalog() {
+    var chips = [
+      ["all", "All"],
+      ["hw", "Hot Wheels/Matchbox"],
+      ["tcg", "TCG"],
+      ["sports", "Sports"],
+      ["sneakers", "Sneakers"],
+      ["designer", "Designer"],
+      ["lego", "LEGO"],
+      ["funko", "Funko"],
+      ["tech", "Tech"],
+      ["golf", "Golf"],
+    ];
+    var chip = state.catalogChip || "all";
+    var ids = catalogChipIds(chip);
+    var chipRow = '<div class="chips category-row" role="group" aria-label="Catalog category">' + chips.map(function (pair) {
+      var on = chip === pair[0];
+      return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-catalog-chip="' + pair[0] + '">' + pair[1] + "</button>";
+    }).join("") + "</div>";
+    var book = chip === "all" || chip === "hw"
+      ? '<div class="home-destinations"><button type="button" data-action="open-catalog"><b>Full Hot Wheels book</b><span>Every casting from 1968 on</span></button></div>'
+      : "";
+    var sections = (market.sections || []).filter(function (section) {
+      return !ids || ids.indexOf(section.id) !== -1;
+    });
+    var body = "";
+    if ((chip === "golf" || chip === "all") && window.HuntFlow) {
+      var golfRows = golfItems().map(function (item, index) {
+        return flowRow({ kind: "golf", name: item.name, category: "golf", ref: item }, index);
+      }).filter(Boolean);
+      if (chip === "golf") body += golfRows.length ? '<div class="list">' + golfRows.join("") + "</div>" : '<p class="fine">No golf rows.</p>';
+      else if (golfRows.length) body += "<h2>Golf</h2>" + '<div class="list">' + golfRows.slice(0, 3).join("") + "</div>";
+    }
+    sections.forEach(function (section) {
+      var rows = section.items || [];
+      var shown = chip === "all" ? rows.slice(0, 3) : rows.slice(0, state.marketLimit);
+      if (!shown.length) return;
+      body += "<h2>" + esc(section.title) + "</h2>";
+      if (section.id === "sneakers" || section.id === "designer") body += '<p class="auth-note">' + esc(authDisclaimer()) + "</p>";
+      body += '<div class="list">' + shown.map(marketCard).join("") + "</div>";
+      if (chip !== "all" && rows.length > shown.length) {
+        body += '<button class="ghost hw-more" type="button" data-catalog-more>Show more · ' + shown.length + " of " + rows.length + "</button>";
+      }
+    });
+    if (!body) body = '<p class="fine">Nothing in this category yet.</p>';
+    var crumbLabel = "Catalog";
+    chips.forEach(function (pair) { if (pair[0] === chip && chip !== "all") crumbLabel = pair[1]; });
+    var trail = [{ label: "Home", href: "#/home" }, { label: "Catalog", href: "#/catalog" }];
+    if (chip !== "all") trail.push({ label: crumbLabel });
+    return crumbs(trail) + "<h1>Catalog</h1>" + chipRow + book + body;
+  }
+
+  function renderScanPage() {
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Scan" }]) + "<h1>Scan</h1>" + scanSheetHtml();
+  }
+
+  function stuffSegment() {
+    if (state.stuffSegment) return state.stuffSegment;
+    if (state.tab === "alerts") return "alerts";
+    if (state.tab === "account") return "settings";
+    if (state.tab === "profit") return "profit";
+    if (state.tab === "inventory") return "inventory";
+    return "watchlist";
+  }
+
+  function renderStuff() {
+    var seg = stuffSegment();
+    var items = [
+      ["watchlist", "Watchlist"],
+      ["inventory", "Inventory"],
+      ["profit", "Profit"],
+      ["coupons", "Coupons"],
+      ["alerts", "Alerts"],
+      ["settings", "Settings"],
+    ];
+    var chips = '<div class="chips category-row" role="group" aria-label="My Stuff">' + items.map(function (pair) {
+      var on = seg === pair[0];
+      return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-stuff="' + pair[0] + '">' + pair[1] + "</button>";
+    }).join("") + "</div>";
+    var body = renderTracked();
+    if (seg === "inventory") body = renderInventory();
+    else if (seg === "profit") body = renderProfit();
+    else if (seg === "coupons") body = renderCoupons();
+    else if (seg === "alerts") body = renderAlerts();
+    else if (seg === "settings") body = renderAccount();
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "My Stuff" }]) + "<h1>My Stuff</h1>" + chips + body;
+  }
+
+  function globalPool() {
+    var records = searchPool().concat(marketRecords());
+    (drops || []).forEach(function (row) {
+      records.push({
+        kind: "drop",
+        name: row.name,
+        notes: (row.category || "") + " " + (row.dateLabel || ""),
+        category: row.category || "",
+        categoryTitle: "Drop",
+        ref: row,
+      });
+    });
+    return records;
+  }
+
+  function renderGlobalSearch() {
+    var q = String(state.query || "").trim();
+    var hits = q && window.ResellerSearch ? S.searchRecords(globalPool(), q).slice(0, 40) : [];
+    var rows = hits.map(function (rec, index) {
+      if (rec.kind === "drop") {
+        return '<button class="flow-row" type="button" data-drop="' + esc(rec.ref.id) + '"><span class="flow-copy"><b>' + esc(rec.name) + "</b><span>Drop</span></span></button>";
+      }
+      return flowRow(rec, index);
+    }).filter(Boolean);
+    var list = rows.length
+      ? '<div class="list" id="search-results">' + rows.join("") + "</div>"
+      : (q ? stateCard("no-results", "No matches", "Try a name, a casting, or a brand.") : '<p class="fine">Search deals, the catalog, and the calendar.</p>');
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Search" }]) +
+      "<h1>Search</h1>" +
+      (q ? '<p class="fine">' + rows.length + " matches</p>" : "") +
+      list;
   }
 
   function renderDrops() {
@@ -1086,7 +1239,8 @@
       var on = current === id;
       return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-cal-category="' + esc(id) + '">' + esc(name) + "</button>";
     }).join("") + "</div>";
-    return "<h1>Calendar</h1>" + offlineBanner() +
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar" }]) +
+      "<h1>Drops &amp; Calendar</h1>" + offlineBanner() +
       renderMarketList() +
       '<p class="digest">' + drops.length + " dated drops. Buy marks the dates that matter.</p>" +
       chips +
@@ -1100,8 +1254,10 @@
     var status = D.releaseState(item.iso);
     var rule = Rules.dropVerdict(item.id);
     var photo = heroPhoto(item);
-    return '<button class="back" type="button" data-back>Calendar</button>' + photo +
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar", href: "#/calendar" }, { label: item.name }]) +
+      '<button class="back" type="button" data-back>Calendar</button>' + photo +
       "<h1>" + esc(item.name) + "</h1>" +
+      calendarButton(item.name, item.iso, item.id) +
       '<section class="call call-' + (rule.verdict === "Buy" ? "buy" : "pass") + '"><strong>' + esc(rule.verdict) + "</strong><p>" + esc(rule.tells) + "</p></section>" +
       "<p>" + esc(item.dateLabel) + " · " + esc(status) + "</p>" +
       "<p>Format · " + esc(item.format) + "</p>" +
@@ -1124,11 +1280,17 @@
   function inventoryListHtml() {
     var rows = inventoryRows();
     if (!rows.length) return stateCard("empty", "Nothing in this filter", "The book is still saved.");
+    var fresh = state.freshInvId ? rows.filter(function (item) { return item.id === state.freshInvId; }) : [];
+    var rest = fresh.length ? rows.filter(function (item) { return item.id !== state.freshInvId; }) : rows;
+    var freshHtml = fresh.length
+      ? '<p class="kicker">Just added</p><div class="list" id="just-added">' + fresh.map(invRow).join("") + "</div>"
+      : "";
     var grouped = !state.invQuery.trim() && state.invFilter === "all";
-    if (!grouped) return '<div class="list">' + rows.map(invRow).join("") + "</div>";
+    if (!grouped) return freshHtml + '<div class="list">' + rest.map(invRow).join("") + "</div>";
     var buckets = { sell: [], verify: [], duplicate: [], hand: [] };
-    rows.forEach(function (item) { buckets[sellBucket(item)].push(item); });
-    return '<p class="kicker">Sell first</p><div class="list">' + buckets.sell.map(invRow).join("") + "</div>" +
+    rest.forEach(function (item) { buckets[sellBucket(item)].push(item); });
+    return freshHtml +
+      '<p class="kicker">Sell first</p><div class="list">' + buckets.sell.map(invRow).join("") + "</div>" +
       '<p class="kicker">Verify the card</p><div class="list">' + buckets.verify.map(invRow).join("") + "</div>" +
       '<details class="leave"><summary>Duplicates (' + buckets.duplicate.length + ')</summary><div class="list">' + buckets.duplicate.map(invRow).join("") + "</div></details>" +
       '<details class="leave"><summary>Rest of the book (' + buckets.hand.length + ')</summary><div class="list">' + buckets.hand.map(invRow).join("") + "</div></details>";
@@ -1416,11 +1578,11 @@
   function renderArchive() {
     var back = state.view === "archive" ? '<button class="back" type="button" data-back>Home</button>' : "";
     if (hwBook.error && !hwBook.manifest) {
-      return back + "<h1>Catalog</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
+      return back + "<h1>Hot Wheels book</h1>" + stateCard("error", "Could not open the catalog", hwBook.error) + '<button class="solid" type="button" data-action="archive-retry">Try again</button>';
     }
     if (!hwBook.manifest || !archiveChunksReady()) {
       loadHwManifest();
-      return back + "<h1>Catalog</h1><p class=\"fine\">Opening the Hot Wheels book.</p>" + skeletonList(4);
+      return back + "<h1>Hot Wheels book</h1><p class=\"fine\">Opening the Hot Wheels book.</p>" + skeletonList(4);
     }
     var manifest = hwBook.manifest || { totals: {}, years: [] };
     var hits = filterHw();
@@ -1452,7 +1614,7 @@
     if (totals.mattelPct != null) digest += " · " + totals.mattelPct + "% official Mattel photos";
     digest += ". Lists from the Hot Wheels Wiki. Photos hotlink to Mattel Creations when the toy number matches, and to the wiki otherwise.";
     var countLabel = hits.length.toLocaleString("en-US") + (hits.length === 1 ? " car" : " cars");
-    return back + "<h1>Catalog</h1>" +
+    return back + "<h1>Hot Wheels book</h1>" +
       '<p class="digest">' + esc(digest) + "</p>" +
       '<div class="hw-tools">' +
       '<label class="field"><span>Search</span><input id="archive-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Name, toy #, or series" value="' + esc(state.archiveQuery) + '"></label>' +
@@ -2179,6 +2341,10 @@
     if (state.view === "blog") return renderBlog();
     if (state.view === "coupons") return renderCoupons();
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
+    if (state.view === "search") return renderGlobalSearch();
+    if (state.tab === "catalog" && state.view === "root") return renderBrandCatalog();
+    if (state.tab === "scan" && state.view === "root") return renderScanPage();
+    if ((state.tab === "stuff" || state.tab === "tracked" || state.tab === "alerts" || state.tab === "account" || state.tab === "inventory" || state.tab === "profit") && state.view === "root") return renderStuff();
     if (state.view === "drops" || state.tab === "drops" || state.tab === "calendar") return renderDrops();
     if (state.view === "stores" || state.tab === "stores") return renderStores();
     if (state.tab === "inventory" || state.tab === "tracked") return renderTracked();
@@ -2200,10 +2366,21 @@
   function render(opts) {
     opts = opts || {};
     var keepY = opts.keepScroll ? window.scrollY : (typeof opts.scrollY === "number" ? opts.scrollY : 0);
+    var parkedScan = null;
+    var liveScan = document.getElementById("scan-video");
+    if (liveScan && (liveScan.srcObject || liveScan.__srcObject) && state.tab === "scan" && state.view === "root") {
+      parkedScan = liveScan;
+      parkedScan.remove();
+    }
     screen.innerHTML = screenHtml();
+    if (parkedScan) {
+      var scanSlot = document.getElementById("scan-video");
+      if (scanSlot) scanSlot.replaceWith(parkedScan);
+    }
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
-      var current = state.tab === "hunt" ? "home" : state.tab === "inventory" ? "tracked" : state.tab === "drops" ? "calendar" : state.tab;
+      var current = state.tab === "hunt" ? "home" : state.tab === "drops" ? "calendar" : state.tab;
+      if (current === "tracked" || current === "inventory" || current === "alerts" || current === "account" || current === "profit") current = "stuff";
       var on = btn.getAttribute("data-tab") === current;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
@@ -2220,7 +2397,10 @@
     }
     paintDataStatus();
     paintChrome();
-    if (state.view === "estimate" || (state.tab === "profit" && state.view === "root")) bindProfit();
+    if (state.view === "estimate" || (state.tab === "profit" && state.view === "root") || (state.tab === "stuff" && stuffSegment() === "profit" && state.view === "root")) bindProfit();
+    armScan();
+    var globalQuery = document.getElementById("global-q");
+    if (globalQuery && document.activeElement !== globalQuery && globalQuery.value !== (state.query || "")) globalQuery.value = state.query || "";
     evaluateAlerts();
     var hunt = document.getElementById("hunt-q");
     if (hunt && document.activeElement && document.activeElement.id === "hunt-q") {
@@ -2297,14 +2477,18 @@
       dropId: state.dropId,
       marketId: state.marketId,
       calendarCategory: state.calendarCategory,
+      catalogChip: state.catalogChip,
+      stuffSegment: state.stuffSegment,
+      query: state.query,
     };
   }
 
   function hashForState() {
+    if (state.view === "search") return "#/search/" + encodeURIComponent(state.query || "");
     if (state.view === "estimate") return "#/profit";
     if (state.view === "blog") return "#/blog";
     if (state.view === "coupons") return "#/coupons";
-    if (state.view === "archive") return "#/catalog";
+    if (state.view === "archive") return "#/hw";
     if (state.view === "stores") return "#/stores";
     if ((state.view === "lanes" || state.view === "store") && state.storeId) return "#/stores/" + encodeURIComponent(state.storeId);
     if (state.view === "lane" && state.storeId) return "#/stores/" + encodeURIComponent(state.storeId) + "/" + encodeURIComponent(state.lane || "");
@@ -2320,9 +2504,14 @@
       if (state.calendarCategory && state.calendarCategory !== "all") return "#/calendar/" + encodeURIComponent(state.calendarCategory);
       return "#/calendar";
     }
-    if (state.tab === "tracked" || state.tab === "inventory") return state.segment === "bought" ? "#/tracked/bought" : "#/tracked";
-    if (state.tab === "alerts") return "#/alerts";
-    if (state.tab === "account") return "#/account";
+    if (state.tab === "catalog") {
+      var chip = state.catalogChip || "all";
+      return chip === "all" ? "#/catalog" : "#/catalog/" + encodeURIComponent(chip);
+    }
+    if (state.tab === "scan") return "#/scan";
+    if (state.tab === "stuff" || state.tab === "tracked" || state.tab === "inventory" || state.tab === "alerts" || state.tab === "account" || state.tab === "profit") {
+      return "#/stuff/" + encodeURIComponent(stuffSegment());
+    }
     if ((state.tab === "home" || state.tab === "hunt") && state.category && state.category !== "all") {
       return "#/category/" + encodeURIComponent(state.category);
     }
@@ -2350,19 +2539,46 @@
       state.calendarCategory = parts[1] ? decodePart(parts[1]) : "all";
       return;
     }
+    if (head === "drops") {
+      state.tab = "calendar";
+      state.calendarCategory = parts[1] ? decodePart(parts[1]) : "all";
+      return;
+    }
     if (head === "tracked") {
-      state.tab = "tracked";
+      state.tab = "stuff";
+      state.stuffSegment = "watchlist";
       state.segment = parts[1] === "bought" ? "bought" : "watching";
       if (parts[1] === "edit") state.view = "inv-form";
       return;
     }
     if (head === "alerts") {
-      state.tab = "alerts";
+      state.tab = "stuff";
+      state.stuffSegment = "alerts";
       if (parts[1] === "setup") state.view = "alert-setup";
       return;
     }
-    if (head === "account") { state.tab = "account"; return; }
-    if (head === "catalog") { state.tab = "home"; state.view = "archive"; return; }
+    if (head === "account") { state.tab = "stuff"; state.stuffSegment = "settings"; return; }
+    if (head === "hw") { state.tab = "catalog"; state.view = "archive"; return; }
+    if (head === "catalog") {
+      state.tab = "catalog";
+      if (parts[1] === "hot-wheels") { state.view = "archive"; return; }
+      state.view = "root";
+      state.catalogChip = parts[1] ? decodePart(parts[1]) : "all";
+      return;
+    }
+    if (head === "scan") { state.tab = "scan"; state.view = "root"; return; }
+    if (head === "stuff") {
+      state.tab = "stuff";
+      state.view = "root";
+      state.stuffSegment = parts[1] ? decodePart(parts[1]) : "watchlist";
+      return;
+    }
+    if (head === "search") {
+      state.tab = "home";
+      state.view = "search";
+      state.query = decodePart(parts.slice(1).join("/"));
+      return;
+    }
     if (head === "stores") {
       state.tab = "home";
       if (parts[2]) {
@@ -2424,7 +2640,7 @@
     if (hash.indexOf("#/calendar/") === 0) return "#/calendar";
     if (hash === "#/tracked/bought" || hash === "#/tracked/edit") return "#/tracked";
     if (hash === "#/alerts/setup") return "#/alerts";
-    if (hash === "#/blog" || hash === "#/coupons") return "#/home";
+    if (hash === "#/blog" || hash === "#/coupons" || hash.indexOf("#/search/") === 0 || hash.indexOf("#/catalog") === 0 || hash === "#/scan" || hash.indexOf("#/stuff/") === 0 || hash === "#/hw") return "#/home";
     return "#/home";
   }
 
@@ -2524,6 +2740,7 @@
   }
 
   function routeTitle() {
+    if (state.view === "search") return "Search";
     if (state.view === "estimate") return "Profit calculator";
     if (state.view === "blog") return "Blog";
     if (state.view === "coupons") return "Coupons";
@@ -2592,6 +2809,19 @@
   }
 
   function setTab(tab) {
+    if (tab === "tracked" || tab === "inventory") {
+      state.stuffSegment = tab === "inventory" ? "inventory" : "watchlist";
+      tab = "stuff";
+    } else if (tab === "alerts") {
+      state.stuffSegment = "alerts";
+      tab = "stuff";
+    } else if (tab === "account" || tab === "profit") {
+      state.stuffSegment = tab === "profit" ? "profit" : "settings";
+      tab = "stuff";
+    } else if (tab === "drops") {
+      tab = "calendar";
+    }
+    if (state.tab === "scan" && tab !== "scan" && stream) stopCamera();
     var leaving = snapNow();
     var y = window.scrollY;
     state.stack = [];
@@ -2728,11 +2958,13 @@
       date: existing ? existing.date : new Date().toISOString().slice(0, 10),
       catalogId: existing ? existing.catalogId : null,
     };
-    Inv.upsertUser(invState, row);
+    var saved = Inv.upsertUser(invState, row);
     Inv.write(localStorage, invState);
     var leavingForm = snapNow();
     var formY = window.scrollY;
-    state.tab = "tracked";
+    state.freshInvId = saved && saved.id ? saved.id : "";
+    state.tab = "stuff";
+    state.stuffSegment = "inventory";
     state.view = "root";
     state.stack = [];
     state.moveFocus = true;
@@ -2832,6 +3064,7 @@
 
   function stopCamera() {
     scanGen += 1;
+    scanBooting = false;
     if (scanTimer) clearInterval(scanTimer);
     scanTimer = null;
     if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
@@ -2928,6 +3161,31 @@
     if (marketMore) {
       state.marketLimit += 24;
       render({ keepScroll: true });
+      return;
+    }
+    var catalogChipBtn = event.target.closest("[data-catalog-chip]");
+    if (catalogChipBtn) {
+      state.catalogChip = catalogChipBtn.getAttribute("data-catalog-chip");
+      state.marketLimit = 24;
+      state.tab = "catalog";
+      state.view = "root";
+      commitRoute("replace", snapNow(), window.scrollY);
+      render();
+      return;
+    }
+    var catalogMore = event.target.closest("[data-catalog-more]");
+    if (catalogMore) {
+      state.marketLimit += 24;
+      render({ keepScroll: true });
+      return;
+    }
+    var stuffBtn = event.target.closest("[data-stuff]");
+    if (stuffBtn) {
+      state.stuffSegment = stuffBtn.getAttribute("data-stuff");
+      state.tab = "stuff";
+      state.view = "root";
+      commitRoute("replace", snapNow(), window.scrollY);
+      render();
       return;
     }
     var marketBrand = event.target.closest("[data-market-brand]");
@@ -3099,7 +3357,42 @@
     if (actionName === "open-catalog") { push({ view: "archive" }); return; }
     if (actionName === "open-stores") { push({ view: "stores" }); return; }
     if (actionName === "open-blog") { push({ view: "blog" }); return; }
-    if (actionName === "open-coupons") { push({ view: "coupons" }); return; }
+    if (actionName === "open-coupons") { push({ tab: "stuff", view: "root", stuffSegment: "coupons" }); return; }
+    if (actionName === "add-calendar") {
+      var calName = actionBtn.getAttribute("data-cal-name") || "Hunt";
+      var calDate = actionBtn.getAttribute("data-cal-date") || "";
+      var calId = actionBtn.getAttribute("data-cal-id") || "hunt";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(calDate)) return;
+      var stamp = calDate.replace(/-/g, "");
+      var endDate = new Date(calDate + "T00:00:00Z");
+      endDate.setUTCDate(endDate.getUTCDate() + 1);
+      var endStamp = endDate.toISOString().slice(0, 10).replace(/-/g, "");
+      var ics = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Broken Beaker Labs LC//Hunt//EN",
+        "BEGIN:VEVENT",
+        "UID:" + String(calId).replace(/[^A-Za-z0-9@._-]/g, "") + "@hunt",
+        "DTSTART;VALUE=DATE:" + stamp,
+        "DTEND;VALUE=DATE:" + endStamp,
+        "SUMMARY:" + String(calName).replace(/[\r\n,;\\]/g, " "),
+        "END:VEVENT",
+        "END:VCALENDAR",
+      ].join("\r\n");
+      var blob = new Blob([ics], { type: "text/calendar" });
+      var fileUrl = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = "hunt-" + stamp + ".ics";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () { URL.revokeObjectURL(fileUrl); }, 1500);
+      state.note = "Calendar file ready.";
+      var checkedLine = document.getElementById("checked-line");
+      if (checkedLine) checkedLine.textContent = state.note;
+      return;
+    }
     if (actionName === "claim-owner") {
       try { localStorage.setItem("hunt-owner", "1"); } catch (err) {}
       render();
@@ -3312,10 +3605,20 @@
   });
 
   document.addEventListener("input", function (event) {
-    if (event.target.id === "hunt-q") {
+    if (event.target.id === "hunt-q" || event.target.id === "global-q") {
       state.query = event.target.value;
-      var box = document.getElementById("hunt-body");
-      if (box) box.innerHTML = homeBody();
+      var other = document.getElementById(event.target.id === "hunt-q" ? "global-q" : "hunt-q");
+      if (other && other !== document.activeElement) other.value = state.query;
+      if (state.tab === "home" && state.view === "root") {
+        var box = document.getElementById("hunt-body");
+        if (box) box.innerHTML = homeBody();
+        return;
+      }
+      if (state.view !== "search") {
+        push({ view: "search" });
+        return;
+      }
+      render({ keepScroll: true });
       return;
     }
     if (event.target.id === "alert-threshold" && state.draftAlert) {
@@ -3691,11 +3994,10 @@
     });
   }
 
-  function openScan() {
-    pendingScan = null;
-    scanHit = false;
-    openSheet(scanSheetHtml());
+  function beginScan() {
+    stopCamera();
     var gen = scanGen;
+    scanBooting = true;
     ensureScan().then(function () {
       return requestCamera();
     }).then(function (media) {
@@ -3731,7 +4033,26 @@
       }
       var kind = err && err.kind ? err.kind : Scan.cameraErrorKind(err);
       setScanMessage(Scan.MESSAGES[kind] || Scan.MESSAGES["no-camera"], true);
+    }).then(function () {
+      if (gen === scanGen) scanBooting = false;
     });
+  }
+
+  function armScan() {
+    if (state.tab !== "scan" || state.view !== "root") return;
+    var video = document.getElementById("scan-video");
+    if (video && (video.srcObject || video.__srcObject)) return;
+    if (scanBooting) return;
+    pendingScan = null;
+    scanHit = false;
+    beginScan();
+  }
+
+  function openScan() {
+    pendingScan = null;
+    scanHit = false;
+    openSheet(scanSheetHtml());
+    beginScan();
   }
 
   function openSold() {
@@ -3865,14 +4186,20 @@
     return blogFlight;
   }
 
+  function couponsOnScreen() {
+    if (state.view === "coupons") return true;
+    return state.view === "root" && stuffSegment() === "coupons" &&
+      (state.tab === "stuff" || state.tab === "tracked" || state.tab === "inventory" || state.tab === "alerts" || state.tab === "account" || state.tab === "profit");
+  }
+
   function loadCouponFile() {
     if (couponFile || couponFlight) return couponFlight;
     couponFlight = fetchFreshJson("data/coupons.json").then(function (part) {
       couponFile = part.data || { codes: [] };
-      if (state.view === "coupons") render();
+      if (couponsOnScreen()) render();
     }).catch(function () {
       couponFile = { codes: [] };
-      if (state.view === "coupons") render();
+      if (couponsOnScreen()) render();
     });
     return couponFlight;
   }
@@ -3899,7 +4226,7 @@
   function renderCoupons() {
     if (!window.ResellerCoupons) {
       ensureCoupons().then(function () {
-        if (state.view === "coupons") render();
+        if (couponsOnScreen()) render();
       });
       return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' + skeletonList(2) + "</div>";
     }
@@ -4056,6 +4383,8 @@
   function boot() {
     bootError = "";
     quietUntil = Date.now() + 1200;
+    window.addEventListener("offline", function () { if (canRepaint()) render({ keepScroll: true }); });
+    window.addEventListener("online", function () { if (canRepaint()) render({ keepScroll: true }); });
     bindReturns();
     installRouter();
     render();
