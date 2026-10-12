@@ -407,12 +407,15 @@ try {
         await page.locator("#blog-list").getByRole("link", { name: "How Hunt scores a find" }).waitFor();
         await page.locator("#screen").getByRole("button", { name: "Home" }).click();
         await page.getByRole("heading", { name: "What did you find?" }).waitFor();
+        await page.getByRole("region", { name: "Promos" }).waitFor();
         await page.getByRole("button", { name: /^Coupons/ }).click();
         await page.getByRole("heading", { name: "Coupons", exact: true }).waitFor();
+        await page.locator("#coupons-area h2", { hasText: "Mattel Creations · 25% off" }).waitFor();
         const couponsText = await page.locator("#coupons-area").innerText();
         assert(!/EXPIRED-FIXTURE|INACTIVE-FIXTURE/.test(couponsText), "public coupons hide fixture codes");
-        assert(/No active codes/.test(couponsText), "coupons area has no active codes");
-        await page.getByRole("button", { name: "This device is the owner" }).click();
+        assert(/Mattel Creations · 25% off/.test(couponsText), "promo offers show without claiming the device");
+        assert((await page.locator("#coupons-area article").count()) === 8, "eight promo offers are listed");
+        await page.getByRole("button", { name: "Save a code on this device" }).click();
         await page.locator("#coupon-label").fill("Owner test");
         await page.locator("#coupon-code").fill("OWNER-LIVE");
         await page.locator("#coupon-expires").fill("2020-01-01");

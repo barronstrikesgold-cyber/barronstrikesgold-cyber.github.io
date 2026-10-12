@@ -701,12 +701,34 @@
       '<span class="chev" aria-hidden="true">›</span></button>';
   }
 
+  function promoOffers() {
+    if (!window.ResellerCoupons || !window.ResellerCoupons.activeOffers || !couponFile) return null;
+    var today = new Date().toISOString().slice(0, 10);
+    return window.ResellerCoupons.activeOffers(couponFile.offers || [], today);
+  }
+
+  function renderPromoStrip() {
+    if (!window.ResellerCoupons) {
+      ensureCoupons().then(function () { if (promoSurface()) render(); });
+    }
+    if (!couponFile) loadCouponFile();
+    var offers = promoOffers();
+    var chips = offers && offers.length
+      ? offers.map(function (row) {
+        return '<button type="button" data-action="open-coupons"><b>' + esc(row.store || "Offer") + "</b><span>" + esc(row.discount || "See the offer") + "</span></button>";
+      }).join("")
+      : '<button type="button" data-action="open-coupons"><b>Promos</b><span>' + (offers ? "No active promos" : "Loading promos") + "</span></button>";
+    return '<section class="promo-strip" aria-label="Promos">' +
+      '<div class="promo-head"><p class="kicker">Promos</p><button type="button" data-action="open-coupons">My Stuff</button></div>' +
+      '<div class="promo-row">' + chips + "</div></section>";
+  }
+
   function homeDestinations() {
     return '<div class="home-destinations">' +
       '<button type="button" data-action="open-catalog"><b>Hot Wheels book</b><span>Every casting from 1968</span></button>' +
       '<button type="button" data-action="open-stores"><b>Stores</b><span>Peg lists by store</span></button>' +
       '<button type="button" data-action="open-blog"><b>Blog</b><span>How a find is scored</span></button>' +
-      '<button type="button" data-action="open-coupons"><b>Coupons</b><span>Owner codes on this device</span></button></div>';
+      '<button type="button" data-action="open-coupons"><b>Coupons</b><span>Current promos</span></button></div>';
   }
 
   function catalogRecord(item) {
@@ -1251,6 +1273,7 @@
     }).join("") + "</div>";
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar" }]) +
       "<h1>Drops &amp; Calendar</h1>" + offlineBanner() +
+      renderPromoStrip() +
       renderMarketList() +
       '<p class="digest">' + drops.length + " dated drops. Buy marks the dates that matter.</p>" +
       chips +
@@ -1788,10 +1811,32 @@
     return "box";
   }
 
+  function categoryArt(mark) {
+    var key = MARK_ICON[mark] ? mark : "box";
+    var palette = {
+      car: ["#ff4d00", "#1a0a00"],
+      sneaker: ["#1d4ed8", "#f8fafc"],
+      card: ["#f5c518", "#1a1400"],
+      box: ["#c2410c", "#fff7ed"],
+      device: ["#1e293b", "#f8fafc"],
+      golf: ["#15803d", "#f0fdf4"]
+    };
+    var colors = palette[key] || palette.box;
+    var word = { car: "CAR", card: "CARDS", sneaker: "SHOE", golf: "GOLF", device: "TECH", box: "BOX" }[key] || "BOX";
+    var inner = MARK_ICON[key].replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+    return '<svg class="art-scene" viewBox="0 0 160 120" aria-hidden="true">' +
+      '<rect width="160" height="120" fill="' + colors[0] + '"/>' +
+      '<g transform="translate(41 12) scale(3.2)" fill="none" stroke="' + colors[1] + '" color="' + colors[1] + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + inner + "</g>" +
+      '<text x="80" y="112" text-anchor="middle" fill="' + colors[1] + '" font-size="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" letter-spacing="1.6">' + word + "</text>" +
+      "</svg>";
+  }
+
   function placeholderThumb(mark, wide) {
     var key = MARK_ICON[mark] ? mark : "box";
-    var cls = "flow-thumb is-placeholder" + (wide ? " is-wide" : "");
-    return '<span class="' + cls + '" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + MARK_ICON[key] + "</span>";
+    if (wide) {
+      return '<span class="flow-thumb is-placeholder is-wide is-art" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + categoryArt(key) + "</span>";
+    }
+    return '<span class="flow-thumb is-placeholder" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + MARK_ICON[key] + "</span>";
   }
 
   function chipOf(rec) {
@@ -2006,6 +2051,7 @@
     return offlineBanner() +
       "<h1>What did you find?</h1>" +
       renderDropsStrip() +
+      renderPromoStrip() +
       homeDestinations() +
       '<div class="search-row"><label class="search" for="hunt-q"><span class="sr-only">Search</span><input id="hunt-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search name, casting, or UPC" value="' + esc(state.query) + '"></label>' +
       '<button class="scan" type="button" data-action="scan" aria-label="Scan barcode" title="Scan barcode"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg></button></div>' +
@@ -3168,7 +3214,8 @@
     img.removeAttribute("srcset");
     var flow = img.closest && img.closest(".flow-thumb");
     if (flow) {
-      flow.outerHTML = placeholderThumb(img.getAttribute("data-mark"));
+      var wide = flow.classList.contains("is-wide") || flow.classList.contains("market-photo");
+      flow.outerHTML = placeholderThumb(img.getAttribute("data-mark"), wide);
       return;
     }
     img.src = "assets/states/photo-needed.svg";
@@ -4263,14 +4310,18 @@
       (state.tab === "stuff" || state.tab === "tracked" || state.tab === "inventory" || state.tab === "alerts" || state.tab === "account" || state.tab === "profit");
   }
 
+  function promoSurface() {
+    return couponsOnScreen() || state.tab === "home" || state.tab === "calendar";
+  }
+
   function loadCouponFile() {
     if (couponFile || couponFlight) return couponFlight;
     couponFlight = fetchFreshJson("data/coupons.json").then(function (part) {
       couponFile = part.data || { codes: [] };
-      if (couponsOnScreen()) render();
+      if (promoSurface()) render();
     }).catch(function () {
       couponFile = { codes: [] };
-      if (couponsOnScreen()) render();
+      if (promoSurface()) render();
     });
     return couponFlight;
   }
@@ -4309,7 +4360,7 @@
     var published = (couponFile && couponFile.codes) || [];
     var prunedPublished = window.ResellerCoupons.pruneCoupons(published, today);
     var shown = ownerOn() ? window.ResellerCoupons.activeCoupons(prunedPublished.concat(prunedLocal), today) : [];
-    var offers = ownerOn() && window.ResellerCoupons.activeOffers ? window.ResellerCoupons.activeOffers((couponFile && couponFile.offers) || [], today) : [];
+    var offers = window.ResellerCoupons.activeOffers ? window.ResellerCoupons.activeOffers((couponFile && couponFile.offers) || [], today) : [];
     var updated = '<p class="fine">Last updated ' + esc(couponFile && couponFile.updatedAt ? formatWhen(couponFile.updatedAt) : "not yet") + "</p>";
     var codeList = shown.map(function (row) {
       return '<article class="card"><h2>' + esc(row.label || "Code") + "</h2><p>" + esc(row.code) + '</p><p class="fine">Expires ' + esc(row.expires) + "</p>" +
@@ -4320,16 +4371,16 @@
         '<p class="fine">' + esc(row.store || "") + " · Expires " + esc(row.expires || "") + " · Checked " + esc(row.lastChecked ? formatWhen(row.lastChecked) : "") + "</p>" +
         (row.sourceUrl ? '<div class="link-row">' + externalAnchor(row.sourceUrl, "Source") + "</div>" : "") + "</article>";
     }).join("");
-    var list = (codeList || offerList) ? codeList + offerList : '<p class="fine">No active codes.</p>';
+    var list = (offerList || codeList) ? offerList + codeList : '<p class="fine">No active promos.</p>';
     var gate = ownerOn()
       ? '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
         '<label class="field" for="coupon-code"><span>Code</span><input id="coupon-code" autocomplete="off"></label>' +
         '<label class="field" for="coupon-expires"><span>Expires</span><input id="coupon-expires" type="date"></label>' +
         '<button class="btn-primary" type="button" data-action="save-coupon">Save code</button></form>'
-      : '<p class="digest">Coupons stay on this device for the owner. Live codes are not published.</p>' +
-        '<button class="btn-primary" type="button" data-action="claim-owner">This device is the owner</button>';
+      : '<p class="digest">These promos are on for this site. A private code can still be saved on this device.</p>' +
+        '<button class="btn-primary" type="button" data-action="claim-owner">Save a code on this device</button>';
     return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' +
-      '<p class="fine">Owner-only. Expired and inactive codes are removed.</p>' + updated + list + gate + "</div>";
+      '<p class="fine">Promos from official pages. Expired offers are removed.</p>' + updated + list + gate + "</div>";
   }
 
   function saveOwnerCoupon() {
