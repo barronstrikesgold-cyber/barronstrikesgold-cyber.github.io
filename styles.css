@@ -1154,6 +1154,31 @@ dialog:not([open]) { display: none !important; }
   box-shadow: inset 0 0 0 1px var(--line);
 }
 .flow-thumb.is-placeholder svg { width: 22px; height: 22px; display: block; opacity: 0.78; }
+.flow-thumb.is-wide {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+}
+.flow-thumb.is-wide svg { width: 42px; height: 42px; }
+.photo-frame.market-photo,
+.photo-frame.photo-frame-hero,
+.photo-frame.hero-photo {
+  display: block;
+  height: auto;
+  aspect-ratio: auto;
+}
+.photo-frame.market-photo img,
+.photo-frame.photo-frame-hero img,
+.photo-frame.hero-photo img {
+  position: static;
+  inset: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: transparent;
+}
 .pill { font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 999px; flex: none; }
 .pill-buy { background: rgba(8, 116, 67, 0.16); color: var(--ok); }
 .pill-check { background: rgba(122, 86, 0, 0.16); color: var(--gold); }

@@ -556,6 +556,156 @@
       "items": [
         "golf:TaylorMade"
       ]
+    },
+    {
+      "file": "images/hosted/ygo-beyond-the-brave.webp",
+      "alt": "Beyond the Brave",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.yugioh-card.com/en/products/betb/"
+    },
+    {
+      "file": "images/hosted/ygo-glorious-victors.webp",
+      "alt": "Glorious Victors",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.yugioh-card.com/en/products/glvi/"
+    },
+    {
+      "file": "images/hosted/ygo-immortal-phoenix.webp",
+      "alt": "Immortal Phoenix",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.yugioh-card.com/en/products/imph/"
+    },
+    {
+      "file": "images/hosted/nsw-nintendo-switch-2-system.webp",
+      "alt": "Nintendo Switch™ 2 System",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.nintendo.com/us/store/hardware/"
+    },
+    {
+      "file": "images/hosted/nsw-nintendo-switch-2-mario-kart-world-bundle.webp",
+      "alt": "Nintendo Switch™ 2 + Mario Kart™ World Bundle",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.nintendo.com/us/store/hardware/"
+    },
+    {
+      "file": "images/hosted/nsw-nintendo-switch-2-nintendo-switch-sports-resort-bundle.webp",
+      "alt": "Nintendo Switch™ 2 + Nintendo Switch Sports Resort™ Bundle",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.nintendo.com/us/store/hardware/"
+    },
+    {
+      "file": "images/hosted/nsw-nintendo-switch-2-the-legend-of-zelda-40th-anniversary-edition.webp",
+      "alt": "Nintendo Switch™ 2 - The Legend of Zelda™ – 40th Anniversary Edition",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://www.nintendo.com/us/store/hardware/"
+    },
+    {
+      "file": "images/hosted/mattel-JKC06.webp",
+      "alt": "Hot Wheels RLC Exclusive 1993 Mazda RX-7 R1",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1993-mazda-rx-7-r1-jkc06"
+    },
+    {
+      "file": "images/hosted/mattel-JJY69.webp",
+      "alt": "Hot Wheels RLC Exclusive RWB Porsche 930",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-rwb-porsche-930-jjy69"
+    },
+    {
+      "file": "images/hosted/mattel-JJY71.webp",
+      "alt": "Hot Wheels RLC Exclusive 1985 Pontiac J2000",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-pontiac-j2000-jjy71"
+    },
+    {
+      "file": "images/hosted/mattel-JJY54.webp",
+      "alt": "Hot Wheels RLC Exclusive Nissan Skyline GT-R (BNR32)",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1989-nissan-skyline-r32-jjy54"
+    },
+    {
+      "file": "images/hosted/mattel-JNF06.webp",
+      "alt": "Hot Wheels Elite 64 Pandem Datsun 280ZX",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-elite-64-pandem-datsun-280zx-jnf06"
+    },
+    {
+      "file": "images/hosted/mattel-JLX18.webp",
+      "alt": "RLC Exclusive sELECTIONs Porsche 959",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/rlc-exclusive-selections-porsche-959-jlx18"
+    },
+    {
+      "file": "images/hosted/mattel-HWG05.webp",
+      "alt": "Elite 64 Premium Cars",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/elite-64-premium-cars"
+    },
+    {
+      "file": "images/hosted/mattel-JJY59.webp",
+      "alt": "Hot Wheels RLC 2022 Ford Mustang Shelby GT500 Code Red",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-2022-ford-mustang-shelby-gt500-code-red-jjy59"
+    },
+    {
+      "file": "images/hosted/mattel-JCP45.webp",
+      "alt": "Hot Wheels Elite 64 Mercedes-Benz G 63 AMG 6x6",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-elite-64-mercedes-benz-g-63-amg-6x6-jcp45"
+    },
+    {
+      "file": "images/hosted/mattel-JJY72.webp",
+      "alt": "Hot Wheels RLC Exclusive Ferrari F40",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-ferrari-f40-jjy72"
+    },
+    {
+      "file": "images/hosted/mattel-JJY74.webp",
+      "alt": "Hot Wheels RLC Exclusive ’21 Ford Bronco With CHASE Version",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-21-ford-bronco-with-chase-version-jjy74"
+    },
+    {
+      "file": "images/hosted/mattel-JCP43.webp",
+      "alt": "Hot Wheels Elite 64 Mazda RX-7 Liberty Walk",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-elite-64-mazda-rx-7-liberty-walk-jcp43"
+    },
+    {
+      "file": "images/hosted/mattel-JJY70.webp",
+      "alt": "Hot Wheels RLC Exclusive 1985 Audi Sport quattro S1",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1985-audi-sport-quattro-s1-jjy70"
+    },
+    {
+      "file": "images/hosted/mattel-JJY64.webp",
+      "alt": "Hot Wheels RLC Exclusive 1986 Nissan 720 King Cab",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-rlc-exclusive-1986-c-nissan-720-king-cab-jjy64"
+    },
+    {
+      "file": "images/hosted/mattel-JJY63.webp",
+      "alt": "Hot Wheels RLC Exclusive 1976 Volkswagen Golf Mk1 GTI",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/rlc-exclusive-volkswagen-golf-jjy63"
+    },
+    {
+      "file": "images/hosted/mattel-HWR92.webp",
+      "alt": "Hot Wheels Elite 64 Mod Shop Nissan Stagea",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/hot-wheels-elite-64-mod-shop-nissan-stagea-hwr92"
+    },
+    {
+      "file": "images/hosted/mattel-JJY60.webp",
+      "alt": "Hot Wheels RLC Exclusive 1962 Ford F-100",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/rlc-exclusive-ford-f100-jjy60"
+    },
+    {
+      "file": "images/hosted/mattel-JJY66.webp",
+      "alt": "Hot Wheels RLC Exclusive 1948 Chevy Fleetline With CHASE Version",
+      "source": "Official product image fetched with a github.io referer and saved as WebP because the host robots.txt allowed the image path.",
+      "page": "https://creations.mattel.com/products/rlc-1948-chevy-fleetline-jjy66"
     }
   ],
   "icons": [
@@ -608,6 +758,11 @@
       "id": "pkset-me55c",
       "name": "Pokémon TCG · 30th Celebration: Classic Collection",
       "reason": "The only image on file is a Scrydex set logo. Hunt does not show brand logos."
+    },
+    {
+      "id": "lor-hyperia-city",
+      "name": "Hyperia City",
+      "reason": "The only image on the official page that could be fetched was the site logo, which Hunt does not show."
     }
   ]
 }
