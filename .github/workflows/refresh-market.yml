@@ -5,7 +5,14 @@ name: refresh-market
 
 on:
   schedule:
+    # Daily refresh, 13:30 UTC.
     - cron: "30 13 * * *"
+    # 10:00 America/Chicago. 15:00 UTC is CDT, 16:00 UTC is CST.
+    - cron: "0 15 * * *"
+    - cron: "0 16 * * *"
+    # 13:00 America/Chicago. 18:00 UTC is CDT, 19:00 UTC is CST.
+    - cron: "0 18 * * *"
+    - cron: "0 19 * * *"
   workflow_dispatch:
 
 permissions:
@@ -24,6 +31,8 @@ jobs:
         with:
           node-version: 22
       - name: Refresh market data
+        env:
+          GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: node scripts/refresh-market.mjs
       - name: Test before commit
         run: npm test

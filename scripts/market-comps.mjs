@@ -586,7 +586,7 @@ export async function applyMarketComps(sections, prev, Market) {
       try {
         if (tcgSections.has(section.id)) comp = await tcgComp(item, cache);
         else if (section.id === "lego") comp = await bricklinkComp(item);
-        else if (section.id === "mattel") comp = await hwComp(item, /rlc|elite|red-line/i);
+        else if (section.id === "mattel" && !item.launchUnrevealed) comp = await hwComp(item, /rlc|elite|red-line/i);
         else if (section.id === "matchbox") comp = await hwComp(item, /matchbox|super-chase/i);
         else if (section.id === "apple") {
           const slug = appleSlug(item.name);

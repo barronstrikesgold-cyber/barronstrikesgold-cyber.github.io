@@ -26,6 +26,13 @@ import {
   designerPrograms,
   askFields,
 } from "./fashion-calendar.mjs";
+import {
+  chicagoParts,
+  extraRefreshShouldRun,
+  mergeLaunches,
+  parseLaunchCalendar,
+  toMarketLaunch,
+} from "./mattel-calendar.mjs";
 
 const require = createRequire(import.meta.url);
 const Market = require("../lib/market.js");
@@ -178,14 +185,31 @@ async function safeSection(id, title, group, prev, load) {
     const result = await load();
     const items = result.items || [];
     const kept = items.length ? items : previousItems(prev, id);
+    const stale = Boolean(result.stale) || !items.length && id === "mattel";
     return {
-      section: { id, title, group, note: result.note || "", items: items.length ? items : kept },
-      source: { id, ok: true, count: (items.length ? items : kept).length, note: result.note || (items.length ? "" : "Feed was empty. Kept the last copy when one existed.") },
+      section: {
+        id,
+        title,
+        group,
+        note: result.note || "",
+        items: items.length ? items : kept,
+        stale,
+        fetchedAt: result.fetchedAt || "",
+      },
+      source: { id, ok: !stale, count: (items.length ? items : kept).length, note: result.note || (items.length ? "" : "Feed was empty. Kept the last copy when one existed.") },
     };
   } catch (err) {
     const kept = previousItems(prev, id);
     return {
-      section: { id, title, group, note: "The public feed failed. Showing the last copy on file. Nothing new was invented.", items: kept },
+      section: {
+        id,
+        title,
+        group,
+        note: "Stale. The public feed failed. Showing the last copy on file. Nothing new was invented.",
+        items: kept,
+        stale: true,
+        fetchedAt: "",
+      },
       source: { id, ok: false, count: kept.length, note: String(err.message || err).slice(0, 180) },
     };
   }
@@ -399,7 +423,15 @@ async function loadLego() {
   return { items, note: "LEGO.com retiring-soon assortment. Prices are LEGO's own. No secondary sold." };
 }
 
-async function loadMattel() {
+function launchItem(row) {
+  return baseItem(toMarketLaunch(row));
+}
+
+function previousLaunches(prev) {
+  return previousItems(prev, "mattel").filter((item) => item && item.launchAt);
+}
+
+async function loadMattel(prev) {
   const handles = ["hot-wheels-red-line-club", "hot-wheels-elite-64"];
   const products = [];
   for (const handle of handles) {
@@ -447,7 +479,29 @@ async function loadMattel() {
       soldSource: "No settled sale fetched.",
     });
   });
-  return { items, note: "Read-only Mattel Creations product JSON. No cart or checkout. No secondary sold." };
+  let launches = [];
+  let stale = false;
+  let calendarNote = "";
+  try {
+    const html = await getText("https://creations.mattel.com/pages/launch-calendar", "text/html");
+    const parsed = parseLaunchCalendar(html, new Date());
+    if (!parsed.length) throw new Error("launch calendar had no upcoming rows");
+    launches = parsed.map(launchItem);
+    calendarNote = parsed.length + " upcoming launches from the Mattel Creations launch calendar.";
+  } catch (err) {
+    stale = true;
+    launches = previousLaunches(prev);
+    calendarNote = "Stale. The Mattel Creations launch calendar did not load. Showing the last good copy. " + String(err.message || err).slice(0, 120);
+  }
+  const merged = mergeLaunches(items, launches);
+  const note = [calendarNote, "Read-only Mattel Creations product JSON. No cart or checkout."].join(" ");
+  return {
+    items: merged.items,
+    note,
+    stale,
+    fetchedAt: new Date().toISOString(),
+    added: merged.added,
+  };
 }
 
 function loadMatchbox() {
@@ -841,6 +895,16 @@ async function loadFunko() {
 
 async function main() {
   const prev = loadPrevious();
+  const mattel = (prev.sections || []).find((section) => section.id === "mattel");
+  const decision = extraRefreshShouldRun({
+    schedule: process.env.GITHUB_EVENT_SCHEDULE || "",
+    now: new Date(),
+    launches: (mattel && mattel.items) || [],
+  });
+  if (!decision.run) {
+    process.stdout.write("skip refresh (" + decision.reason + ") Chicago " + JSON.stringify(chicagoParts(new Date())) + "\n");
+    return;
+  }
   const specs = [
     ["pokemon", "Pokémon", "TCG", (p) => loadPokemon(p)],
     ["magic", "Magic: The Gathering", "TCG", () => loadMagic()],
@@ -855,7 +919,7 @@ async function main() {
     ["apple", "Apple / Beats", "Brands", () => loadApple()],
     ["consoles", "Consoles", "Brands", () => loadConsoles()],
     ["matchbox", "Matchbox", "Brands", () => Promise.resolve(loadMatchbox())],
-    ["mattel", "Mattel Creations", "Brands", () => loadMattel()],
+    ["mattel", "Mattel Creations", "Brands", (prevFile) => loadMattel(prevFile)],
   ];
   const sections = [];
   const sources = [];
