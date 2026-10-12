@@ -35,6 +35,10 @@ assert(Amazon.ebayUrl("Skyline", true).includes("LH_Sold=1") && Amazon.ebayUrl("
 assert(!Amazon.ebayUrl("Skyline", false).includes("LH_Sold=1"), "active search is current listings");
 assert(Amazon.productUrl("nope") === "", "a short code is not an ASIN");
 assert(Amazon.buyHref({ asin: sample, verdict: "PASS" }, "PASS") === "", "PASS does not get a buy link");
+assert(Amazon.offerUrl({ asin: sample, verdict: "PASS", name: "Skip" }) === tagged, "an offer link does not depend on BUY or CHECK");
+assert(Amazon.offerUrl({ name: "Loose car", verdict: "PASS", platforms: "PS5" }) === Amazon.searchUrl("Loose car PS5"), "search fallback uses the name and qualifiers");
+assert(Amazon.offerUrl({ name: "Known", amazonUrl: clean, verdict: "PASS" }) === tagged, "a stored /dp/ URL is the offer");
+assert(Amazon.offerUrl({ name: "Grand Theft Auto VI", platforms: "PlayStation 5", category: "Video games" }).indexOf("tag=hempsply02-20") !== -1, "a game without an ASIN still carries the tag");
 assert(Amazon.buyHref({ asin: sample, verdict: "BUY" }) === tagged, "BUY with an ASIN gets a buy link");
 assert(Amazon.buyHref({ buyUrl: "https://amazon.com/dp/" + sample }, "Check") === tagged, "CHECK with a product URL gets a buy link");
 assert(Amazon.buyHref({ name: "Loose car", verdict: "CHECK" }) === "", "CHECK without an ASIN gets no link");
@@ -92,6 +96,7 @@ assert(app.includes('rel = "sponsored noopener"'), "Amazon anchors use rel=spons
 assert(app.includes('rel="sponsored noopener"'), "buy anchors use rel=sponsored noopener");
 assert(app.includes("eBay sold") && app.includes("eBay active") && app.includes("detailBuyLinks"), "detail pages include eBay and Amazon buy links");
 assert(app.includes("Buy on Amazon"), "buy link label");
+assert(app.includes("offerUrl"), "rendered buy buttons use offerUrl");
 assert(html.includes("<footer"), "footer element");
 assert(html.includes(Amazon.DISCLOSURE), "footer disclosure");
 

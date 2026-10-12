@@ -248,7 +248,7 @@ async function walk(browser, profile, contextOptions) {
     "On the detail page, click the Amazon buy link.",
     "Expect a new tab whose address is the tagged Amazon search.",
   ], async () => {
-    const link = page.getByRole("link", { name: "Amazon", exact: true }).first();
+    const link = page.getByRole("link", { name: "Buy on Amazon", exact: true }).first();
     await link.waitFor();
     const href = await link.getAttribute("href");
     if (!href || !href.includes("amazon.com") || !href.includes("tag=hempsply02-20")) {
