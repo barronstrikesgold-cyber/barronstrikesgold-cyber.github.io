@@ -163,8 +163,8 @@ try {
       await page.getByRole("heading", { name: /Aero Styles/ }).waitFor();
       await page.getByRole("link", { name: "eBay sold" }).waitFor();
       await page.getByRole("link", { name: "eBay active" }).waitFor();
-      const amazonHref = await page.getByRole("link", { name: "Amazon", exact: true }).getAttribute("href");
-      const amazonRel = await page.getByRole("link", { name: "Amazon", exact: true }).getAttribute("rel");
+      const amazonHref = await page.getByRole("link", { name: "Buy on Amazon", exact: true }).getAttribute("href");
+      const amazonRel = await page.getByRole("link", { name: "Buy on Amazon", exact: true }).getAttribute("rel");
       assert(amazonHref.includes("tag=hempsply02-20") && amazonHref.includes("/s?k="), "detail Amazon link is a tagged search");
       assert((await page.getByRole("link", { name: "eBay sold" }).getAttribute("href")).includes("LH_Sold=1"), "detail eBay link is sold listings");
       assert(amazonRel === "sponsored noopener", "detail buy links are sponsored");

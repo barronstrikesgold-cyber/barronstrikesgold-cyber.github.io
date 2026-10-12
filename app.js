@@ -111,16 +111,27 @@
     return '<a' + cls + ' href="' + esc(url) + '" target="_blank" rel="' + rel + '">' + esc(label) + "</a>";
   }
 
-  function amazonBuyRow(item, verdict, already) {
-    if (!window.ResellerAmazon) return "";
-    var href = ResellerAmazon.buyHref(item, verdict);
-    if (!href) return "";
-    var shown = already || [];
-    for (var i = 0; i < shown.length; i++) {
-      if (ResellerAmazon.sameProduct(shown[i], href)) return "";
-    }
-    return '<div class="link-row">' + externalAnchor(href, "Buy on Amazon") + "</div>";
+function isAmazonHref(href) {
+  var raw = String(href || "");
+  if (!raw) return false;
+  if (window.ResellerAmazon && ResellerAmazon.isProductUrl(raw)) return true;
+  try {
+    return /(^|\.)amazon\.com$/i.test(new URL(raw).hostname);
+  } catch (err) {
+    return false;
   }
+}
+
+function amazonBuyRow(item, verdict, already) {
+  if (!window.ResellerAmazon) return "";
+  var href = ResellerAmazon.offerUrl(item);
+  if (!href) return "";
+  var shown = already || [];
+  for (var i = 0; i < shown.length; i++) {
+    if (shown[i] === href || ResellerAmazon.sameProduct(shown[i], href)) return "";
+  }
+  return '<div class="link-row">' + buyAnchor(href, "Buy on Amazon") + "</div>";
+}
 
   function tagAmazonHref(href) {
     var raw = String(href || "");
@@ -193,11 +204,11 @@
     var name = subject.name || subject.id || "";
     var links = [];
     var shop = shopHref(subject);
-    if (shop) links.push(buyAnchor(shop, shopLabel(subject, shop)));
+    if (shop && !isAmazonHref(shop)) links.push(buyAnchor(shop, shopLabel(subject, shop)));
     if (window.ResellerAmazon) {
       links.push(buyAnchor(ResellerAmazon.ebayUrl(name, true), "eBay sold"));
       links.push(buyAnchor(ResellerAmazon.ebayUrl(name, false), "eBay active"));
-      links.push(buyAnchor(ResellerAmazon.searchUrl(name), "Amazon"));
+      links.push(buyAnchor(ResellerAmazon.offerUrl(subject), "Buy on Amazon"));
     }
     if (!links.length) return "";
     return '<section class="tool"><p class="kicker">Buy</p><div class="link-row">' + links.join("") + "</div></section>";
@@ -1067,21 +1078,21 @@
       ? "<p>No sold data</p>" + (item.soldSource ? '<p class="fine">' + esc(item.soldSource) + "</p>" : "")
       : "<p>Sold " + esc(marketMoneyText(item.sold)) + (item.soldDate ? " · " + esc(item.soldDate) : "") + "</p>" +
         (item.soldSource ? "<p>" + esc(item.soldSource) + "</p>" : "") +
-        (item.soldUrl ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
+        (item.soldUrl && !isAmazonHref(item.soldUrl) ? '<div class="link-row">' + externalAnchor(item.soldUrl, "Sold source") + "</div>" : "");
     var netLine = item.net == null ? "Net · no sold" : "Net " + marketMoneyText(item.net);
     var shop = shopHref(item);
-    var dropLinks = (item.dropUrl ? externalAnchor(item.dropUrl, "Drop") : "") + (item.raffleUrl ? externalAnchor(item.raffleUrl, "Raffle") : "");
+    var dropLinks = (item.dropUrl && !isAmazonHref(item.dropUrl) ? externalAnchor(item.dropUrl, "Drop") : "") + (item.raffleUrl && !isAmazonHref(item.raffleUrl) ? externalAnchor(item.raffleUrl, "Raffle") : "");
     var dropBlock = dropLinks ? '<section class="tool"><p class="kicker">Drop</p><div class="link-row">' + dropLinks + "</div></section>" : "";
     var auth = item.section === "sneakers" || item.section === "designer"
       ? '<section class="tool"><p class="kicker">Authentication</p><p>' + esc(authDisclaimer()) + "</p></section>"
       : "";
     var word = item.brand ? '<p class="brand-word">' + esc(item.brand) + "</p>" : "";
-    var retailLink = item.retailUrl && item.retailUrl !== shop
+    var retailLink = item.retailUrl && item.retailUrl !== shop && !isAmazonHref(item.retailUrl)
       ? '<div class="link-row">' + externalAnchor(item.retailUrl, item.retailSource || "Retail source") + "</div>"
       : "";
-    var photoCredit = item.photoPage
+    var photoCredit = item.photoPage && !isAmazonHref(item.photoPage)
       ? '<p class="fine">' + externalAnchor(item.photoPage, item.photoCredit || "Photo source", "text-link") + "</p>"
-      : "";
+      : (item.photoCredit ? '<p class="fine">' + esc(item.photoCredit) + "</p>" : "");
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar", href: "#/calendar" }, { label: item.name }]) +
       '<button class="back" type="button" data-back>Calendar</button>' +
       marketPhoto(item, true) +
@@ -1254,31 +1265,34 @@
       list;
   }
 
-  function renderDrops() {
-    var categories = ["All"];
-    drops.forEach(function (row) {
-      if (row.category && categories.indexOf(row.category) === -1) categories.push(row.category);
-    });
-    var current = state.calendarCategory || "all";
-    var shown = drops.filter(function (row) {
-      return current === "all" || row.category === current;
-    });
-    function block(row, index) {
-      var rule = Rules.dropVerdict(row.id);
-      var status = D.releaseState(row.iso);
-      var when = row.dateLabel || status;
-      var whenLine = when + (status && status !== when ? " · " + status : "");
-      var photo = dropPhoto(row, false, index);
-      var facts = row.category === "Video games"
-        ? [row.format, row.printed].filter(Boolean).join(" · ")
-        : "";
-      return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
-        photo +
-        '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
-        '<span class="peg-tell">' + esc(row.category || "") + " · " + esc(whenLine) + "</span>" +
-        (facts ? '<span class="peg-meta">' + esc(facts) + "</span>" : "") +
-        '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button></article>";
-    }
+function calendarPeg(row, index) {
+  var rule = Rules.dropVerdict(row.id);
+  var status = D.releaseState(row.iso);
+  var when = row.dateLabel || status;
+  var whenLine = when + (status && status !== when ? " · " + status : "");
+  var photo = dropPhoto(row, false, index);
+  var facts = row.category === "Video games"
+    ? [row.format, row.printed].filter(Boolean).join(" · ")
+    : "";
+  return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
+    photo +
+    '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
+    '<span class="peg-tell">' + esc(row.category || "") + " · " + esc(whenLine) + "</span>" +
+    (facts ? '<span class="peg-meta">' + esc(facts) + "</span>" : "") +
+    '<span class="peg-meta">' + esc(rule.tells) + "</span></span></button>" +
+    amazonBuyRow(row, rule.verdict, []) +
+    "</article>";
+}
+
+function renderDrops() {
+  var categories = ["All"];
+  drops.forEach(function (row) {
+    if (row.category && categories.indexOf(row.category) === -1) categories.push(row.category);
+  });
+  var current = state.calendarCategory || "all";
+  var shown = drops.filter(function (row) {
+    return current === "all" || row.category === current;
+  });
     var chips = '<div class="chips category-row" role="group" aria-label="Drop category">' + categories.map(function (name) {
       var id = name === "All" ? "all" : name;
       var on = current === id;
@@ -1291,7 +1305,7 @@
       '<p class="digest">' + drops.length + " dated drops. Buy marks the dates that matter.</p>" +
       chips +
       '<p class="fine">' + shown.length + " of " + drops.length + "</p>" +
-      '<div class="list" id="calendar-list">' + shown.map(block).join("") + "</div>";
+      '<div class="list" id="calendar-list">' + shown.map(calendarPeg).join("") + "</div>";
   }
 
   function renderDrop() {
@@ -1425,7 +1439,7 @@
       '<section class="call call-buy"><strong>Buy</strong><p>Name-brand club only. No sold data, so do not invent a price.</p></section>' +
       '<p class="digest">' + esc(golf.note || "") + "</p>" +
       "<p>No sold data</p>" +
-      detailBuyLinks(state.itemId + " golf") +
+      detailBuyLinks({ name: state.itemId, category: "golf" }) +
       '<section class="tool"><p class="kicker">Check</p>' + allCheckLinks(state.itemId + " golf") + "</section>";
   }
 
@@ -1720,6 +1734,7 @@
         photo: golfShot ? licensedShot(golfShot) : null,
         mark: "golf",
         tells: golf.note || "",
+        category: "golf",
         buyUrl: "",
         retailUrl: "",
         amazonUrl: "",
@@ -1742,6 +1757,10 @@
         release: marketItem.release || "",
         releaseLabel: marketItem.section === "games" ? (marketItem.releaseLabel || "") : "",
         platforms: marketItem.platforms || "",
+        brand: marketItem.brand || "",
+        series: marketItem.series || "",
+        format: marketItem.format || "",
+        category: marketItem.section === "games" ? "Video games" : (marketItem.category || ""),
         retailLabel: marketItem.section === "games" ? (marketItem.retailLabel || "") : "",
         buyUrl: marketItem.buyUrl || (marketItem.section === "games" ? marketItem.retailUrl : "") || "",
         buyLabel: marketItem.buyLabel || "",
@@ -1765,10 +1784,15 @@
       mark: markOf("catalog", item),
       tells: Rules.tellsFor(item),
       catalogId: item.id,
+      category: item.category || "",
+      brand: item.brand || "",
+      series: resale.series || item.series || "",
+      platforms: item.platforms || "",
+      format: item.format || "",
       buyUrl: item.buyUrl || "",
       buyLabel: item.buyLabel || "",
       retailUrl: item.retailUrl || resale.retailUrl || "",
-      amazonUrl: item.amazonUrl || "",
+      amazonUrl: item.amazonUrl || resale.amazonUrl || "",
     };
   }
 
@@ -4594,7 +4618,138 @@
     }, true);
   }
 
-  function boot() {
+  function amazonAnchors(html) {
+  var doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+  return Array.prototype.map.call(doc.querySelectorAll("a"), function (anchor) {
+    return {
+      href: anchor.getAttribute("href") || "",
+      rel: anchor.getAttribute("rel") || "",
+      text: (anchor.textContent || "").replace(/\s+/g, " ").trim(),
+    };
+  }).filter(function (link) {
+    try {
+      return /(^|\.)amazon\.com$/i.test(new URL(link.href).hostname);
+    } catch (err) {
+      return false;
+    }
+  });
+}
+
+function withState(apply, read) {
+  var prev = {
+    itemKind: state.itemKind,
+    itemId: state.itemId,
+    marketId: state.marketId,
+    dropId: state.dropId,
+  };
+  apply();
+  var html = "";
+  try {
+    html = read();
+  } finally {
+    state.itemKind = prev.itemKind;
+    state.itemId = prev.itemId;
+    state.marketId = prev.marketId;
+    state.dropId = prev.dropId;
+  }
+  return html;
+}
+
+function auditAmazonOffers() {
+  var problems = [];
+  var dp = 0;
+  var search = 0;
+  var products = 0;
+  var views = 0;
+  var dpUrls = {};
+  var sections = {};
+  var videoGameDrops = 0;
+  function inspect(label, html) {
+    views += 1;
+    var links = amazonAnchors(html);
+    if (links.length !== 1) {
+      problems.push(label + " amazon links " + links.length);
+      return "";
+    }
+    var href = links[0].href;
+    if (href.indexOf("tag=hempsply02-20") === -1) problems.push(label + " missing tag");
+    if (links[0].rel !== "sponsored noopener") problems.push(label + " rel=" + links[0].rel);
+    if (links[0].text !== "Buy on Amazon") problems.push(label + " label=" + links[0].text);
+    try {
+      if (!/(^|\.)amazon\.com$/i.test(new URL(href).hostname)) problems.push(label + " host");
+    } catch (err) {
+      problems.push(label + " host");
+    }
+    return href;
+  }
+  function count(href) {
+    products += 1;
+    if (href.indexOf("/dp/") !== -1) {
+      dp += 1;
+      var asin = (href.match(/\/dp\/([A-Z0-9]{10})/i) || [])[1];
+      if (asin) dpUrls[asin.toUpperCase()] = "https://www.amazon.com/dp/" + asin.toUpperCase();
+    } else if (href.indexOf("/s?") !== -1) search += 1;
+    else problems.push("unclassified " + href);
+  }
+  function productViews(id, list) {
+    var hrefs = list.map(function (pair) { return inspect(id + " " + pair[0], pair[1]); });
+    if (hrefs.some(function (href) { return !href; })) return;
+    var kind = hrefs[0].indexOf("/dp/") !== -1 ? "dp" : "search";
+    hrefs.forEach(function (href) {
+      var next = href.indexOf("/dp/") !== -1 ? "dp" : "search";
+      if (next !== kind) problems.push(id + " views disagree");
+    });
+    count(hrefs[0]);
+  }
+  allCatalog().forEach(function (item) {
+    productViews("catalog:" + item.id, [
+      ["verdict", withState(function () { state.itemKind = "catalog"; state.itemId = item.id; }, renderVerdict)],
+      ["detail", withState(function () { state.itemId = item.id; }, renderCatalogDetail)],
+    ]);
+  });
+  (market.sections || []).forEach(function (section) {
+    sections[section.id] = (section.items || []).length;
+    (section.items || []).forEach(function (item) {
+      productViews("market:" + section.id + ":" + item.id, [
+        ["verdict", withState(function () { state.itemKind = "market"; state.itemId = item.id; }, renderVerdict)],
+        ["detail", withState(function () { state.marketId = item.id; }, renderMarketDetail)],
+        ["card", marketCard(item, 0)],
+      ]);
+    });
+  });
+  golfItems().forEach(function (item) {
+    productViews("golf:" + item.name, [
+      ["verdict", withState(function () { state.itemKind = "golf"; state.itemId = item.name; }, renderVerdict)],
+      ["detail", withState(function () { state.itemId = item.name; }, renderGolfDetail)],
+    ]);
+  });
+  drops.forEach(function (row) {
+    if (row.category === "Video games") videoGameDrops += 1;
+    productViews("calendar:" + row.id, [
+      ["entry", calendarPeg(row, 0)],
+      ["detail", withState(function () { state.dropId = row.id; }, renderDrop)],
+    ]);
+  });
+  return {
+    problems: problems,
+    products: products,
+    views: views,
+    dp: dp,
+    search: search,
+    dpUrls: Object.keys(dpUrls).map(function (asin) { return dpUrls[asin]; }),
+    sections: sections,
+    videoGameDrops: videoGameDrops,
+    calendar: drops.length,
+    disclosure: document.body.innerText.indexOf("As an Amazon Associate I earn from qualifying purchases.") !== -1,
+  };
+}
+
+window.HuntAmazonRender = {
+  ready: function () { return huntLoaded; },
+  audit: auditAmazonOffers,
+};
+
+function boot() {
     bootError = "";
     quietUntil = Date.now() + 1200;
     installPhotoFallback();
