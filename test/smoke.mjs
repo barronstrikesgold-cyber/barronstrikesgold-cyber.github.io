@@ -409,12 +409,16 @@ try {
         await page.getByRole("heading", { name: "What did you find?" }).waitFor();
         await page.getByRole("region", { name: "Promos" }).waitFor();
         await page.getByRole("button", { name: /^Coupons/ }).click();
-        await page.getByRole("heading", { name: "Coupons", exact: true }).waitFor();
+        await page.getByRole("heading", { name: "My Stuff", exact: true }).waitFor();
+        assert(await page.getByRole("heading", { name: "Coupons", exact: true }).count() === 0, "coupons stays inside My Stuff");
+        assert(await page.locator("#screen .back").count() === 0, "coupons has no leftover Home button");
         await page.locator("#coupons-area h2", { hasText: "Mattel Creations · 25% off" }).waitFor();
         const couponsText = await page.locator("#coupons-area").innerText();
         assert(!/EXPIRED-FIXTURE|INACTIVE-FIXTURE/.test(couponsText), "public coupons hide fixture codes");
         assert(/Mattel Creations · 25% off/.test(couponsText), "promo offers show without claiming the device");
         assert((await page.locator("#coupons-area article").count()) === 8, "eight promo offers are listed");
+        assert(await page.getByRole("button", { name: "Save a code on this device" }).isHidden(), "the private-code button stays folded");
+        await page.locator("#coupons-area summary", { hasText: "Add private code" }).click();
         await page.getByRole("button", { name: "Save a code on this device" }).click();
         await page.locator("#coupon-label").fill("Owner test");
         await page.locator("#coupon-code").fill("OWNER-LIVE");
@@ -428,7 +432,7 @@ try {
         await page.locator("#coupons-area").getByText("OWNER-LIVE").waitFor();
         await page.getByRole("button", { name: "Remove" }).click();
         assert(!/OWNER-LIVE/.test(await page.locator("#coupons-area").innerText()), "a removed code leaves the coupons area");
-        await page.locator("#screen").getByRole("button", { name: "Home" }).click();
+        await page.getByRole("tab", { name: "Home", exact: true }).click();
         await page.getByRole("heading", { name: "What did you find?" }).waitFor();
         await page.goto(base + "blog/", { waitUntil: "networkidle" });
         await page.getByRole("heading", { name: "Blog", exact: true }).waitFor();

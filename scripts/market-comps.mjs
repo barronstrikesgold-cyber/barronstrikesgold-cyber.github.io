@@ -107,12 +107,29 @@ export function parseBricklinkNew(html) {
   return { sold, count };
 }
 
+export function tcgProductUrl(productId) {
+  return "https://www.tcgplayer.com/product/" + productId;
+}
+
+export function humanSoldUrl(url) {
+  const match = String(url || "").match(/https?:\/\/infinite-api\.tcgplayer\.com\/price\/history\/(\d+)/i);
+  if (match) return tcgProductUrl(match[1]);
+  return String(url || "");
+}
+
+export function isApiSoldHost(url) {
+  if (!url) return false;
+  let host = "";
+  try { host = new URL(url).hostname.toLowerCase(); } catch (err) { return false; }
+  return host.split(".").some((label) => label === "api" || label.endsWith("-api") || label.startsWith("api-"));
+}
+
 function applyComp(item, comp) {
   return Object.assign({}, item, {
     sold: comp.sold,
     soldDate: comp.date,
     soldSource: comp.source,
-    soldUrl: comp.url,
+    soldUrl: humanSoldUrl(comp.url),
     liquid: Boolean(comp.liquid),
     sheetVerdict: "",
   });
@@ -278,7 +295,7 @@ async function tcgComp(item, cache) {
   }
   const window = cache.history.get(best.productId);
   if (!window) return null;
-  const url = "https://infinite-api.tcgplayer.com/price/history/" + best.productId + "?range=month";
+  const url = tcgProductUrl(best.productId);
   return {
     sold: window.sold,
     date: window.date,
@@ -439,7 +456,7 @@ async function funkoItems(Market) {
             sold: window.sold,
             date: window.date,
             liquid: window.count >= 5,
-            url: "https://infinite-api.tcgplayer.com/price/history/" + row.productId + "?range=month",
+            url: tcgProductUrl(row.productId),
             source: "TCGplayer sales for " + name + ". Volume-weighted average $" + window.sold.toFixed(2) + " across " + window.count + " sales, last sale " + window.date + ".",
           };
         }
@@ -537,7 +554,7 @@ async function extraPokemon(Market, existing) {
           sold: comp.sold,
           date: comp.date,
           liquid: comp.count >= 5,
-          url: "https://infinite-api.tcgplayer.com/price/history/" + row.productId + "?range=month",
+          url: tcgProductUrl(row.productId),
           source: "TCGplayer sales for " + row.productName + ". Volume-weighted average $" + comp.sold.toFixed(2) + " across " + comp.count + " sales, last sale " + comp.date + ". Not a listing ask.",
         }));
       }

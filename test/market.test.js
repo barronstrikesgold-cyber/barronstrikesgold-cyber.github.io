@@ -4,6 +4,12 @@ const fs = require("fs");
 const path = require("path");
 const Market = require("../lib/market.js");
 
+function isApiSoldHost(url) {
+  let host = "";
+  try { host = new URL(url).hostname.toLowerCase(); } catch (err) { return false; }
+  return host.split(".").some((label) => label === "api" || label.endsWith("-api") || label.startsWith("api-"));
+}
+
 function assert(cond, msg) {
   if (!cond) {
     console.error("FAIL:", msg);
@@ -94,6 +100,8 @@ const funko = file.sections.find((row) => row.id === "funko");
 assert(funko.items.length > 0, "Funko exclusives come from an alternate source when Funko.com is blocked");
 assert(/tcgplayer/i.test(funko.note) && !/invented a sold/i.test(funko.note), "Funko note names the alternate source");
 const pokemon = file.sections.find((row) => row.id === "pokemon");
+const etb = pokemon.items.find((item) => item.id === "pk-etb");
+assert(etb && etb.soldUrl === "https://www.tcgplayer.com/product/704143", "the Pokémon ETB sold source is the TCGplayer product page");
 assert(pokemon.items.some((item) => /mega evolution/i.test(item.name) && /elite trainer box/i.test(item.name)), "Mega Evolution ETBs are listed");
 assert(pokemon.items.some((item) => /league battle deck/i.test(item.name)), "League Battle decks are listed");
 assert(pokemon.items.some((item) => /world championship deck/i.test(item.name)), "Worlds decks are listed");
@@ -112,6 +120,7 @@ all.forEach((item) => {
     assert(item.verdict === "CHECK", item.id + " is CHECK without a sold");
   } else {
     assert(/^https:\/\//.test(item.soldUrl || ""), item.id + " sold has a source URL");
+    assert(!isApiSoldHost(item.soldUrl), item.id + " sold URL is not an API host");
     assert(/^\d{4}-\d{2}-\d{2}/.test(item.soldDate || ""), item.id + " sold has a date");
     assert(String(item.soldSource || "").trim().length > 3, item.id + " sold names a source");
     assert(item.net === Market.netOf(item.sold), item.id + " net is sold × 0.87 − 5");

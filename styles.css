@@ -783,6 +783,32 @@ h2 {
   padding-bottom: 2px;
 }
 .category-row .chip { flex: none; }
+.stuff-segments {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.stuff-segments .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 calc(33.33% - 8px);
+  white-space: nowrap;
+  padding: 0 10px;
+  font-size: 0.86rem;
+}
+.private-code { margin-top: 4px; }
+.private-code:not([open]) > .private-code-body { display: none; }
+.private-code summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+.private-code summary:focus-visible { outline-offset: 4px; }
+.private-code .digest { margin-top: 8px; }
+.private-code .tool { margin-top: 8px; }
 .chip {
   border: 1px solid var(--line);
   background: var(--bg-raise);
