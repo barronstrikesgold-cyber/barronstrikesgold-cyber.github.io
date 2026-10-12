@@ -152,6 +152,33 @@ async function gotoHash(page, hash) {
   await page.waitForTimeout(200);
 }
 
+async function armFakeCamera(page, mode) {
+  await page.evaluate((cameraMode) => {
+    const gum = function () {
+      if (cameraMode === "denied") {
+        return Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
+      }
+      const rendered = window.ResellerScan && window.ResellerScan.renderUpcA
+        ? window.ResellerScan.renderUpcA("036000291452", 3, 120, 11)
+        : null;
+      return Promise.resolve({
+        __frame: rendered,
+        getTracks() { return [{ stop() {} }]; },
+        getVideoTracks() { return [{ stop() {} }]; },
+      });
+    };
+    const devices = navigator.mediaDevices || {};
+    devices.getUserMedia = gum;
+    if (!navigator.mediaDevices) {
+      try {
+        Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: devices });
+      } catch (err) {
+        navigator.mediaDevices = devices;
+      }
+    }
+  }, mode);
+}
+
 async function walk(browser, profile, contextOptions) {
   const { context, page } = await openApp(browser, contextOptions, "camera");
   const desktop = profile.indexOf("desktop") !== -1;
@@ -326,6 +353,7 @@ async function walk(browser, profile, contextOptions) {
     "Point the fake camera at UPC 036000291452.",
     "Expect the Gold '70 AAR Cuda Super detail.",
   ], async () => {
+    await armFakeCamera(page, "camera");
     await page.getByRole("tab", { name: "Scan", exact: true }).click();
     await page.getByRole("heading", { name: "Scan", exact: true }).waitFor();
     await page.getByRole("heading", { name: "Gold '70 AAR Cuda Super" }).waitFor({ timeout: 20000 });
@@ -461,6 +489,7 @@ async function walk(browser, profile, contextOptions) {
     "Return to Scan and type 036000291452.",
     "Expect the Cuda detail.",
   ], async () => {
+    await armFakeCamera(manual.page, "denied");
     await manual.page.getByRole("tab", { name: "Scan", exact: true }).click();
     await manual.page.locator("#scan-msg.is-error").waitFor();
     const denied = await manual.page.locator("#scan-msg").innerText();
@@ -472,6 +501,7 @@ async function walk(browser, profile, contextOptions) {
     const saved = await manual.page.locator("#screen").innerText();
     if (!saved.includes("Code · " + missCode)) throw new Error("typed miss was not saved");
     await manual.page.locator("#header-back").click();
+    await armFakeCamera(manual.page, "denied");
     await manual.page.getByRole("tab", { name: "Scan", exact: true }).click();
     await manual.page.locator("#scan-q").fill(sample);
     await manual.page.locator("#scan-form button").click();
@@ -485,8 +515,8 @@ const webkitBrowser = await webkit.launch();
 const chromeBrowser = await chromium.launch({ channel: "chrome", headless: true });
 
 try {
-  await walk(webkitBrowser, "iphone", iphone);
-  await walk(chromeBrowser, "desktop", { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+  if (process.env.ONLY !== "desktop") await walk(webkitBrowser, "iphone", iphone);
+  if (process.env.ONLY !== "iphone") await walk(chromeBrowser, "desktop", { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
 } finally {
   await webkitBrowser.close();
   await chromeBrowser.close();
