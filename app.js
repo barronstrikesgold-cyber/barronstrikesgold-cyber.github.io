@@ -60,6 +60,7 @@
     invLimit: 24,
     homeLimit: 24,
     calendarCategory: "all",
+    navDepth: 0,
     marketBrand: "latest",
     fashionBrand: "all",
     marketLimit: 24,
@@ -2191,8 +2192,7 @@
 
   function render(opts) {
     opts = opts || {};
-    var scroller = document.querySelector(".app");
-    var keepY = opts.keepScroll && scroller ? scroller.scrollTop : 0;
+    var keepY = opts.keepScroll ? window.scrollY : (typeof opts.scrollY === "number" ? opts.scrollY : 0);
     screen.innerHTML = screenHtml();
     screen.setAttribute("aria-busy", state.refreshing ? "true" : "false");
     document.querySelectorAll(".tabbar [data-tab]").forEach(function (btn) {
@@ -2212,7 +2212,7 @@
       checkedLine.textContent = checkedParts.join(" · ");
     }
     paintDataStatus();
-    if (scroller) scroller.scrollTop = keepY;
+    paintChrome();
     if (state.view === "estimate" || (state.tab === "profit" && state.view === "root")) bindProfit();
     evaluateAlerts();
     var hunt = document.getElementById("hunt-q");
@@ -2237,10 +2237,11 @@
       var heading = screen.querySelector("h1");
       if (heading) {
         heading.setAttribute("tabindex", "-1");
-        heading.focus();
+        heading.focus({ preventScroll: true });
       }
       state.moveFocus = false;
     }
+    window.scrollTo(0, keepY);
     observeLazy(screen);
     observeHomeMore();
   }
@@ -2253,7 +2254,7 @@
       io.disconnect();
       state.homeLimit += 24;
       render({ keepScroll: true });
-    }, { root: document.querySelector(".app"), rootMargin: "280px" });
+    }, { root: null, rootMargin: "280px" });
     io.observe(btn);
   }
 
@@ -2271,44 +2272,325 @@
     }
   }
 
-  function push(partial) {
-    state.stack.push({
+  var routerReady = false;
+  var routeSilent = false;
+  var popTick = 0;
+
+  function routeSnap() {
+    return {
       tab: state.tab,
       view: state.view,
+      category: state.category,
+      segment: state.segment,
+      itemKind: state.itemKind,
       lane: state.lane,
       storeId: state.storeId,
       itemId: state.itemId,
-      itemKind: state.itemKind,
       invId: state.invId,
       dropId: state.dropId,
       marketId: state.marketId,
-      marketBrand: state.marketBrand,
-      query: state.query,
-      from: state.from,
-    });
+      calendarCategory: state.calendarCategory,
+    };
+  }
+
+  function hashForState() {
+    if (state.view === "estimate") return "#/profit";
+    if (state.view === "archive") return "#/catalog";
+    if (state.view === "stores") return "#/stores";
+    if ((state.view === "lanes" || state.view === "store") && state.storeId) return "#/stores/" + encodeURIComponent(state.storeId);
+    if (state.view === "lane" && state.storeId) return "#/stores/" + encodeURIComponent(state.storeId) + "/" + encodeURIComponent(state.lane || "");
+    if (state.view === "market") return "#/item/" + "market/" + encodeURIComponent(state.marketId || "");
+    if (state.view === "verdict" || state.view === "catalog" || state.view === "golf") {
+      return "#/item/" + encodeURIComponent(state.itemKind || "catalog") + "/" + encodeURIComponent(state.itemId || "");
+    }
+    if (state.view === "drop") return "#/item/" + "drop/" + encodeURIComponent(state.dropId || "");
+    if (state.view === "inv") return "#/item/" + "inventory/" + encodeURIComponent(state.invId || "");
+    if (state.view === "inv-form") return "#/tracked/edit";
+    if (state.view === "alert-setup") return "#/alerts/setup";
+    if (state.tab === "calendar" || state.tab === "drops") {
+      if (state.calendarCategory && state.calendarCategory !== "all") return "#/calendar/" + encodeURIComponent(state.calendarCategory);
+      return "#/calendar";
+    }
+    if (state.tab === "tracked" || state.tab === "inventory") return state.segment === "bought" ? "#/tracked/bought" : "#/tracked";
+    if (state.tab === "alerts") return "#/alerts";
+    if (state.tab === "account") return "#/account";
+    if ((state.tab === "home" || state.tab === "hunt") && state.category && state.category !== "all") {
+      return "#/category/" + encodeURIComponent(state.category);
+    }
+    return "#/home";
+  }
+
+  function decodePart(value) {
+    try { return decodeURIComponent(value || ""); } catch (err) { return value || ""; }
+  }
+
+  function applyHash(hash) {
+    var path = String(hash || "#/home").replace(/^#/, "");
+    if (path.charAt(0) !== "/") path = "/" + path;
+    var parts = path.split("/").filter(Boolean);
+    var head = parts[0] || "home";
+    state.view = "root";
+    state.lane = "";
+    state.storeId = "";
+    state.itemId = "";
+    state.dropId = "";
+    state.marketId = "";
+    state.query = "";
+    if (head === "calendar") {
+      state.tab = "calendar";
+      state.calendarCategory = parts[1] ? decodePart(parts[1]) : "all";
+      return;
+    }
+    if (head === "tracked") {
+      state.tab = "tracked";
+      state.segment = parts[1] === "bought" ? "bought" : "watching";
+      if (parts[1] === "edit") state.view = "inv-form";
+      return;
+    }
+    if (head === "alerts") {
+      state.tab = "alerts";
+      if (parts[1] === "setup") state.view = "alert-setup";
+      return;
+    }
+    if (head === "account") { state.tab = "account"; return; }
+    if (head === "catalog") { state.tab = "home"; state.view = "archive"; return; }
+    if (head === "stores") {
+      state.tab = "home";
+      if (parts[2]) {
+        state.view = "lane";
+        state.storeId = decodePart(parts[1]);
+        state.lane = decodePart(parts[2]);
+      } else if (parts[1]) {
+        state.view = "lanes";
+        state.storeId = decodePart(parts[1]);
+      } else state.view = "stores";
+      return;
+    }
+    if (head === "category" && parts[1]) {
+      state.tab = "home";
+      state.category = decodePart(parts[1]);
+      state.homeLimit = 24;
+      return;
+    }
+    if (head === "profit") { state.tab = "home"; state.view = "estimate"; return; }
+    if (head === "item" && parts[1]) {
+      var kind = parts[2] ? decodePart(parts[1]) : "catalog";
+      var id = parts[2] ? decodePart(parts[2]) : decodePart(parts[1]);
+      state.itemKind = kind;
+      state.itemId = id;
+      if (kind === "drop") {
+        state.tab = "calendar";
+        state.view = "drop";
+        state.dropId = id;
+      } else if (kind === "inventory") {
+        state.tab = "tracked";
+        state.view = "inv";
+        state.invId = id;
+      } else if (kind === "market") {
+        state.tab = "home";
+        state.view = "verdict";
+        state.marketId = id;
+      } else {
+        state.tab = "home";
+        state.view = "verdict";
+      }
+      return;
+    }
+    state.tab = "home";
+    state.category = "all";
+  }
+
+  function parentHash() {
+    var hash = hashForState();
+    if (hash.indexOf("#/item/") === 0) {
+      if (state.tab === "calendar") return "#/calendar";
+      if (state.tab === "tracked") return state.segment === "bought" ? "#/tracked/bought" : "#/tracked";
+      if (state.category && state.category !== "all") return "#/category/" + encodeURIComponent(state.category);
+      return "#/home";
+    }
+    if (hash.indexOf("#/category/") === 0) return "#/home";
+    if (hash.indexOf("#/stores/") === 0) return "#/stores";
+    if (hash.indexOf("#/calendar/") === 0) return "#/calendar";
+    if (hash === "#/tracked/bought" || hash === "#/tracked/edit") return "#/tracked";
+    if (hash === "#/alerts/setup") return "#/alerts";
+    return "#/home";
+  }
+
+  function commitRoute(mode, leaving, y) {
+    var next = hashForState();
+    var current = location.hash || "#/home";
+    var prevDepth = history.state && typeof history.state.depth === "number" ? history.state.depth : (state.navDepth || 0);
+    if (mode !== "replace" && next === current) return;
+    routeSilent = true;
+    if (mode === "replace") {
+      state.navDepth = prevDepth;
+      history.replaceState({ depth: prevDepth, scroll: typeof y === "number" ? y : window.scrollY, snap: snapNow() }, "", next);
+    } else {
+      history.replaceState({ depth: prevDepth, scroll: typeof y === "number" ? y : window.scrollY, snap: leaving || snapNow() }, "", current);
+      state.navDepth = prevDepth + 1;
+      history.pushState({ depth: state.navDepth, scroll: 0, snap: snapNow() }, "", next);
+    }
+    routeSilent = false;
+  }
+
+  function snapNow() { return routeSnap(); }
+
+  function onPop() {
+    popTick = Date.now();
+    var entry = history.state || {};
+    state.navDepth = typeof entry.depth === "number" ? entry.depth : 0;
+    if (entry.snap) Object.assign(state, entry.snap);
+    else applyHash(location.hash || "#/home");
+    state.moveFocus = true;
+    render({ scrollY: typeof entry.scroll === "number" ? entry.scroll : 0 });
+  }
+
+  function onHash() {
+    if (routeSilent || Date.now() - popTick < 400) return;
+    var next = location.hash || "#/home";
+    if (next === hashForState()) return;
+    if (history.state && history.state.snap) {
+      state.navDepth = typeof history.state.depth === "number" ? history.state.depth : state.navDepth;
+      Object.assign(state, history.state.snap);
+      state.moveFocus = true;
+      render({ scrollY: typeof history.state.scroll === "number" ? history.state.scroll : 0 });
+      return;
+    }
+    state.navDepth = (state.navDepth || 0) + 1;
+    routeSilent = true;
+    history.replaceState({ depth: state.navDepth, scroll: 0, snap: null }, "", next);
+    routeSilent = false;
+    applyHash(next);
+    routeSilent = true;
+    history.replaceState({ depth: state.navDepth, scroll: 0, snap: snapNow() }, "", next);
+    routeSilent = false;
+    state.moveFocus = true;
+    render({ scrollY: 0 });
+  }
+
+  function installRouter() {
+    if (!routerReady) {
+      window.addEventListener("popstate", onPop);
+      window.addEventListener("hashchange", onHash);
+      routerReady = true;
+    }
+    var hash = location.hash;
+    if (!hash || hash === "#" || hash === "#screen") {
+      applyHash("#/home");
+      state.navDepth = 0;
+      routeSilent = true;
+      history.replaceState({ depth: 0, scroll: 0, snap: snapNow() }, "", "#/home");
+      routeSilent = false;
+      return;
+    }
+    applyHash(hash);
+    state.navDepth = 0;
+    routeSilent = true;
+    history.replaceState({ depth: 0, scroll: 0, snap: snapNow() }, "", hash);
+    routeSilent = false;
+  }
+
+  function chipLabel(id) {
+    var labels = {
+      "hot-wheels": "Hot Wheels",
+      matchbox: "Matchbox",
+      pokemon: "Pokémon",
+      mtg: "MTG",
+      onepiece: "One Piece",
+      lorcana: "Lorcana",
+      yugioh: "Yu-Gi-Oh",
+      sports: "Sports cards",
+      sneakers: "Sneakers",
+      lego: "LEGO",
+      funko: "Funko",
+      apple: "Apple/Beats",
+      consoles: "Consoles",
+      golf: "Golf",
+    };
+    return labels[id] || id;
+  }
+
+  function routeTitle() {
+    if (state.view === "estimate") return "Profit calculator";
+    if (state.view === "archive") return "Catalog";
+    if (state.view === "stores") return "Stores";
+    if (state.view === "lanes" || state.view === "store") {
+      var store = findStore(state.storeId);
+      return store ? store.name : "Stores";
+    }
+    if (state.view === "lane") {
+      var meta = window.Rules && Rules.laneMeta(state.lane);
+      return meta ? meta.title : "Lane";
+    }
+    if (state.view === "drop") {
+      var drop = findDrop(state.dropId);
+      return (drop && drop.name) || "Drop";
+    }
+    if (state.view === "inv" || state.view === "inv-form") {
+      var inv = findInv(state.invId);
+      return state.view === "inv-form" ? "Purchase" : ((inv && inv.name) || "Item");
+    }
+    if (state.view === "alert-setup") return "Alert";
+    if (state.view === "verdict" || state.view === "catalog" || state.view === "market" || state.view === "golf") {
+      var subject = state.view === "market" ? (findMarket(state.marketId) || subjectOf("market", state.marketId)) : subjectOf(state.itemKind, state.itemId);
+      return (subject && subject.name) || "Item";
+    }
+    if (state.view === "root" && (state.tab === "home" || state.tab === "hunt") && state.category && state.category !== "all") {
+      return chipLabel(state.category);
+    }
+    return "";
+  }
+
+  function paintChrome() {
+    var title = routeTitle();
+    var bar = document.getElementById("topbar");
+    var backBtn = document.getElementById("header-back");
+    var titleEl = document.getElementById("view-title");
+    if (bar) bar.classList.toggle("is-sub", !!title);
+    if (backBtn) backBtn.hidden = !title;
+    if (titleEl) {
+      titleEl.hidden = !title;
+      titleEl.textContent = title;
+    }
+  }
+
+  function push(partial) {
+    var leaving = snapNow();
+    var y = window.scrollY;
     Object.assign(state, partial);
     state.moveFocus = true;
+    commitRoute("push", leaving, y);
     render();
   }
 
   function back() {
-    var prev = state.stack.pop();
-    if (!prev) {
-      state.tab = "home";
-      state.view = "root";
-    } else {
-      Object.assign(state, prev);
+    if (history.state && history.state.depth > 0) {
+      history.back();
+      return;
     }
+    var parent = parentHash();
+    if ((location.hash || "#/home") === parent) return;
+    applyHash(parent);
     state.moveFocus = true;
-    render();
+    commitRoute("replace", snapNow(), 0);
+    render({ scrollY: 0 });
   }
 
   function setTab(tab) {
+    var leaving = snapNow();
+    var y = window.scrollY;
     state.stack = [];
     state.tab = tab;
     state.view = "root";
     state.query = "";
+    state.category = "all";
+    state.lane = "";
+    state.storeId = "";
+    state.itemId = "";
+    state.dropId = "";
+    state.marketId = "";
     state.moveFocus = true;
+    commitRoute("push", leaving, y);
     render();
   }
 
@@ -2433,10 +2715,13 @@
     };
     Inv.upsertUser(invState, row);
     Inv.write(localStorage, invState);
+    var leavingForm = snapNow();
+    var formY = window.scrollY;
     state.tab = "tracked";
     state.view = "root";
     state.stack = [];
     state.moveFocus = true;
+    commitRoute("push", leavingForm, formY);
     render();
   }
 
@@ -2581,6 +2866,19 @@
   }, true);
 
   document.addEventListener("click", function (event) {
+    var skip = event.target.closest("[data-skip]");
+    if (skip) {
+      event.preventDefault();
+      var target = document.getElementById("screen");
+      if (target) target.focus();
+      return;
+    }
+    var brand = event.target.closest("#brand-home");
+    if (brand) {
+      event.preventDefault();
+      setTab("home");
+      return;
+    }
     var zoomBtn = event.target.closest("[data-zoom]");
     if (zoomBtn) {
       openZoom(zoomBtn.getAttribute("data-zoom"), zoomBtn.getAttribute("data-alt"));
@@ -2671,20 +2969,35 @@
     }
     var calBtn = event.target.closest("[data-cal-category]");
     if (calBtn) {
+      var leavingCal = snapNow();
+      var calY = window.scrollY;
       state.calendarCategory = calBtn.getAttribute("data-cal-category");
-      render({ keepScroll: true });
+      state.moveFocus = true;
+      commitRoute("push", leavingCal, calY);
+      render();
       return;
     }
     var catBtn = event.target.closest("[data-category]");
     if (catBtn) {
+      var leavingCat = snapNow();
+      var catY = window.scrollY;
+      state.tab = "home";
+      state.view = "root";
       state.category = catBtn.getAttribute("data-category");
       state.homeLimit = 24;
-      render({ keepScroll: true });
+      state.query = "";
+      state.moveFocus = true;
+      commitRoute("push", leavingCat, catY);
+      render();
       return;
     }
     var segBtn = event.target.closest("[data-segment]");
     if (segBtn) {
+      var leavingSeg = snapNow();
+      var segY = window.scrollY;
       state.segment = segBtn.getAttribute("data-segment");
+      state.moveFocus = true;
+      commitRoute("push", leavingSeg, segY);
       render();
       return;
     }
@@ -2760,6 +3073,7 @@
     if (!actionBtn) return;
     var actionName = actionBtn.getAttribute("data-action");
     if (actionName === "refresh") { refreshAll(); return; }
+    if (actionName === "history-back") { back(); return; }
     if (actionName === "open-drops") { setTab("calendar"); return; }
     if (actionName === "sources") { openSheet(sourcesHtml()); return; }
     if (actionName === "close-sheet") { closeSheet(); return; }
@@ -2914,9 +3228,13 @@
       Inv.markRemoved(invState, state.invId);
       Inv.write(localStorage, invState);
       closeSheet();
+      var leavingInv = snapNow();
+      var invY = window.scrollY;
       state.view = "root";
       state.tab = "tracked";
       state.stack = [];
+      state.moveFocus = true;
+      commitRoute("push", leavingInv, invY);
       render();
       return;
     }
@@ -3603,6 +3921,7 @@
     bootError = "";
     quietUntil = Date.now() + 1200;
     bindReturns();
+    installRouter();
     render();
     var dropsPromise = fetchFreshJson("data/drops.json");
     ensureLibs();

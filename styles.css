@@ -1,5 +1,4 @@
-html, body { height: 100%; }
-body { overflow: hidden; }
+html, body { min-height: 100%; }
 
 :root {
   --bg: #070708;
@@ -89,8 +88,7 @@ html, body {
   color: var(--ink);
   font-family: var(--font);
   max-width: 100%;
-  overflow-x: hidden;
-  min-height: 100dvh;
+  min-height: 100%;
 }
 
 body { -webkit-text-size-adjust: 100%; }
@@ -124,18 +122,20 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
 .app {
   width: min(var(--shell), 100%);
   margin: 0 auto;
-  height: 100dvh;
+  min-height: 100dvh;
+  padding-top: calc(56px + env(safe-area-inset-top));
   background:
     radial-gradient(120% 40% at 100% -10%, rgba(255, 77, 0, 0.28), transparent 42%),
     var(--bg);
-  overflow-x: clip;
-  overflow-y: auto;
 }
 
-/* Compact header: 56px content row + safe-area. */
+/* Fixed header so iOS Safari, standalone, and Chrome keep it pinned while the document scrolls. */
 .topbar {
-  position: sticky; top: 0; z-index: 40;
-  display: flex; align-items: center; gap: 10px;
+  position: fixed; top: 0; z-index: 40;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(var(--shell), 100%);
+  display: flex; align-items: center; gap: 8px;
   min-height: 56px; box-sizing: border-box;
   padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
   height: calc(56px + env(safe-area-inset-top));
@@ -143,6 +143,39 @@ button, a, .chip, .flow-row, summary { cursor: pointer; }
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
 }
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0; flex: 1;
+  color: inherit; text-decoration: none;
+}
+.header-back {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold);
+  font-weight: 800;
+}
+.topbar.is-sub .header-back { display: inline-flex; }
+.topbar.is-sub .brand { flex: 0 1 auto; }
+.topbar.is-sub .status-line { display: none; }
+.view-title {
+  display: none;
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  font-weight: 800;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar.is-sub .view-title { display: block; }
 .mark { width: 32px; height: 32px; flex: none; border-radius: 8px; }
 .brand-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
 .wordmark {
@@ -943,7 +976,12 @@ h2 {
     width: auto;
     max-width: none;
     margin: 0 0 0 232px;
-    height: 100dvh;
+    min-height: 100dvh;
+  }
+  .topbar {
+    left: 232px;
+    transform: none;
+    width: calc(100% - 232px);
   }
   .screen { padding-bottom: 32px; }
   .category-row { flex-wrap: wrap; overflow: visible; }

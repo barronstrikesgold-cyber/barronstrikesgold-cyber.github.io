@@ -92,7 +92,13 @@ assert(!sw.includes("reseller-shell-20261012d"), "previous shell cache is retire
 assert(app.includes("data-fashion-brand"), "sneaker and designer drops have brand chips");
 assert(app.includes("id=\"drop-calendar\""), "dated drops render as a calendar");
 assert(app.includes("Authentication: sneakers and designer pieces"), "authentication disclaimer is on fashion drops");
-assert(css.includes("position: sticky; top: 0; z-index: 40"), "header stays pinned");
+assert(css.includes("position: fixed; top: 0; z-index: 40"), "header stays pinned");
+assert(css.includes("padding-top: calc(56px + env(safe-area-inset-top))"), "content clears the fixed header");
+assert(html.includes('href="#/home"'), "wordmark links home");
+assert(html.includes('id="header-back"'), "sub-views get a header back button");
+assert(app.includes("popstate"), "back navigation listens for history");
+assert(app.includes('"#/calendar"'), "calendar has a route");
+assert(app.includes('"#/item/"'), "items have a route");
 assert(html.includes("© 2026 Broken Beaker Labs LC"), "footer names the operator");
 assert(sw.includes("png|jpe?g|webp|gif|svg|avif"), "same-origin images bypass the http cache");
 assert(app.includes("is-placeholder"), "missing photos use a category placeholder");
