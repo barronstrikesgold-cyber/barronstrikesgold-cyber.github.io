@@ -1,6 +1,175 @@
 {
   "audience": "owner",
-  "note": "Live coupon codes are not stored in this public repository. The rows below are dead fixtures so the coupons area can prove it hides them and removes them.",
+  "note": "Live coupon codes are not stored in this public repository. Offers link to the official page. Code strings found on a page are redacted before anything is written.",
+  "updatedAt": "2026-10-12T03:35:16.084Z",
+  "checked": [
+    {
+      "store": "Mattel Creations",
+      "url": "https://creations.mattel.com/",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 1
+    },
+    {
+      "store": "Target",
+      "url": "https://www.target.com/c/top-deals/-/N-4xw74",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 0
+    },
+    {
+      "store": "Walmart",
+      "url": "https://www.walmart.com/shop/deals",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 0
+    },
+    {
+      "store": "Amazon",
+      "url": "https://www.amazon.com/deals",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 3
+    },
+    {
+      "store": "GameStop",
+      "url": "https://www.gamestop.com/deals",
+      "allowed": false,
+      "reason": "robots-unreadable",
+      "status": 403
+    },
+    {
+      "store": "Best Buy",
+      "url": "https://www.bestbuy.com/site/top-deals/pcmcat1563299782894.c?id=pcmcat1563299782894",
+      "allowed": false,
+      "reason": "robots-unreadable",
+      "status": 0
+    },
+    {
+      "store": "Pokémon Center",
+      "url": "https://www.pokemoncenter.com/",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 0
+    },
+    {
+      "store": "LEGO",
+      "url": "https://www.lego.com/en-us/categories/deals",
+      "allowed": false,
+      "reason": "robots-unreadable",
+      "status": 403
+    },
+    {
+      "store": "Nike",
+      "url": "https://www.nike.com/w/sale-3yaep",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 1
+    },
+    {
+      "store": "Foot Locker",
+      "url": "https://www.footlocker.com/category/sale.html",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 3
+    },
+    {
+      "store": "Nordstrom",
+      "url": "https://www.nordstrom.com/browse/sale",
+      "allowed": true,
+      "reason": "ok",
+      "offers": 0
+    },
+    {
+      "store": "Saks",
+      "url": "https://www.saksfifthavenue.com/c/sale",
+      "allowed": false,
+      "reason": "robots-unreadable",
+      "status": 403
+    }
+  ],
+  "offers": [
+    {
+      "id": "mattel-1",
+      "store": "Mattel Creations",
+      "label": "Mattel Creations · 25% off",
+      "discount": "25% off",
+      "sourceUrl": "https://creations.mattel.com/",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "amazon-1",
+      "store": "Amazon",
+      "label": "Amazon · 18% off",
+      "discount": "18% off",
+      "sourceUrl": "https://www.amazon.com/deals",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "amazon-2",
+      "store": "Amazon",
+      "label": "Amazon · 10% off",
+      "discount": "10% off",
+      "sourceUrl": "https://www.amazon.com/deals",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "amazon-3",
+      "store": "Amazon",
+      "label": "Amazon · 20% off",
+      "discount": "20% off",
+      "sourceUrl": "https://www.amazon.com/deals",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "nike-1",
+      "store": "Nike",
+      "label": "Nike · 40% Off",
+      "discount": "40% Off",
+      "sourceUrl": "https://www.nike.com/w/sale-3yaep",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-1",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 18% off",
+      "discount": "18% off",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-2",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 24% off",
+      "discount": "24% off",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-3",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 17% off",
+      "discount": "17% off",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "expires": "2026-10-14",
+      "lastChecked": "2026-10-12T03:35:16.084Z",
+      "active": true
+    }
+  ],
   "codes": [
     {
       "id": "expired-fixture",

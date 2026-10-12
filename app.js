@@ -222,16 +222,11 @@
     var photo = value.match(/^photos\/([^/]+)\.(jpe?g|png)$/i);
     if (photo) {
       var thumb = "photos/thumbs/" + photo[1] + ".webp";
-      if (card) return { src: thumb, srcset: thumb + " 360w", sizes: "112px", zoom: value };
+      if (card) return { src: thumb, srcset: "", sizes: "", zoom: value };
       return { src: thumb, srcset: thumb + " 360w, " + value + " 1200w", sizes: sizes, zoom: value };
     }
     if (value.indexOf("assets/hw/thumbs/") === 0) {
       return { src: value, srcset: value + " 240w", sizes: sizes, zoom: value };
-    }
-    if (/cdn\.shopify\.com/i.test(value) && /[?&]width=\d+/.test(value)) {
-      var small = value.replace(/([?&]width=)\d+/, "$1192");
-      var mid = value.replace(/([?&]width=)\d+/, "$1384");
-      return { src: card ? small : mid, srcset: small + " 192w, " + mid + " 384w", sizes: sizes, zoom: mid };
     }
     return { src: value, srcset: "", sizes: "", zoom: value };
   }
@@ -242,7 +237,7 @@
     var pack = thumbSources(src, kind);
     var resolved = pack ? pack.zoom : "";
     var shown = pack ? pack.src : "assets/states/photo-needed.svg";
-    var lazy = !!(pack && opts.index >= 8);
+    var lazy = !!(pack && typeof opts.index === "number" && opts.index >= 4);
     var classes = "photo-frame photo-frame-" + kind;
     if (kind === "hero") classes += " peg-photo is-hero hero-photo";
     else if (kind === "card") classes += " peg-photo";
@@ -250,15 +245,9 @@
     else if (kind === "catalog") classes += " hw-photo";
     else if (kind === "flow") classes += " flow-thumb";
     if (!pack) classes += " is-empty";
-    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer"';
-    if (lazy) {
-      img += ' data-src="' + esc(shown) + '"';
-      if (pack.srcset) img += ' data-srcset="' + esc(pack.srcset) + '" data-sizes="' + esc(pack.sizes) + '"';
-    } else {
-      img += ' src="' + esc(shown) + '"';
-      if (pack) img += ' loading="eager"';
-      if (pack && pack.srcset) img += ' srcset="' + esc(pack.srcset) + '" sizes="' + esc(pack.sizes) + '"';
-    }
+    var img = '<img alt="' + esc(opts.alt || "") + '" decoding="async" referrerpolicy="no-referrer" src="' + esc(shown) + '" width="480" height="360"';
+    img += lazy ? ' loading="lazy"' : ' loading="eager"';
+    if (pack && pack.srcset) img += ' srcset="' + esc(pack.srcset) + '" sizes="' + esc(pack.sizes) + '"';
     if (opts.mark) img += ' data-mark="' + esc(opts.mark) + '"';
     if (!pack) img += ' data-fallback="1"';
     img += ">";
@@ -426,9 +415,9 @@
   function pegPhoto(item, large, index) {
     var shot = photoFor(item);
     var src = shot ? displayPhoto(shot.src) : "";
-    if (src) return frameHtml(src, { alt: shot.alt, kind: large ? "hero" : "card", index: index });
-    if (!large) return "";
-    return frameHtml("", { kind: "hero", note: true });
+    var mark = markOf(item && item.category === "golf" ? "golf" : "catalog", item);
+    if (src) return frameHtml(src, { alt: shot.alt, kind: large ? "hero" : "card", index: index, mark: mark });
+    return placeholderThumb(mark, !!large);
   }
 
   function decisionBar(verdict, resaleVerdict) {
@@ -841,10 +830,10 @@
 
   function heroPhoto(item) {
     var shot = photoFor(item);
-    var src = shot ? usablePhoto(shot.src) : "";
-    if (src) return frameHtml(src, { alt: shot.alt, kind: "hero", zoom: true, hint: true });
-    return frameHtml("", { kind: "hero", note: true }) +
-      '<div class="photo-needed" role="img" aria-label="Photo needed"><strong>Photo needed</strong><p>' + esc((item && item.photoSource) || "No exact photo is bundled.") + "</p></div>";
+    var src = shot ? displayPhoto(shot.src) : "";
+    var mark = markOf("catalog", item);
+    if (src) return frameHtml(src, { alt: shot.alt, kind: "hero", zoom: true, hint: true, mark: mark });
+    return placeholderThumb(mark, true);
   }
 
   function renderCatalogDetail() {
@@ -896,9 +885,17 @@
 
   function marketPhoto(item, zoom, index) {
     var src = licensedPhoto(item && item.photo);
-    if (src) return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index });
-    if (item && (item.section === "sneakers" || item.section === "designer")) return placeholderThumb(item.section === "sneakers" ? "sneaker" : "box");
-    return "";
+    var mark = markOf("market", item);
+    if (!src) return placeholderThumb(mark, true);
+    return frameHtml(src, { alt: (item && (item.photoAlt || item.name)) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index, mark: mark, hint: !!zoom });
+  }
+
+  function dropPhoto(item, zoom, index) {
+    var shot = photoFor(item);
+    var src = shot ? displayPhoto(shot.src) : licensedPhoto(item && item.photo);
+    var mark = markOf("catalog", { category: (item && item.category) || "", name: (item && item.name) || "" });
+    if (!src) return placeholderThumb(mark, true);
+    return frameHtml(src, { alt: (shot && shot.alt) || (item && item.photoAlt) || (item && item.name) || "", kind: zoom ? "hero" : "market", zoom: !!zoom, index: index, mark: mark, hint: !!zoom });
   }
 
   function marketFoot(item) {
@@ -1237,10 +1234,10 @@
     var shown = drops.filter(function (row) {
       return current === "all" || row.category === current;
     });
-    function block(row) {
+    function block(row, index) {
       var rule = Rules.dropVerdict(row.id);
       var status = D.releaseState(row.iso);
-      var photo = pegPhoto(row, true);
+      var photo = dropPhoto(row, false, index);
       return '<article class="peg"><button class="peg-open is-stack" type="button" data-drop="' + esc(row.id) + '">' +
         photo +
         '<span class="peg-copy"><span class="peg-name">' + esc(row.name) + "</span>" +
@@ -1266,7 +1263,7 @@
     if (!item) return stateCard("error", "Missing drop", "That release is not on the calendar.");
     var status = D.releaseState(item.iso);
     var rule = Rules.dropVerdict(item.id);
-    var photo = heroPhoto(item);
+    var photo = dropPhoto(item, true);
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Drops & Calendar", href: "#/calendar" }, { label: item.name }]) +
       '<button class="back" type="button" data-back>Calendar</button>' + photo +
       "<h1>" + esc(item.name) + "</h1>" +
@@ -1791,9 +1788,10 @@
     return "box";
   }
 
-  function placeholderThumb(mark) {
+  function placeholderThumb(mark, wide) {
     var key = MARK_ICON[mark] ? mark : "box";
-    return '<span class="flow-thumb is-placeholder" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + MARK_ICON[key] + "</span>";
+    var cls = "flow-thumb is-placeholder" + (wide ? " is-wide" : "");
+    return '<span class="' + cls + '" role="img" aria-label="' + esc(MARK_LABEL[key]) + '">' + MARK_ICON[key] + "</span>";
   }
 
   function chipOf(rec) {
@@ -4311,12 +4309,18 @@
     var published = (couponFile && couponFile.codes) || [];
     var prunedPublished = window.ResellerCoupons.pruneCoupons(published, today);
     var shown = ownerOn() ? window.ResellerCoupons.activeCoupons(prunedPublished.concat(prunedLocal), today) : [];
-    var list = shown.length
-      ? shown.map(function (row) {
-        return '<article class="card"><h2>' + esc(row.label || "Code") + "</h2><p>" + esc(row.code) + '</p><p class="fine">Expires ' + esc(row.expires) + "</p>" +
-          '<button class="danger" type="button" data-action="remove-coupon" data-id="' + esc(row.id) + '">Remove</button></article>';
-      }).join("")
-      : '<p class="fine">No active codes.</p>';
+    var offers = ownerOn() && window.ResellerCoupons.activeOffers ? window.ResellerCoupons.activeOffers((couponFile && couponFile.offers) || [], today) : [];
+    var updated = '<p class="fine">Last updated ' + esc(couponFile && couponFile.updatedAt ? formatWhen(couponFile.updatedAt) : "not yet") + "</p>";
+    var codeList = shown.map(function (row) {
+      return '<article class="card"><h2>' + esc(row.label || "Code") + "</h2><p>" + esc(row.code) + '</p><p class="fine">Expires ' + esc(row.expires) + "</p>" +
+        '<button class="danger" type="button" data-action="remove-coupon" data-id="' + esc(row.id) + '">Remove</button></article>';
+    }).join("");
+    var offerList = offers.map(function (row) {
+      return '<article class="card"><h2>' + esc(row.label || row.store || "Offer") + "</h2><p>" + esc(row.discount || "See the official page") + "</p>" +
+        '<p class="fine">' + esc(row.store || "") + " · Expires " + esc(row.expires || "") + " · Checked " + esc(row.lastChecked ? formatWhen(row.lastChecked) : "") + "</p>" +
+        (row.sourceUrl ? '<div class="link-row">' + externalAnchor(row.sourceUrl, "Source") + "</div>" : "") + "</article>";
+    }).join("");
+    var list = (codeList || offerList) ? codeList + offerList : '<p class="fine">No active codes.</p>';
     var gate = ownerOn()
       ? '<form class="tool" id="coupon-form"><label class="field" for="coupon-label"><span>Label</span><input id="coupon-label" autocomplete="off"></label>' +
         '<label class="field" for="coupon-code"><span>Code</span><input id="coupon-code" autocomplete="off"></label>' +
@@ -4325,7 +4329,7 @@
       : '<p class="digest">Coupons stay on this device for the owner. Live codes are not published.</p>' +
         '<button class="btn-primary" type="button" data-action="claim-owner">This device is the owner</button>';
     return '<button class="back" type="button" data-back>Home</button><h1>Coupons</h1><div id="coupons-area">' +
-      '<p class="fine">Owner-only. Expired and inactive codes are removed.</p>' + list + gate + "</div>";
+      '<p class="fine">Owner-only. Expired and inactive codes are removed.</p>' + updated + list + gate + "</div>";
   }
 
   function saveOwnerCoupon() {
@@ -4453,9 +4457,21 @@
     }).catch(function () {});
   }
 
+  function installPhotoFallback() {
+    document.addEventListener("error", function (event) {
+      var img = event.target;
+      if (!img || img.tagName !== "IMG" || img.getAttribute("data-fallback") === "1") return;
+      var frame = img.closest && img.closest(".photo-frame, .hw-photo, .flow-thumb");
+      if (!frame) return;
+      var wide = frame.classList.contains("market-photo") || frame.classList.contains("photo-frame-hero") || frame.classList.contains("hero-photo") || frame.classList.contains("is-wide");
+      frame.outerHTML = placeholderThumb(img.getAttribute("data-mark") || "box", wide);
+    }, true);
+  }
+
   function boot() {
     bootError = "";
     quietUntil = Date.now() + 1200;
+    installPhotoFallback();
     window.addEventListener("offline", function () { if (canRepaint()) render({ keepScroll: true }); });
     window.addEventListener("online", function () { if (canRepaint()) render({ keepScroll: true }); });
     bindReturns();
