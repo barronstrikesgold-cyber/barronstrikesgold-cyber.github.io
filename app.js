@@ -2353,7 +2353,7 @@ function renderDrops() {
     var checked = localStorage.getItem("reseller-checked-at");
     var fresh = window.ResellerHuntDrops ? window.ResellerHuntDrops.dataStatusLabel(state.dataPhase) : "";
     var storeIds = savedStoreIds();
-    return "<h1>Account</h1>" +
+    return "<h1>Settings</h1>" + (window.HuntAccounts ? window.HuntAccounts.entryCard() : "") +
       '<span class="field" id="appearance-label">Appearance</span><div class="seg" role="group" aria-labelledby="appearance-label">' + appearance + "</div>" +
       '<form id="account-form" class="tool">' +
       '<label class="field" for="set-fee"><span>Marketplace fee %</span><input id="set-fee" type="number" inputmode="decimal" step="0.1" min="0" value="' + esc(settings.feePercent) + '"></label>' +
@@ -2376,7 +2376,7 @@ function renderDrops() {
       '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
       '<button class="ghost" type="button" data-action="sources">Sources</button>' +
       '<section class="tool" id="device-data"><p class="kicker">Your data</p>' +
-      '<p>There is no sign-in. These buttons use only this device.</p>' +
+      '<p>These buttons use only this device. Account sign-in is in <a href="#/account">Account</a> (demo mode).</p>' +
       '<div class="actions">' +
       '<button class="ghost" type="button" data-action="export-device-data">Export my data</button>' +
       '<button class="danger" type="button" data-action="delete-device-data">Delete my data on this device</button>' +
@@ -2439,6 +2439,7 @@ function renderDrops() {
     if (bootError && state.tab !== "inventory" && state.tab !== "tracked" && state.tab !== "archive" && state.view !== "archive") {
       return stateCard("error", "Hunt hit a problem", bootError) + '<button class="solid" type="button" data-action="retry">Try again</button>';
     }
+    if (state.view === "auth" && window.HuntAccounts) return window.HuntAccounts.render(state.authRoute);
     if (state.view === "verdict") return renderVerdict();
     if (state.view === "alert-setup") return renderAlertSetup();
     if (state.view === "estimate") return renderProfit();
@@ -2629,10 +2630,12 @@ function renderDrops() {
       catalogChip: state.catalogChip,
       stuffSegment: state.stuffSegment,
       query: state.query,
+      authRoute: state.authRoute,
     };
   }
 
   function hashForState() {
+    if (state.view === "auth") return "#/" + (state.authRoute || "account");
     if (state.view === "search") return "#/search/" + encodeURIComponent(state.query || "");
     if (state.view === "estimate") return "#/profit";
     if (state.view === "blog") return "#/blog";
@@ -2683,6 +2686,7 @@ function renderDrops() {
     state.dropId = "";
     state.marketId = "";
     state.query = "";
+    state.authRoute = "";
     if (head === "calendar") {
       state.tab = "calendar";
       state.calendarCategory = parts[1] ? decodePart(parts[1]) : "all";
@@ -2706,7 +2710,7 @@ function renderDrops() {
       if (parts[1] === "setup") state.view = "alert-setup";
       return;
     }
-    if (head === "account") { state.tab = "stuff"; state.stuffSegment = "settings"; return; }
+    if (head === "signup" || head === "login" || head === "check-email" || head === "account") { state.tab = "stuff"; state.view = "auth"; state.authRoute = head; if (window.HuntAccounts) window.HuntAccounts.resetUi(); return; }
     if (head === "hw" || head === "archive") { state.tab = "catalog"; state.view = "archive"; return; }
     if (head === "catalog") {
       state.tab = "catalog";
@@ -2780,6 +2784,9 @@ function renderDrops() {
 
   function parentHash() {
     var hash = hashForState();
+    if (hash === "#/check-email") return "#/login";
+    if (hash === "#/signup" || hash === "#/login") return "#/account";
+    if (hash === "#/account") return "#/stuff/settings";
     if (hash.indexOf("#/item/") === 0) {
       if (state.tab === "calendar") return "#/calendar";
       if (state.tab === "tracked") return state.segment === "bought" ? "#/tracked/bought" : "#/tracked";
@@ -2892,6 +2899,7 @@ function renderDrops() {
   }
 
   function routeTitle() {
+    if (state.view === "auth" && window.HuntAccounts) return window.HuntAccounts.titleFor(state.authRoute);
     if (state.view === "search") return "Search";
     if (state.view === "estimate") return "Profit calculator";
     if (state.view === "blog") return "Blog";
@@ -3301,6 +3309,8 @@ function renderDrops() {
     try { Inv.write(localStorage, invState); } catch (err) { /* leave storage empty if the write fails */ }
     try { document.documentElement.removeAttribute("data-theme"); } catch (err) { /* theme can stay */ }
   }
+
+  if (window.HuntAccounts) window.HuntAccounts.setHooks({ rerender: function () { render({ keepScroll: true }); }, exportData: function () { exportDeviceData(); }, wipeDevice: function () { deleteDeviceData(); } });
 
   function download(filename, text, type) {
     var blob = new Blob([text], { type: type });
