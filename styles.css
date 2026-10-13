@@ -1325,3 +1325,36 @@ dialog:not([open]) { display: none !important; }
   .tabbar button:hover { color: var(--ink); background: var(--hover); }
   .tabbar button.is-on:hover { color: var(--flame); background: rgba(255, 77, 0, 0.12); }
 }
+
+/* Accounts (demo mode) */
+.acct { max-width: 560px; margin: 0 auto; display: grid; gap: 14px; }
+.acct h1 { margin: 0; }
+.acct-card { display: grid; gap: 12px; border-radius: var(--radius); }
+.acct-card h2 { margin: 0; font-size: 1.15rem; }
+.acct-card p { margin: 0; }
+.demo-badge { justify-self: start; margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; background: var(--ghost); color: var(--ink); border: 1px solid var(--line); }
+.demo-badge span { color: var(--gold); }
+.acct-methods, .acct-stack, .acct-email { display: grid; gap: 10px; }
+.acct-btn { min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.acct-btn:hover:not([disabled]) { background: var(--hover); }
+.acct-apple[disabled] { cursor: not-allowed; color: var(--muted); }
+.acct-soon { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--ghost); color: var(--ink); }
+.acct-or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.86rem; }
+.acct-or::before, .acct-or::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.acct input[type="email"], .acct input[type="text"] { min-height: 48px; font-size: 16px; }
+.acct-link-btn { display: flex; align-items: center; justify-content: center; text-decoration: none; min-height: 48px; border-radius: 12px; }
+.acct-error { color: var(--pass); background: var(--pass-bg); padding: 10px 12px; border-radius: 10px; font-weight: 600; }
+.acct-ok { color: var(--ink); background: var(--ghost); border-left: 4px solid var(--ok); padding: 10px 12px; border-radius: 10px; margin: 0; }
+.acct-switch, .acct-legal { text-align: center; margin: 0; }
+.acct a:not(.btn-primary):not(.btn-secondary):not(.ghost) { color: var(--ink); text-decoration: underline; }
+.acct-profile { grid-template-columns: auto 1fr; align-items: center; }
+.acct-avatar { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 1.5rem; font-weight: 700; background: var(--flame); color: var(--on-flame); }
+.acct-sync { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+.acct-counts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.acct-counts li { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 6px 0; }
+.acct-fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; margin: 0; }
+.acct-radio { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+.acct-danger { border: 1px solid var(--pass); }
+.danger[disabled] { opacity: 0.55; cursor: not-allowed; }
+.acct-entry { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--ink); margin-bottom: 12px; min-height: 56px; }
+.acct-entry > span[aria-hidden] { font-size: 1.6rem; color: var(--muted); }
