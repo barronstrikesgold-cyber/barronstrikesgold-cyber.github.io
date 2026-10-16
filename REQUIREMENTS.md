@@ -20,6 +20,10 @@ Public promotions from official store and brand pages, and from affiliate coupon
 
 The site includes an SEO blog.
 
+The Inventory tracker lives in My Stuff (two taps: My Stuff, then Tracker). Add items by Scan (barcode, UPC, or Mattel code), a catalog pick, or by hand. Each item keeps lane, name, variant (STH, TH, chase, sealed, raw, graded with grade), qty, cost paid, sales tax (default 9.7% St. Louis), purchase date and store, condition, a camera photo, location / bin, status (in stock, listed, at show, held for grading, sold), and every sale with price, channel, and date. Running totals show cost basis, est. value, and realized profit. It saves in IndexedDB on the phone, exports and imports CSV, and exports a Shopify product CSV (Handle, Title, Vendor, Product Type, Tags, Variant SKU, Variant Price, Variant Inventory Qty, Cost per item, Image Src). The data layer is an adapter interface so a Shopify Admin API backend can be swapped in without rewriting the UI.
+
+Show Mode is the pricing agent for a vendor table. Search or scan an item and it shows the market value from Hunt's own price data with its source and date, the eBay net (sold × 0.87 − $5), a round show ticket price under market, a floor that never drops below cost plus a margin, and lot pricing for commons. One tap records Sold at show, takes it out of qty, and logs cash or card. A daily show summary totals sales and profit. Show Mode works offline. With no comp it says No verified comp and never invents a price.
+
 ## Required sections
 
 These sections have to stay in the app and in the data.
@@ -36,3 +40,5 @@ These sections have to stay in the app and in the data.
 - Calendar
 - Blog
 - Coupons
+- Inventory tracker
+- Show Mode
