@@ -20,6 +20,8 @@
       <p>These are the localStorage keys the app reads or writes, and what each one is for:</p>
       <ul>
         <li><code>hunt-tracked</code> — items you track.</li>
+        <li><code>hunt-show-pay</code> — whether Show Mode records sales as cash or card by default.</li>
+        <li><code>hunt-stock-v1</code> — a backup copy of the inventory tracker, used only when this browser blocks IndexedDB.</li>
         <li><code>hunt-alerts</code> — alert rules. If you type an email for a future email fallback, that address stays in this key on this device. Hunt does not send that email.</li>
         <li><code>hunt-settings</code> — marketplace fee percent, shipping and supplies, minimum profit, and minimum sales.</li>
         <li><code>hunt-stores</code> — stores you pick for stock alerts.</li>
@@ -39,6 +41,7 @@
         <li><code>reseller-checked-at</code> — the time of the last refresh on this device.</li>
         <li><code>reseller-provider-log</code> — the last source-check result stored on this device.</li>
       </ul>
+      <p>The inventory tracker and Show Mode keep your stock, item photos you add, sales, and a copy of Hunt's price comps in this browser's IndexedDB database named <code>hunt-stock</code>. It stays on this device until you export it, delete it, or clear site data. Nothing in it is sent to Shopify or any server; the Shopify CSV is a file you download yourself.</p>
       <p>Search text is not saved under its own key. Categories of information on this device are the identifiers you choose to type (such as an alert email), and your app activity (tracked items, alerts, inventory, and settings).</p>
 
       <h2>Planned accounts</h2>

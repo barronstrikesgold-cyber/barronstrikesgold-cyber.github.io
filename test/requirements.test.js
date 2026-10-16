@@ -143,12 +143,24 @@ const sections = [
     app: app.includes('data-action="open-coupons"') && app.includes('["coupons", "Coupons"]') && !app.includes("<h1>Coupons</h1>") && app.includes("Add private code") && app.includes('id="coupons-area"') && app.includes("data/coupons.json") && app.includes("ResellerCoupons.activeCoupons") && app.includes("ResellerCoupons.pruneCoupons") && /ownerOn\(\)\s*\?\s*[^;\n]*ResellerCoupons\.activeCoupons/.test(app),
     data: false,
   },
+  {
+    name: "Inventory tracker",
+    doc: /Inventory tracker/,
+    app: app.includes('["tracker", "Tracker"]') && html.includes("lib/stock.js") && html.includes("lib/stock-ui.js") && fs.existsSync(path.join(root, "lib/stock.js")) && read("lib/stock-ui.js").includes("Inventory tracker") && read("lib/stock.js").includes("toShopifyCsv") && read("lib/stock.js").includes("idbAdapter"),
+    data: false,
+  },
+  {
+    name: "Show Mode",
+    doc: /Show Mode/,
+    app: app.includes('["show", "Show Mode"]') && html.includes("lib/show-pricing.js") && read("lib/stock-ui.js").includes("<h1>Show Mode</h1>") && read("lib/show-pricing.js").includes("No verified comp"),
+    data: false,
+  },
 ];
 
 sections.forEach(function (row) {
   assert(row.doc.test(doc), "REQUIREMENTS.md is missing " + row.name);
   assert(row.app, row.name + " disappeared from the app");
-  if (row.name !== "Blog" && row.name !== "Coupons") assert(row.data, row.name + " disappeared from the data");
+  if (["Blog", "Coupons", "Inventory tracker", "Show Mode"].indexOf(row.name) === -1) assert(row.data, row.name + " disappeared from the data");
 });
 
 const extraTcg = (market.sections || []).filter(function (row) {
@@ -186,6 +198,13 @@ REQUIRED_TCG.forEach(function (id) {
   "licensed photos",
   "no logos",
   "legal pages",
+  "IndexedDB",
+  "Shopify product CSV",
+  "adapter interface",
+  "9.7% St. Louis",
+  "No verified comp",
+  "works offline",
+  "cash or card",
 ].forEach(function (phrase) {
   assert(doc.includes(phrase), "REQUIREMENTS.md dropped " + phrase);
 });

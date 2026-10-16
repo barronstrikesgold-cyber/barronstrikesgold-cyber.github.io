@@ -20,7 +20,7 @@ const terms = read("terms.html");
 const deletion = read("delete-account.html");
 const app = read("app.js");
 const html = read("index.html");
-const sources = ["app.js", "lib/inventory.js", "lib/flow.js", "index.html"].map(read).join("\n");
+const sources = ["app.js", "lib/inventory.js", "lib/flow.js", "lib/stock.js", "lib/stock-ui.js", "index.html"].map(read).join("\n");
 
 const keys = new Set();
 function collect(re) {
@@ -30,6 +30,8 @@ function collect(re) {
 }
 collect(/(?:getItem|setItem|removeItem|readJson|writeJson)\(\s*["']((?:hunt|reseller)-[A-Za-z0-9-]+)["']/);
 collect(/var KEY = ["']((?:hunt|reseller)-[A-Za-z0-9-]+)["']/);
+collect(/readPref\(\s*["']((?:hunt|reseller)-[A-Za-z0-9-]+)["']/);
+assert(privacy.includes("<code>hunt-stock</code>") && privacy.includes("IndexedDB"), "privacy.html discloses the hunt-stock IndexedDB database");
 
 assert(keys.size >= 15, "expected the hunt and reseller storage keys, found " + keys.size);
 keys.forEach(function (key) {

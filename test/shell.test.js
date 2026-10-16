@@ -89,8 +89,8 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261012q"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261012p"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261015a"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261012q"), "previous shell cache is retired");
 assert(html.includes('id="global-q"'), "global search is in the header");
 assert(css.includes("top: calc(56px + env(safe-area-inset-top))"), "desktop nav sits under the header");
 assert(!css.includes("margin: 0 0 0 232px"), "desktop nav is not a side rail");
