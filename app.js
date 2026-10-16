@@ -29,6 +29,7 @@
   var scanBooting = false;
   var scanHit = false;
   var pendingScan = null;
+  var scanTarget = null;
 
   var state = {
     tab: "home",
@@ -68,6 +69,7 @@
     marketId: "",
     catalogChip: "all",
     stuffSegment: "watchlist",
+    stockSub: "",
     privateCodeOpen: false,
   };
 
@@ -1197,7 +1199,8 @@ function amazonBuyRow(item, verdict, already) {
   }
 
   function renderScanPage() {
-    return crumbs([{ label: "Home", href: "#/home" }, { label: "Scan" }]) + "<h1>Scan</h1>" + scanSheetHtml();
+    return crumbs([{ label: "Home", href: "#/home" }, { label: "Scan" }]) + "<h1>Scan</h1>" + scanSheetHtml() +
+      '<p class="fine stk-scan-links"><a href="#/stuff/tracker">Add to the inventory tracker</a> · <a href="#/stuff/show">Selling at a show? Open Show Mode</a></p>';
   }
 
   function stuffSegment() {
@@ -1214,6 +1217,8 @@ function amazonBuyRow(item, verdict, already) {
     var items = [
       ["watchlist", "Watchlist"],
       ["inventory", "Inventory"],
+      ["tracker", "Tracker"],
+      ["show", "Show Mode"],
       ["profit", "Profit"],
       ["coupons", "Coupons"],
       ["alerts", "Alerts"],
@@ -1223,8 +1228,15 @@ function amazonBuyRow(item, verdict, already) {
       var on = seg === pair[0];
       return '<button class="chip' + (on ? " is-on" : "") + '" type="button" data-stuff="' + pair[0] + '">' + pair[1] + "</button>";
     }).join("") + "</div>";
+    var stock = window.HuntStock;
+    if (seg === "tracker" && stock && state.stockSub) return stock.renderTracker();
+    if (seg === "show" && stock) {
+      return crumbs([{ label: "Home", href: "#/home" }, { label: "My Stuff", href: "#/stuff/tracker" }, { label: "Show Mode" }]) + stock.renderShow();
+    }
     var body = renderTracked();
-    if (seg === "inventory") body = renderInventory();
+    if (seg === "tracker") body = stock ? stock.renderTracker() : stateCard("error", "Tracker did not load", "Check the connection and try again.");
+    else if (seg === "show") body = stock ? stock.renderShow() : stateCard("error", "Show Mode did not load", "Check the connection and try again.");
+    else if (seg === "inventory") body = renderInventory();
     else if (seg === "profit") body = renderProfit();
     else if (seg === "coupons") body = renderCoupons();
     else if (seg === "alerts") body = renderAlerts();
@@ -1365,6 +1377,7 @@ function renderDrops() {
       ["verify", "Verify"],
     ];
     return "<h1>Inventory</h1>" +
+      '<a class="stk-promo" href="#/stuff/tracker"><b>Inventory tracker</b><span>Qty, bins, cost with tax, sales, CSV and Shopify export. Copy this book in with one tap.</span></a>' +
       '<p class="bookline" id="inventory-summary"><strong>' + esc(String(summary.packages)) + " packages</strong> · Invested " + esc(summary.investedLabel) + " · Book target " + esc(summary.targetLabel) + "</p>" +
       '<p class="fine">' + esc(String(summary.verifiedSupers)) + " confirmed Super · " + esc(String(summary.toVerify)) + " still to verify. Book targets are not live solds.</p>" +
       '<div class="filter-row">' + filters.map(function (pair) {
@@ -2628,6 +2641,7 @@ function renderDrops() {
       calendarCategory: state.calendarCategory,
       catalogChip: state.catalogChip,
       stuffSegment: state.stuffSegment,
+      stockSub: state.stockSub,
       query: state.query,
     };
   }
@@ -2659,7 +2673,11 @@ function renderDrops() {
     }
     if (state.tab === "scan") return "#/scan";
     if (state.tab === "stuff" || state.tab === "tracked" || state.tab === "inventory" || state.tab === "alerts" || state.tab === "account" || state.tab === "profit") {
-      return "#/stuff/" + encodeURIComponent(stuffSegment());
+      var segNow = stuffSegment();
+      if ((segNow === "tracker" || segNow === "show") && state.stockSub) {
+        return "#/stuff/" + encodeURIComponent(segNow) + "/" + state.stockSub.split("/").map(encodeURIComponent).join("/");
+      }
+      return "#/stuff/" + encodeURIComponent(segNow);
     }
     if ((state.tab === "home" || state.tab === "hunt") && state.category && state.category !== "all") {
       return "#/category/" + encodeURIComponent(state.category);
@@ -2683,6 +2701,7 @@ function renderDrops() {
     state.dropId = "";
     state.marketId = "";
     state.query = "";
+    state.stockSub = "";
     if (head === "calendar") {
       state.tab = "calendar";
       state.calendarCategory = parts[1] ? decodePart(parts[1]) : "all";
@@ -2720,8 +2739,11 @@ function renderDrops() {
       state.tab = "stuff";
       state.view = "root";
       state.stuffSegment = parts[1] ? decodePart(parts[1]) : "watchlist";
+      if (parts[2]) state.stockSub = parts.slice(2).map(decodePart).join("/");
       return;
     }
+    if (head === "show" || head === "show-mode") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "show"; return; }
+    if (head === "tracker" || head === "stock") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "tracker"; return; }
     if (head === "search") {
       state.tab = "home";
       state.view = "search";
@@ -2986,6 +3008,10 @@ function renderDrops() {
       tab = "home";
     }
     if (state.tab === "scan" && tab !== "scan" && stream) stopCamera();
+    if (tab === "stuff") {
+      if (state.tab === "stuff" && state.stuffSegment === "show" && !state.stockSub) state.stuffSegment = "tracker";
+      state.stockSub = "";
+    }
     var leaving = snapNow();
     var y = window.scrollY;
     state.stack = [];
@@ -3205,6 +3231,7 @@ function renderDrops() {
   }
 
   function closeSheet() {
+    scanTarget = null;
     stopCamera();
     if (sheet.open) sheet.close();
     sheet.innerHTML = "";
@@ -3297,6 +3324,8 @@ function renderDrops() {
     deviceDataKeys().forEach(function (key) {
       try { localStorage.removeItem(key); } catch (err) { /* this browser blocked storage */ }
     });
+    try { localStorage.removeItem("hunt-stock-v1"); } catch (err) { /* storage blocked */ }
+    if (window.HuntStock && window.HuntStock.wipe) window.HuntStock.wipe();
     invState = { version: 2, items: [], tombstones: seedIds, migratedBought: true };
     try { Inv.write(localStorage, invState); } catch (err) { /* leave storage empty if the write fails */ }
     try { document.documentElement.removeAttribute("data-theme"); } catch (err) { /* theme can stay */ }
@@ -3401,6 +3430,7 @@ function renderDrops() {
     var stuffBtn = event.target.closest("[data-stuff]");
     if (stuffBtn) {
       state.stuffSegment = stuffBtn.getAttribute("data-stuff");
+      state.stockSub = "";
       state.tab = "stuff";
       state.view = "root";
       commitRoute("replace", snapNow(), window.scrollY);
@@ -3794,7 +3824,7 @@ function renderDrops() {
       return;
     }
     if (actionName === "delete-device-data") {
-      openSheet("<h2>Delete my data on this device?</h2><p>This removes every hunt and reseller key in this browser, including tracked items, alerts, inventory, settings, coupons, and theme. Nothing is deleted on a server, because there is no account. Hunt then saves an empty inventory record so the starter book is not copied back.</p><button class=\"danger full\" type=\"button\" data-action=\"confirm-delete-device-data\">Delete my data on this device</button><button class=\"ghost full\" type=\"button\" data-action=\"close-sheet\">Cancel</button>");
+      openSheet("<h2>Delete my data on this device?</h2><p>This removes every hunt and reseller key in this browser, including tracked items, alerts, inventory, the inventory tracker and Show Mode sales, settings, coupons, and theme. Nothing is deleted on a server, because there is no account. Hunt then saves an empty inventory record so the starter book is not copied back.</p><button class=\"danger full\" type=\"button\" data-action=\"confirm-delete-device-data\">Delete my data on this device</button><button class=\"ghost full\" type=\"button\" data-action=\"close-sheet\">Cancel</button>");
       return;
     }
     if (actionName === "confirm-delete-device-data") {
@@ -4094,6 +4124,14 @@ function renderDrops() {
     }
     if (scanHit) return;
     scanHit = true;
+    if (scanTarget) {
+      var stockCallback = scanTarget;
+      scanTarget = null;
+      stopCamera();
+      closeSheet();
+      stockCallback(parsed);
+      return;
+    }
     pendingScan = parsed;
     stopCamera();
     hideScanVideo();
@@ -4297,7 +4335,25 @@ function renderDrops() {
     beginScan();
   }
 
+  function scanForStock(callback) {
+    pendingScan = null;
+    scanHit = false;
+    openSheet(scanSheetHtml());
+    scanTarget = callback;
+    beginScan();
+  }
+
+  window.HuntApp = {
+    render: function () { if (canRepaint() || state.tab === "stuff") render({ keepScroll: true }); },
+    go: function (partial) { push(partial); },
+    stockSub: function () { return state.stockSub || ""; },
+    scanFor: scanForStock,
+    data: function () { return { market: market, catalog: allCatalog() }; },
+    bookItems: function () { return invState ? Inv.visible(invState) : []; },
+  };
+
   function openScan() {
+    scanTarget = null;
     pendingScan = null;
     scanHit = false;
     openSheet(scanSheetHtml());
@@ -4340,6 +4396,7 @@ function renderDrops() {
     if (!screenIsQuiet()) return false;
     if (state.tab === "profit") return false;
     if (state.view === "inv-form") return false;
+    if (window.HuntStock && state.tab === "stuff" && window.HuntStock.busy()) return false;
     return true;
   }
 
