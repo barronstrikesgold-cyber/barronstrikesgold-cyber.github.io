@@ -1,0 +1,34 @@
+{
+ "data": [
+  {
+   "id": "me55-158",
+   "name": "Mew ex",
+   "set": {
+    "id": "me55",
+    "name": "30th Celebration",
+    "series": "Mega Evolution",
+    "printedTotal": 128,
+    "total": 161,
+    "legalities": {
+     "unlimited": "Legal",
+     "standard": "Legal",
+     "expanded": "Legal"
+    },
+    "ptcgoCode": "30C",
+    "releaseDate": "2026/09/16",
+    "updatedAt": "2026/07/16 15:00:00",
+    "images": {
+     "symbol": "https://images.scrydex.com/pokemon/me55-symbol/symbol",
+     "logo": "https://images.scrydex.com/pokemon/me55-logo/logo"
+    }
+   },
+   "number": "158",
+   "rarity": "Futuristic Rare",
+   "images": {
+    "small": "https://images.scrydex.com/pokemon/me55-158/small",
+    "large": "https://images.scrydex.com/pokemon/me55-158/large"
+   },
+   "tcgplayer": {}
+  }
+ ]
+}
