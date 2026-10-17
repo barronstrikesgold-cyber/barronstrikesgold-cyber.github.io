@@ -161,6 +161,18 @@ const sections = [
     app: app.includes('loadScript("lib/upc-lookup.js")') && read("lib/stock-ui.js").includes("lookupInto") && read("lib/upc-lookup.js").includes("barcode.report") && fs.existsSync(path.join(root, "data/upc/manifest.json")),
     data: false,
   },
+  {
+    name: "Assortment barcode picker",
+    doc: /Which one is it\?/,
+    app: read("lib/stock-ui.js").includes("Which one is it?") && read("lib/stock-ui.js").includes("Type the item code from the back of the card") && read("lib/upc-lookup.js").includes("assortIndex"),
+    data: (function () {
+      try {
+        var a = JSON.parse(read("data/upc/assortments.json"));
+        var fyj = a.assortments && a.assortments.FYJ44;
+        return a.upcs["887961705393"] === "FYJ44" && fyj.items.some(function (r) { return r[0] === "JDP89" && r[1] === "TV Series Batmobile"; });
+      } catch (err) { return false; }
+    })(),
+  },
 ];
 
 sections.forEach(function (row) {
