@@ -22,6 +22,7 @@
         <li><code>hunt-tracked</code> — items you track.</li>
         <li><code>hunt-show-pay</code> — whether Show Mode records sales as cash or card by default.</li>
         <li><code>hunt-stock-v1</code> — a backup copy of the inventory tracker, used only when this browser blocks IndexedDB.</li>
+        <li><code>hunt-upc-proxy</code> — optional. Only set if the owner saves a barcode lookup proxy URL on this device. Hunt does not set it on its own.</li>
         <li><code>hunt-alerts</code> — alert rules. If you type an email for a future email fallback, that address stays in this key on this device. Hunt does not send that email.</li>
         <li><code>hunt-settings</code> — marketplace fee percent, shipping and supplies, minimum profit, and minimum sales.</li>
         <li><code>hunt-stores</code> — stores you pick for stock alerts.</li>
@@ -42,6 +43,9 @@
         <li><code>reseller-provider-log</code> — the last source-check result stored on this device.</li>
       </ul>
       <p>The inventory tracker and Show Mode keep your stock, item photos you add, sales, and a copy of Hunt's price comps in this browser's IndexedDB database named <code>hunt-stock</code>. It stays on this device until you export it, delete it, or clear site data. Nothing in it is sent to Shopify or any server; the Shopify CSV is a file you download yourself.</p>
+      <h2 id="barcode-lookup">Barcode lookup (third-party product databases)</h2>
+      <p>When you scan or type a barcode, Hunt checks its own catalog, price list, and your inventory on this device first. If the code is a retail UPC or EAN that Hunt does not know, the app sends only that barcode number from your browser to public product databases to get a product name, brand, category, description, and photo links: <a href="https://barcode.report/">barcode.report</a>, then <a href="https://world.openproductsfacts.org/">Open Products Facts</a> and <a href="https://world.openfoodfacts.org/">Open Food Facts</a>. If the owner saved a lookup proxy URL in <code>hunt-upc-proxy</code>, the barcode also goes to that proxy, which asks UPCitemdb. No name, email, location, or inventory data is sent, and requests carry no cookies. Like any website, those services see your IP address and the request time under their own privacy policies.</p>
+      <p>Product photos from a web match load directly from the store or database that hosts them, with no referrer sent. Lookup answers, and codes you confirmed, are cached in this browser's IndexedDB database named <code>hunt-upc</code> so a repeat scan is instant and works offline. When you add a matched product, its photo link and, when the host allows it, a small local copy of the photo are saved with the item in <code>hunt-stock</code>. "Search the web" buttons open Google, eBay, Amazon (with the Associates tag hempsply02-20), barcode.report, or UPCitemdb in a new tab only when you tap them. Delete my data on this device clears both databases.</p>
       <p>Search text is not saved under its own key. Categories of information on this device are the identifiers you choose to type (such as an alert email), and your app activity (tracked items, alerts, inventory, and settings).</p>
 
       <h2>Planned accounts</h2>
