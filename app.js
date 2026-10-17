@@ -1274,7 +1274,7 @@ function amazonBuyRow(item, verdict, already) {
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Search" }]) +
       "<h1>Search</h1>" +
       (q ? '<p class="fine">' + rows.length + " matches</p>" : "") +
-      list;
+      list + (q ? '<div id="search-learned" data-q="' + esc(q) + '"></div>' : "");
   }
 
 function calendarPeg(row, index) {
@@ -2536,6 +2536,7 @@ function renderDrops() {
     }
     paintDataStatus();
     paintChrome();
+    paintLearnedSearch();
     if (state.view === "estimate" || (state.tab === "profit" && state.view === "root") || (state.tab === "stuff" && stuffSegment() === "profit" && state.view === "root")) bindProfit();
     armScan();
     var globalQuery = document.getElementById("global-q");
@@ -4013,8 +4014,113 @@ function renderDrops() {
       '<video id="scan-video" playsinline muted autoplay></video>' +
       '<p id="scan-msg" class="fine" role="status">Starting the camera…</p>' +
       '<div id="scan-hits"></div>' +
+      photoIdHtml() +
       '<form id="scan-form"><label class="field"><span>Or type the code</span><input id="scan-q" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></label>' +
       '<button class="solid full" type="submit">Look up this code</button></form>';
+  }
+
+  /* Identify from photo: camera capture plus library pick. Read on the phone; nothing is uploaded unless the owner set a vision proxy. */
+  function photoIdHtml() {
+    var proxy = "";
+    try { proxy = localStorage.getItem("hunt-vision-proxy") || ""; } catch (err) { proxy = ""; }
+    return '<div class="photo-id" role="group" aria-label="Identify from photo">' +
+      '<label class="solid full photo-btn" for="photo-camera">Identify from photo</label>' +
+      '<input id="photo-camera" class="photo-input" type="file" accept="image/*" capture="environment">' +
+      '<label class="ghost full photo-btn" for="photo-library">Pick a photo from your library</label>' +
+      '<input id="photo-library" class="photo-input" type="file" accept="image/*">' +
+      '<p class="fine">Snap the card back, box, or label. Hunt reads the codes and words on this phone, then matches them to its catalog and the web.</p>' +
+      '<details class="photo-ai"><summary>Optional: AI photo match (' + (proxy ? "on" : "off") + ")</summary>" +
+      '<p class="fine">Off by default. If you run your own vision proxy (see docs/photo-id.md), Hunt sends a small copy of the photo there and adds its guesses. Your API key stays on the proxy, never in Hunt.</p>' +
+      '<label class="field"><span>Vision proxy URL (https)</span><input id="vision-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-worker.workers.dev/" value="' + esc(proxy) + '"></label>' +
+      '<div class="stk-actions"><button class="ghost" type="button" data-photo="vision-save">Save</button><button class="ghost" type="button" data-photo="vision-clear">Turn off</button></div>' +
+      '<p id="vision-msg" class="fine" role="status"></p></details></div>';
+  }
+
+  var photoScript = null;
+
+  function ensurePhoto() {
+    if (window.HuntPhoto) return Promise.resolve(window.HuntPhoto);
+    if (photoScript) return photoScript;
+    photoScript = loadScript("lib/photo-id.js").then(function () {
+      if (!window.HuntPhoto) throw new Error("photo");
+      return window.HuntPhoto;
+    }).catch(function (err) {
+      photoScript = null;
+      throw err;
+    });
+    return photoScript;
+  }
+
+  function identifyPhoto(input) {
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    var box = document.getElementById("scan-hits");
+    stopCamera();
+    hideScanVideo();
+    setScanMessage("Reading your photo…", false);
+    Promise.all([ensureScan(), ensureUpc(), ensurePhoto()]).then(function () {
+      if (!window.HuntStock || !window.HuntStock.photoInto) throw new Error("stock");
+      return window.HuntStock.photoInto(box, file, {
+        loadScript: loadScript,
+        presentScan: function (code) {
+          scanHit = false;
+          presentScan(code);
+        },
+      });
+    }).catch(function () {
+      setScanMessage("The photo reader did not load. Check the connection and try again, or type the code.", true);
+    }).then(function () {
+      try { input.value = ""; } catch (err) { /* some browsers lock it */ }
+    });
+  }
+
+  document.addEventListener("change", function (event) {
+    var id = event.target && event.target.id;
+    if (id === "photo-camera" || id === "photo-library") identifyPhoto(event.target);
+  });
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest("[data-photo]");
+    if (!btn) return;
+    var act = btn.getAttribute("data-photo");
+    var input = document.getElementById("vision-url");
+    var msg = document.getElementById("vision-msg");
+    if (act === "vision-clear") {
+      localStorage.removeItem("hunt-vision-proxy");
+      if (input) input.value = "";
+      if (msg) msg.textContent = "AI photo match is off. Photos stay on this phone.";
+      return;
+    }
+    if (act === "vision-save") {
+      var url = input ? String(input.value || "").trim() : "";
+      if (!/^https:\/\/[^\s]+$/i.test(url)) {
+        if (msg) msg.textContent = "Use an https:// address, or tap Turn off.";
+        return;
+      }
+      localStorage.setItem("hunt-vision-proxy", url);
+      if (msg) msg.textContent = "Saved. Photo matches will also ask your proxy.";
+    }
+  });
+
+  /* learned catalog rows in Search, filled after the page paints */
+  var learnedPaint = 0;
+
+  function paintLearnedSearch() {
+    var box = document.getElementById("search-learned");
+    if (!box) return;
+    var q = box.getAttribute("data-q") || "";
+    var gen = ++learnedPaint;
+    if (!window.HuntStock || !window.HuntStock.learnedSearch) return;
+    ensureUpc().then(function () { return window.HuntStock.learnedSearch(q); }).then(function (rows) {
+      if (gen !== learnedPaint || !rows || !rows.length) return;
+      var el = document.getElementById("search-learned");
+      if (!el) return;
+      el.innerHTML = '<h2 class="kicker">Your learned catalog</h2><div class="list">' + rows.map(function (r) {
+        return '<button class="flow-row" type="button" data-stk="learned-open" data-v="' + esc(r.key) + '">' +
+          (r.imageUrl ? '<span class="stk-thumb"><img src="' + esc(r.imageUrl) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' : "") +
+          '<span class="flow-copy"><b>' + esc(r.name) + "</b><span>" + esc(["Learned", r.brand, r.upc || (r.codes || [])[0]].filter(Boolean).join(" · ")) + "</span></span></button>";
+      }).join("") + "</div>";
+    }).catch(function () {});
   }
 
   function setScanMessage(text, isError) {
@@ -4378,6 +4484,7 @@ function renderDrops() {
     stockSub: function () { return state.stockSub || ""; },
     scanFor: scanForStock,
     loadUpc: function () { return ensureUpc(); },
+    loadPhoto: function () { return ensurePhoto(); },
     closeSheet: function () { if (sheet && (sheet.open || sheet.innerHTML)) closeSheet(); },
     data: function () { return { market: market, catalog: allCatalog() }; },
     bookItems: function () { return invState ? Inv.visible(invState) : []; },
