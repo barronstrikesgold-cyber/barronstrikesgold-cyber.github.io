@@ -155,12 +155,18 @@ const sections = [
     app: app.includes('["show", "Show Mode"]') && html.includes("lib/show-pricing.js") && read("lib/stock-ui.js").includes("<h1>Show Mode</h1>") && read("lib/show-pricing.js").includes("No verified comp"),
     data: false,
   },
+  {
+    name: "Barcode lookup",
+    doc: /Barcode lookup/,
+    app: app.includes('loadScript("lib/upc-lookup.js")') && read("lib/stock-ui.js").includes("lookupInto") && read("lib/upc-lookup.js").includes("barcode.report") && fs.existsSync(path.join(root, "data/upc/manifest.json")),
+    data: false,
+  },
 ];
 
 sections.forEach(function (row) {
   assert(row.doc.test(doc), "REQUIREMENTS.md is missing " + row.name);
   assert(row.app, row.name + " disappeared from the app");
-  if (["Blog", "Coupons", "Inventory tracker", "Show Mode"].indexOf(row.name) === -1) assert(row.data, row.name + " disappeared from the data");
+  if (["Blog", "Coupons", "Inventory tracker", "Show Mode", "Barcode lookup"].indexOf(row.name) === -1) assert(row.data, row.name + " disappeared from the data");
 });
 
 const extraTcg = (market.sections || []).filter(function (row) {
