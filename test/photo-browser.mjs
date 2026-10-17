@@ -33,6 +33,7 @@ if (!base.endsWith("/")) base += "/";
 
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
 const results = [];
+const thirdParty = [];
 
 async function boot(browser, opts) {
   const context = await browser.newContext(Object.assign({ serviceWorkers: "block" }, opts));
@@ -42,7 +43,12 @@ async function boot(browser, opts) {
   });
   const page = await context.newPage();
   const errors = [];
-  page.on("pageerror", (err) => errors.push(err.message));
+  /* WebKit reports a failed third-party API call (e.g. the keyless Pokémon TCG API answering 500 without CORS) as a page
+   * error; Hunt retries and falls back, so count those separately instead of failing the run. */
+  page.on("pageerror", (err) => {
+    if (/due to access control checks/.test(err.message) && /api\.pokemontcg\.io|api\.tcgdex\.net/.test(err.message)) { thirdParty.push(err.message.slice(0, 120)); return; }
+    errors.push(err.message);
+  });
   page.setDefaultTimeout(30000);
   await page.goto(base, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "What did you find?" }).waitFor();
@@ -191,5 +197,6 @@ for (const run of runs) {
 }
 if (server) server.close();
 console.log(JSON.stringify(results, null, 2));
+if (thirdParty.length) console.log("third-party API network errors (retried / fell back): " + thirdParty.length);
 console.log(failed ? `FAILED ${failed}` : `photo browser ok (${results.length} checks)`);
 process.exit(failed ? 1 : 0);
