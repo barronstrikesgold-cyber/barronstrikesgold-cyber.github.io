@@ -1,0 +1,142 @@
+{
+ "api_version": "1",
+ "gtin14": "00194735151295",
+ "forms": [
+  {
+   "format": "UPCA",
+   "code": "194735151295",
+   "is_primary": true
+  },
+  {
+   "format": "EAN13",
+   "code": "0194735151295",
+   "is_primary": true
+  },
+  {
+   "format": "GTIN14",
+   "code": "00194735151295",
+   "is_primary": false
+  },
+  {
+   "format": "ITF14",
+   "code": "00194735151295",
+   "is_primary": false
+  }
+ ],
+ "product": {
+  "name": "Hot Wheels - Premium Fast & Furious 1:64 Scale Collectors Car - Styles May Vary",
+  "description": "Hot Wheels",
+  "image_url": "https://wwww.toms.nl/images/artikelen/.231/231950_1_lg.jpg",
+  "brands": [
+   "HOT WHEELS"
+  ],
+  "manufacturer": "HOT WHEELS"
+ },
+ "companies": [
+  {
+   "name": "HOT WHEELS",
+   "role": "brand",
+   "url": "https://barcode.report/company/hot-wheels/brand"
+  },
+  {
+   "name": "HOT WHEELS",
+   "role": "manufacturer",
+   "url": "https://barcode.report/company/hot-wheels/manufacturer"
+  },
+  {
+   "name": "BEST BUY",
+   "role": "retailer",
+   "url": "https://barcode.report/company/best-buy/retailer"
+  }
+ ],
+ "source_count": 11,
+ "evidence": [
+  {
+   "source": {
+    "name": "Manuals.plus document text",
+    "type": "feed",
+    "url": "https://manuals.plus/m/7c4b688698075fafa6c3d150bde7e17a63e4729bf9070cd0e78a035f6467b607"
+   },
+   "title": "Project4",
+   "model": "Project4",
+   "observed_at": "2026-10-14 02:54:09"
+  },
+  {
+   "source": {
+    "name": "Best Buy",
+    "type": "retailer",
+    "url": "https://www.bestbuy.com/site/6569328.p?skuId=6569328"
+   },
+   "title": "Hot Wheels - Premium Fast & Furious 1:64 Scale Collectors Car - Styles May Vary",
+   "brand": "Hot Wheels",
+   "manufacturer": "Hot Wheels",
+   "model": "HNW46",
+   "sku": "6569328",
+   "category": "INTERACTIVE SOFTWARE > TOYS > MATTEL TOYS",
+   "observed_at": "2026-08-19 07:05:45"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.toms.nl/article/jada253251034"
+   },
+   "title": "Figures | Mega Man Jada Toys | jada253251034 | Tom's Modelauto's",
+   "model": "Avensis",
+   "sku": "vssEKwagon-11",
+   "description": "0194735151295",
+   "image_url": "https://wwww.toms.nl/images/artikelen/.231/231950_1_lg.jpg",
+   "observed_at": "2026-08-08 13:56:00"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.toms.nl/article/TS0630/Chevrolet-2025-Corvette-Z06-GT3.R-1:18-yellow-Top-Speed-1:18-2025-Chevrolet-Corvette-Z06-GT3.R-"
+   },
+   "title": "Chevrolet | Corvette Z06 GT3.R 2025 Yellow | 1:18 | Top Speed | TS0630 | Tom's Modelauto's",
+   "model": "956 #7",
+   "sku": "AD23920",
+   "description": "0194735151295",
+   "image_url": "https://wwww.toms.nl/images/artikelen/.254/254655_1_lg.jpg",
+   "observed_at": "2026-08-08 13:52:29"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.toms.nl/article/TC-TC-HONC-01"
+   },
+   "title": "Trading Cards | Honda Collection Vol.01 - NSX Tarmac | TC-TC-HONC-01 | Tom's Modelauto's",
+   "model": "#703 Kid & Dog Figure set",
+   "sku": "AD24703",
+   "description": "0194735151295",
+   "image_url": "https://wwww.toms.nl/images/artikelen/.333/333091_1_lg.jpg",
+   "observed_at": "2026-08-08 13:36:27"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.toms.nl/article/magSER25/Mercedes-Benz-1972-220D-1:43-red-Magazine-Models-1:43-1972-Mercedes-Benz-220D-Tecin-red-Diecast-Miniatures"
+   },
+   "title": "Mercedes Benz | 220D 1972 Red | 1:43 | Magazine Models | magSER25 | Tom's Modelauto's",
+   "model": "N Series",
+   "sku": "tinyATC64578",
+   "description": "0194735151295",
+   "image_url": "https://wwww.toms.nl/images/artikelen/.310/310751_1_lg.jpg",
+   "observed_at": "2026-08-08 13:32:24"
+  }
+ ],
+ "pagination": {
+  "page": 1,
+  "per_page": 10,
+  "has_next": true
+ },
+ "links": {
+  "self": "https://barcode.report/api/v1/products/00194735151295?page=1&per_page=10",
+  "html": "https://barcode.report/gtin/00194735151295",
+  "lookup": "https://barcode.report/api/v1/lookup?q=00194735151295",
+  "next": "https://barcode.report/api/v1/products/00194735151295?page=2&per_page=10"
+ }
+}

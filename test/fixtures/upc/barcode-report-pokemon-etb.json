@@ -1,0 +1,140 @@
+{
+ "api_version": "1",
+ "gtin14": "00196214105133",
+ "forms": [
+  {
+   "format": "UPCA",
+   "code": "196214105133",
+   "is_primary": true
+  },
+  {
+   "format": "EAN13",
+   "code": "0196214105133",
+   "is_primary": true
+  },
+  {
+   "format": "GTIN14",
+   "code": "00196214105133",
+   "is_primary": false
+  },
+  {
+   "format": "ITF14",
+   "code": "00196214105133",
+   "is_primary": false
+  }
+ ],
+ "product": {
+  "name": "Pokémon - Trading Card Game: Scarlet & Violet - Prismatic Evolutions Elite Trainer Box",
+  "description": "Pokémon",
+  "image_url": "https://www.blindbox.cz/data/products/pokemon-prismatic-evolutions-e.png",
+  "brands": [
+   "Nite & Day Cards and Collectibles",
+   "Pokémon",
+   "Pokemon"
+  ],
+  "manufacturer": "Pokémon"
+ },
+ "companies": [
+  {
+   "name": "Nite & Day Cards and Collectibles",
+   "role": "brand",
+   "url": "https://barcode.report/company/nite-day-cards-and-collectibles/brand"
+  },
+  {
+   "name": "Pokémon",
+   "role": "brand",
+   "url": "https://barcode.report/company/pok-mon/brand"
+  },
+  {
+   "name": "Pokemon",
+   "role": "brand",
+   "url": "https://barcode.report/company/pokemon/brand"
+  },
+  {
+   "name": "Pokémon",
+   "role": "manufacturer",
+   "url": "https://barcode.report/company/pok-mon/manufacturer"
+  },
+  {
+   "name": "BEST BUY",
+   "role": "retailer",
+   "url": "https://barcode.report/company/best-buy/retailer"
+  }
+ ],
+ "source_count": 5,
+ "evidence": [
+  {
+   "source": {
+    "name": "Best Buy",
+    "type": "retailer",
+    "url": "https://www.bestbuy.com/site/6606082.p?skuId=6606082"
+   },
+   "title": "Pokémon - Trading Card Game: Scarlet & Violet - Prismatic Evolutions Elite Trainer Box",
+   "brand": "Pokémon",
+   "manufacturer": "Pokémon",
+   "model": "100-10013",
+   "sku": "6606082",
+   "category": "INTERACTIVE SOFTWARE > CARD GAMES > POKEMON CARDS",
+   "observed_at": "2026-08-19 07:06:52"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.blindbox.pl/merchandise/karty-przetargowe/pokemon-prismatic-evolutions-elite-trainer-box-en.html"
+   },
+   "title": "Pokémon Prismatic Evolutions - Elite Trainer Box | Blindbox.pl",
+   "description": "EAN: 0196214105133",
+   "image_url": "https://www.blindbox.cz/data/products/pokemon-prismatic-evolutions-e.png",
+   "observed_at": "2026-08-08 13:16:34"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.niteanddaysports.com/products/pokemon-prismatic-evolutions-elite-trainer-box"
+   },
+   "title": "Pokemon Prismatic Evolutions Elite Trainer Box",
+   "brand": "Nite & Day Cards and Collectibles",
+   "description": "0196214105133",
+   "image_url": "https://www.niteanddaysports.com/cdn/shop/files/07F4BFDB-7020-4796-833B-06DEF4437B9A.jpg?v=1737125477",
+   "observed_at": "2026-08-07 19:06:27"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://www.target.com/p/pok-233-mon-trading-card-game-scarlet-38-violet-8212-prismatic-evolutions-elite-trainer-box/-/A-1011206804"
+   },
+   "title": "Pokémon Trading Card Game: Scarlet & Violet—Prismatic Evolutions Elite Trainer Box",
+   "brand": "Pokemon",
+   "sku": "1011206804",
+   "description": "0196214105133",
+   "image_url": "https://target.scene7.com/is/image/Target/GUEST_ee0584e7-cf46-445d-9906-cb99094b848a",
+   "observed_at": "2026-08-07 15:24:16"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://geek-online.fr/produit/pokemon-prismatic-evolutions-elite-trainer-box-en/"
+   },
+   "title": "[PREORDER] Pokemon Prismatic Evolutions Elite Trainer Box [SV8.5][EN] | Geek Online FR",
+   "brand": "Pokémon",
+   "sku": "SV08.5ETB-EN",
+   "description": "196214105133",
+   "image_url": "https://geek-online.fr/wp-content/uploads/prism-en-etb.jpg",
+   "observed_at": "2026-07-10 07:25:10"
+  }
+ ],
+ "pagination": {
+  "page": 1,
+  "per_page": 10,
+  "has_next": false
+ },
+ "links": {
+  "self": "https://barcode.report/api/v1/products/00196214105133?page=1&per_page=10",
+  "html": "https://barcode.report/gtin/00196214105133",
+  "lookup": "https://barcode.report/api/v1/lookup?q=00196214105133"
+ }
+}
