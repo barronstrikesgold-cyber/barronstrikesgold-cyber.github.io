@@ -4009,6 +4009,7 @@ function renderDrops() {
 
   function scanSheetHtml() {
     return '<h2>Scan a code</h2><p>Supers share a UPC with the regular, so the code is not the tell. Read the card.</p>' +
+      '<p class="fine">Hunt checks its own catalog, price list, and your inventory first. A UPC or EAN it does not know is looked up on public product databases for the name, brand, and photos.</p>' +
       '<video id="scan-video" playsinline muted autoplay></video>' +
       '<p id="scan-msg" class="fine" role="status">Starting the camera…</p>' +
       '<div id="scan-hits"></div>' +
@@ -4053,7 +4054,10 @@ function renderDrops() {
     var box = document.getElementById("scan-hits");
     if (!rows.length) {
       setScanMessage(Scan.MESSAGES.miss, true);
-      if (box) box.innerHTML = '<button class="solid full" type="button" data-action="add-scan-code">Add this code to inventory</button>';
+      if (box) box.innerHTML = '<div id="scan-lookup" class="upc-res" aria-live="polite"></div>' +
+        '<button class="ghost full" type="button" data-action="add-scan-code">Add this code to inventory</button>' +
+        '<p class="fine">That button saves the bare code to your Hunt book. The card above adds the full product to the inventory tracker.</p>';
+      lookupScannedCode(parsed);
       return;
     }
     if (rows.length > 1) setScanMessage("Several items share this code. Read the card, then pick one.", false);
@@ -4064,6 +4068,31 @@ function renderDrops() {
       var attr = row.kind === "inv" ? "data-scan-inv" : "data-scan-catalog";
       return '<button class="solid full" type="button" data-action="' + action + '" ' + attr + '="' + esc(row.id) + '">' + esc(row.note + " · " + row.name) + "</button>";
     }).join("");
+  }
+
+  /* Hunt's own data had no buy-list or book match: check the tracker, the code index, then the web. */
+  function lookupScannedCode(parsed) {
+    var el = document.getElementById("scan-lookup");
+    if (!el || !parsed || !parsed.key) return;
+    if (window.HuntStock && window.HuntStock.lookupInto) {
+      window.HuntStock.lookupInto(el, parsed.key);
+      return;
+    }
+    el.innerHTML = '<p class="fine">The web lookup is not available on this page. Add it by hand.</p>';
+  }
+
+  var upcScript = null;
+  function ensureUpc() {
+    if (window.HuntUpc) return Promise.resolve(window.HuntUpc);
+    if (upcScript) return upcScript;
+    upcScript = loadScript("lib/upc-lookup.js").then(function () {
+      if (!window.HuntUpc) throw new Error("upc");
+      return window.HuntUpc;
+    }).catch(function (err) {
+      upcScript = null;
+      throw err;
+    });
+    return upcScript;
   }
 
   function openScannedInventory(id, parsed) {
@@ -4348,6 +4377,8 @@ function renderDrops() {
     go: function (partial) { push(partial); },
     stockSub: function () { return state.stockSub || ""; },
     scanFor: scanForStock,
+    loadUpc: function () { return ensureUpc(); },
+    closeSheet: function () { if (sheet && (sheet.open || sheet.innerHTML)) closeSheet(); },
     data: function () { return { market: market, catalog: allCatalog() }; },
     bookItems: function () { return invState ? Inv.visible(invState) : []; },
   };
