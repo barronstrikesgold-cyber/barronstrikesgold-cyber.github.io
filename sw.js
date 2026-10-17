@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261015a";
+var CACHE = "reseller-shell-20261017u";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -70,11 +70,13 @@ var SHELL = [
   "./lib/show-pricing.js",
   "./lib/stock-ui.js",
   "./lib/stock.js",
+  "./lib/upc-lookup.js",
   "./manifest.webmanifest",
   "./photos/sneakers.svg",
   "./photos/streetwear.svg",
   "./photos/tech.svg",
   "./data/hw/manifest.json",
+  "./data/upc/manifest.json",
   "./styles.css",
   "./sw.js"
 ];
@@ -101,7 +103,7 @@ self.addEventListener("activate", function (event) {
 });
 
 function isHwData(url) {
-  return url.pathname.indexOf("/data/hw/") !== -1;
+  return url.pathname.indexOf("/data/hw/") !== -1 || url.pathname.indexOf("/data/upc/") !== -1;
 }
 
 function isHuntData(url) {

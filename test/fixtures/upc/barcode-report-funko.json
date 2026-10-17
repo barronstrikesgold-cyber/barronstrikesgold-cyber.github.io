@@ -1,0 +1,131 @@
+{
+ "api_version": "1",
+ "gtin14": "00889698487405",
+ "forms": [
+  {
+   "format": "GTIN-14",
+   "code": "00889698487405",
+   "is_primary": true
+  },
+  {
+   "format": "EAN-13",
+   "code": "0889698487405",
+   "is_primary": true
+  },
+  {
+   "format": "GTIN14",
+   "code": "00889698487405",
+   "is_primary": true
+  },
+  {
+   "format": "UPCA",
+   "code": "889698487405",
+   "is_primary": true
+  },
+  {
+   "format": "EAN13",
+   "code": "0889698487405",
+   "is_primary": false
+  },
+  {
+   "format": "ITF14",
+   "code": "00889698487405",
+   "is_primary": false
+  }
+ ],
+ "product": {
+  "name": "FUNKO POP! The Child Reaching",
+  "description": "Funko",
+  "image_url": "https://icecat.biz/static/images/icecat-large.png",
+  "brands": [
+   "Funko"
+  ],
+  "manufacturer": "Funko"
+ },
+ "companies": [
+  {
+   "name": "Funko",
+   "role": "brand",
+   "url": "https://barcode.report/company/funko/brand"
+  },
+  {
+   "name": "Funko",
+   "role": "manufacturer",
+   "url": "https://barcode.report/company/funko/manufacturer"
+  },
+  {
+   "name": "BEST BUY",
+   "role": "retailer",
+   "url": "https://barcode.report/company/best-buy/retailer"
+  }
+ ],
+ "source_count": 4,
+ "evidence": [
+  {
+   "source": {
+    "name": "Best Buy",
+    "type": "retailer",
+    "url": "https://www.bestbuy.com/site/-/6394687.p"
+   },
+   "title": "Funko - POP! Star Wars: The Mandalorian - The Child",
+   "brand": "Funko",
+   "manufacturer": "Funko",
+   "model": "48740",
+   "sku": "6394687",
+   "category": "Best Buy > Toys, Games & Collectibles > Toys > Action Figures",
+   "description": "Recreate your favorite scenes with this Funko POP! Star Wars: The Mandalorian - The Child figure. Distinctive ears and dark eyes render accurate details of this adorable creature for maximum impact. This Funko POP! Star Wars: The Mandalorian - The Child figure is made of vinyl for durability and stands 3.8 inches tall for easy display.",
+   "image_url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6394/6394687_sd.jpg",
+   "observed_at": "2026-09-14 21:14:23"
+  },
+  {
+   "source": {
+    "name": "Best Buy",
+    "type": "retailer",
+    "url": "https://www.bestbuy.com/site/funko-pop-star-wars-the-mandalorian-the-child/6394687.p?skuId=6394687"
+   },
+   "title": "Funko - POP! Star Wars: The Mandalorian - The Child",
+   "brand": "Funko",
+   "manufacturer": "Funko",
+   "model": "48740",
+   "sku": "6394687",
+   "category": "INTERACTIVE SOFTWARE > CARD GAMES > TRAD TOYS",
+   "observed_at": "2026-08-19 08:18:03"
+  },
+  {
+   "source": {
+    "name": "Icecat",
+    "type": "feed",
+    "url": "https://icecat.biz/en/p/funko/48740/pop-collectible+figures+-+statues-0889698487405-pop-+the+child+reaching-77216192.html"
+   },
+   "title": "FUNKO POP! The Child Reaching",
+   "brand": "Funko",
+   "manufacturer": "Funko",
+   "model": "48740",
+   "sku": "48740",
+   "description": "Specs FUNKO POP! The Child Reaching 48740",
+   "image_url": "https://icecat.biz/static/images/icecat-large.png",
+   "observed_at": "2026-08-31 13:19:04"
+  },
+  {
+   "source": {
+    "name": "Common Crawl",
+    "type": "aggregator",
+    "url": "https://barcodelive.org/barcode/star-wars-the-mandalorian-the-child-funko-pop-889698487405"
+   },
+   "title": "Star Wars the Mandalorian - the Child Funko Pop-889698487405",
+   "description": "EAN 889698487405 Star Wars the Mandalorian - the Child Funko Pop Model: n/a Manufacturer: n/a Price: n/a n/a Share Share",
+   "image_url": "https://barcodelive.org/uploads/barcode/star-wars-the-mandalorian-the-child-funko-popz1_9a1718591305895.jpg",
+   "observed_at": "2026-08-08 04:18:38"
+  }
+ ],
+ "pagination": {
+  "page": 1,
+  "per_page": 10,
+  "has_next": false
+ },
+ "links": {
+  "self": "https://barcode.report/api/v1/products/00889698487405?page=1&per_page=10",
+  "html": "https://barcode.report/gtin/00889698487405",
+  "lookup": "https://barcode.report/api/v1/lookup?q=00889698487405"
+ }
+}

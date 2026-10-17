@@ -108,4 +108,14 @@ assert(app.includes('["tracker", "Tracker"]') && app.includes('["show", "Show Mo
   assert(sw.includes("./" + f), "service worker caches " + f + " for offline shows");
 });
 assert(app.includes("scanFor: scanForStock"), "Scan feeds the tracker");
+const webItem = D.normalize({ name: "Prismatic Evolutions ETB", lane: "pokemon", qty: 1, brand: "Pokémon", imageUrl: "https://example.com/etb.jpg", imageLocal: "data:image/jpeg;base64,AAA", description: "9 booster packs", msrp: "49.99", lookupSource: "barcode.report", lookupUrl: "https://barcode.report/gtin/00196214105133", code: "196214105133" });
+assert(webItem.brand === "Pokémon" && webItem.msrp === 49.99 && webItem.imageUrl === "https://example.com/etb.jpg" && webItem.imageLocal.indexOf("data:image/") === 0, "web lookup fields survive normalize");
+assert(D.normalize({ imageUrl: "javascript:alert(1)", lookupUrl: "http://x" }).imageUrl === "" , "only https image links are kept");
+const webShop = D.parseCsv(D.toShopifyCsv([webItem], function () { return null; }));
+const wh = webShop[0];
+assert(webShop[1][wh.indexOf("Image Src")] === "https://example.com/etb.jpg", "Shopify image falls back to the web photo link");
+assert(webShop[1][wh.indexOf("Vendor")] === "Pokémon", "Shopify vendor uses the looked-up brand");
+assert(webShop[1][wh.indexOf("Body (HTML)")].indexOf("9 booster packs") !== -1, "Shopify body carries the looked-up description");
+const round = D.fromCsv(D.toCsv([webItem]));
+assert(round.ok && round.items[0].brand === "Pokémon" && round.items[0].imageUrl === "https://example.com/etb.jpg" && round.items[0].msrp === 49.99, "CSV round-trips the web lookup fields");
 console.log("stock.test.js OK");
