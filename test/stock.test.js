@@ -118,4 +118,14 @@ assert(webShop[1][wh.indexOf("Vendor")] === "Pokémon", "Shopify vendor uses the
 assert(webShop[1][wh.indexOf("Body (HTML)")].indexOf("9 booster packs") !== -1, "Shopify body carries the looked-up description");
 const round = D.fromCsv(D.toCsv([webItem]));
 assert(round.ok && round.items[0].brand === "Pokémon" && round.items[0].imageUrl === "https://example.com/etb.jpg" && round.items[0].msrp === 49.99, "CSV round-trips the web lookup fields");
+/* CSV/formula injection: text that starts with = + - @ is exported as text and round-trips */
+const evil = D.normalize({ name: '=HYPERLINK("http://example.invalid","x")', notes: "@SUM(A1)", bin: "-A3", qty: 1, cost: 1 });
+const evilCsv = D.toCsv([evil]);
+assert(!/(^|,|")=HYPERLINK/m.test(evilCsv.replace(/'=HYPERLINK/g, "")), "tracker CSV guards a formula name");
+assert(evilCsv.indexOf("'@SUM") !== -1 && evilCsv.indexOf("'-A3") !== -1, "tracker CSV guards @ and - text");
+const evilShop = D.toShopifyCsv([evil], function () { return null; });
+assert(evilShop.indexOf("'=HYPERLINK") !== -1, "Shopify CSV guards a formula title");
+const evilBack = D.fromCsv(evilCsv);
+assert(evilBack.items[0].name === evil.name && evilBack.items[0].bin === "-A3", "the guard is stripped on import");
+assert(D.toCsv([D.normalize({ name: "Neg", myEstimate: -5, qty: 1 })]).indexOf("'-5") === -1, "plain negative numbers are not guarded");
 console.log("stock.test.js OK");

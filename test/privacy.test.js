@@ -76,5 +76,20 @@ assert(html.includes('href="privacy.html#your-privacy-choices"'), "footer links 
 assert(html.includes('href="delete-account.html"'), "footer links to the public delete page");
 assert(html.includes("As an Amazon Associate I earn from qualifying purchases."), "footer disclosure stays");
 
+/* audit 2026-10-17: the notice matches what the site really does */
+assert(privacy.includes('id="who-your-browser-talks-to"') && privacy.includes("GitHub Pages") && privacy.includes("__cf_bm"), "privacy lists hosting and photo hosts");
+assert(privacy.includes("<code>hunt-upc</code>") && /Export my data<\/strong> downloads[^<]*<code>hunt-<\/code>[\s\S]{0,200}hunt-stock/.test(privacy), "privacy says export covers IndexedDB");
+assert(privacy.includes("sets no cookies") && privacy.includes("no analytics"), "privacy states no analytics and no cookies");
+assert(privacy.includes("takes no payment"), "privacy says no payment is taken");
+assert(terms.includes("<h2>Paid plans</h2>") && terms.includes("renews automatically until you cancel") && terms.includes("as easily as you signed up"), "terms carry the auto-renew and cancel promise");
+assert(terms.includes("not financial advice") && terms.includes("<h2>Trademarks and photos</h2>"), "terms carry the no-advice and trademark notices");
+assert(!terms.includes("licensed hosts"), "terms do not claim every photo is on a licensed host");
+assert(!app.includes("Pro checkout uses Stripe on the web."), "the app does not claim a Pro checkout exists");
+assert(app.includes("Hunt takes no payment"), "settings say there is no paid plan");
+assert(app.includes("indexedDB: databases") && read("lib/stock-ui.js").includes("exportData: function"), "export includes IndexedDB");
+assert(app.includes("affiliate-note") && app.includes('a[href*="tag=hempsply02-20"]'), "paid links get a nearby disclosure");
+assert(html.includes("13 and older") && html.includes("not affiliated"), "footer has the age line and the trademark line");
+assert(app.includes('rel="sponsored noopener"'), "tagged buy links are rel=sponsored");
+
 console.log("privacy.test.js OK");
 console.log("storage keys " + keys.size);
