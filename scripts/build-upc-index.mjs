@@ -1,6 +1,7 @@
 /* Build Hunt's own barcode / Mattel-code index: data/upc/codes-<shard>.json + manifest.json.
  * Sources: HW catalog chunks (data/hw/idx, toy numbers like JJK58), Monster Trucks 1:64 (data/hw/monster-trucks.json),
  * data/catalog.json, data/market.json, data/drops.json. Also writes data/upc/assortments.json (shared assortment UPCs).
+ * data/catalog-learned.json (owner-confirmed web finds, verified by scripts/catalog-intake.mjs) is indexed too.
  * Any upc / barcode / ean / gtin / sku / code / toy / toyNo field is indexed. The scanner loads one shard per scan. */
 import fs from "node:fs";
 import path from "node:path";
@@ -58,7 +59,7 @@ function laneOf(category, name) {
 
 export function buildIndex() {
   const codes = new Map();
-  const counts = { hw: 0, catalog: 0, market: 0, drops: 0 };
+  const counts = { hw: 0, catalog: 0, market: 0, drops: 0, learned: 0 };
   function add(key, row, source) {
     if (!codes.has(key)) codes.set(key, []);
     const list = codes.get(key);
@@ -98,6 +99,12 @@ export function buildIndex() {
   const dropList = Array.isArray(drops) ? drops : drops.drops || drops.items || [];
   (Array.isArray(dropList) ? dropList : []).forEach((item) => {
     codesOf(item).forEach((key) => add(key, ["d:" + (item.id || item.name), item.name || item.title || "", "", "drop", item.photo || item.image || "", laneOf(item.category || item.lane, item.name), "drops"], "drops"));
+  });
+  const learnedFile = path.join(root, "data/catalog-learned.json");
+  const learned = fs.existsSync(learnedFile) ? JSON.parse(fs.readFileSync(learnedFile, "utf8")) : { items: [] };
+  (learned.items || []).forEach((item) => {
+    if (!item || !item.id || !item.name || !item.sourceUrl || !item.imageUrl) return;
+    codesOf(item).forEach((key) => add(key, ["l:" + item.id, item.name, item.year || "", item.line || item.brand || "", item.imageUrl, item.lane || laneOf(item.lane, item.name), "learned"], "learned"));
   });
   return { codes, counts };
 }

@@ -1,0 +1,43 @@
+name: catalog-intake
+# Adds owner-confirmed web finds (issues labelled catalog-add) to data/catalog-learned.json after re-verifying them.
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  issues:
+    types: [opened, labeled, reopened]
+  push:
+    branches: [main]
+    paths: [scripts/catalog-intake.mjs, .github/workflows/catalog-intake.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: catalog-intake
+  cancel-in-progress: false
+jobs:
+  intake:
+    if: github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'catalog-add')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/catalog-intake.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm run upc-index
+      - name: Test before commit
+        run: npm test
+      - name: Commit verified entries
+        run: |
+          if [ -n "$(git status --porcelain data/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/catalog-learned.json data/upc
+            git commit -m "catalog: add verified finds from catalog-add issues"
+            git push
+          else
+            echo "nothing verified"
+          fi

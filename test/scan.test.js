@@ -66,7 +66,7 @@ assert(app.includes("playsinline") && app.includes('setAttribute("muted"'), "the
 assert(app.includes("BarcodeDetector") && app.includes("vendor/zxing.min.js"), "BarcodeDetector is preferred and ZXing is the fallback");
 assert(app.includes("Scan.MESSAGES"), "denied permission and the other camera errors use the scan copy");
 assert(app.includes("add-scan-code") && app.includes("data-scan-catalog"), "a scan can add a catalog match or an unknown code");
-assert(sw.includes("reseller-shell-20261017v"), "service worker cache is bumped for the UPC web lookup");
+assert(sw.includes("reseller-shell-20261017w"), "service worker cache is bumped for photo identification");
 assert(sw.includes("./lib/scan.js"), "scan helper is precached");
 assert(!sw.includes("./vendor/zxing.min.js"), "zxing loads with the scanner, not the first install");
 

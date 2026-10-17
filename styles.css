@@ -1557,3 +1557,13 @@ dialog:not([open]) { display: none !important; }
 .upc-assort-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .upc-assort-img b { color: var(--gold); font-weight: 800; }
 .upc-picked { border-color: var(--gold); }
+
+/* Identify from photo */
+.photo-id { display: grid; gap: 8px; margin: 12px 0; }
+.photo-btn { display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 44px; }
+.photo-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.photo-ai summary { cursor: pointer; font-size: 0.9rem; }
+.photo-cand .photo-conf { display: inline-block; margin-top: 2px; font-size: 0.78rem; font-weight: 700; color: var(--accent, #0a7d4f); }
+.photo-read { margin: 10px 0; }
+.photo-read pre { white-space: pre-wrap; word-break: break-word; max-height: 180px; overflow: auto; font-size: 0.78rem; background: rgba(127,127,127,0.1); padding: 8px; border-radius: 8px; }
+.upc-share a { font-weight: 600; }
