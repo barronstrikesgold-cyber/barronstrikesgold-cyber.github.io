@@ -191,6 +191,19 @@ const sections = [
       } catch (err) { return false; }
     })(),
   },
+  {
+    name: "Search by case",
+    doc: /Search by case:[\s\S]*L2593-973N[\s\S]*JJK58-N9C0N[\s\S]*2026 N[\s\S]*STH[\s\S]*fee check[\s\S]*Never invented/,
+    app: read("app.js").includes("renderCasePage") && read("app.js").includes("presentCase") && read("lib/hw-cases.js").includes("parseQuery") && read("lib/stock-ui.js").includes("findCase"),
+    data: (function () {
+      try {
+        var d = JSON.parse(read("data/hw/cases-2026.json"));
+        var n = d.cases.N;
+        var p = d.cases.P;
+        return n.sth.indexOf("'23 Ram 1500") !== -1 && n.th.indexOf("Fast Fish") !== -1 && p.sth.indexOf("'70 Plymouth AAR Cuda") !== -1 && p.th.some(function (t) { return /Skyline HT 2000GT-X/.test(t); }) && Object.keys(d.cases).every(function (L) { return d.cases[L].status !== "listed" || /^https:\/\//.test(d.cases[L].source); });
+      } catch (err) { return false; }
+    })(),
+  },
 ];
 
 sections.forEach(function (row) {

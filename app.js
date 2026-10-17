@@ -1195,8 +1195,137 @@ function amazonBuyRow(item, verdict, already) {
     chips.forEach(function (pair) { if (pair[0] === chip && chip !== "all") crumbLabel = pair[1]; });
     var trail = [{ label: "Home", href: "#/home" }, { label: "Catalog", href: "#/catalog" }];
     if (chip !== "all") trail.push({ label: crumbLabel });
-    return crumbs(trail) + "<h1>Catalog</h1>" + chipRow + book + body;
+    return crumbs(trail) + "<h1>Catalog</h1>" + caseSearchHtml("") + chipRow + book + body;
   }
+
+  /* ---------- search by case (Hot Wheels mainline) ---------- */
+  var casesScript = null;
+  var casesData = {};
+
+  function ensureCases(year) {
+    var y = year || 2026;
+    var lib = window.HuntCases ? Promise.resolve(window.HuntCases) : (casesScript || (casesScript = loadScript("lib/hw-cases.js").then(function () {
+      if (!window.HuntCases) throw new Error("cases");
+      return window.HuntCases;
+    }).catch(function (err) { casesScript = null; throw err; })));
+    return lib.then(function (C) {
+      if (C.YEARS.indexOf(y) === -1) return { C: C, data: null };
+      if (casesData[y]) return { C: C, data: casesData[y] };
+      return fetch("data/hw/cases-" + y + ".json", { credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error("cases " + r.status); return r.json(); })
+        .then(function (json) { casesData[y] = json; return { C: C, data: json }; });
+    });
+  }
+
+  var CASE_HINT = /(L2593|C4982|5785)|\b[A-Z]{3}\d{2}\s*-\s*[0-9A-Z]*\d[0-9A-Z]*[A-HJ-NP-Q]\b|\b(CASE|MIX)\s*[A-HJ-NP-Q]\b|\b[A-HJ-NP-Q][\s-]*(CASE|MIX)\b|^\s*20[23]\d\s*-?\s*[A-HJ-NP-Q]\s*$|^\s*[A-HJ-NP-Q]\s*-?\s*20[23]\d\s*$/i;
+
+  function caseSearchHtml(value) {
+    return '<form id="case-form" class="case-search" role="search"><label class="field"><span>Search by case (Hot Wheels mainline)</span>' +
+      '<input id="case-q" type="search" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search" placeholder="JJK58-N9C0N, L2593-973N, 2026 N" value="' + esc(value || "") + '"></label>' +
+      '<button class="solid" type="submit">Show the case</button></form>';
+  }
+
+  function caseCost() {
+    try { return localStorage.getItem("hunt-case-cost") || ""; } catch (err) { return ""; }
+  }
+
+  var caseComps = null;
+  function caseCompFor(car) {
+    var P = window.HuntShowPricing;
+    if (!P) return null;
+    if (!caseComps) caseComps = P.buildComps({ market: market, catalog: allCatalog() });
+    var hits = [];
+    [car.toy].concat(car.toys || []).filter(Boolean).forEach(function (t) { P.byCode(caseComps, t).forEach(function (c) { if (c.value != null) hits.push(c); }); });
+    if (!hits.length && car.worth) caseComps.forEach(function (c) { if (c.id === "c:" + car.worth && c.value != null) hits.push(c); });
+    if (car.toys && car.toys.length > 1 && hits.length && !car.toy) return null;
+    return hits[0] || null;
+  }
+
+  function caseBodyHtml(C, data, q, compact) {
+    var html = "";
+    if (!q) return '<p class="fine">Type a case-box code (L2593-973N, C4982-99NL), a card code with the case letter (JJK58-N9C0N), or a year and letter (2026 N).</p>';
+    if (q.assort && !q.letter) {
+      return '<p class="fine">' + esc(q.assort) + " is the " + esc(C.ASSORTS[q.assort] || "mainline") + " assortment. The case letter is the last letter of the code after it on the box (L2593-973<b>N</b> = case N). Pick it:</p>" + caseChipsHtml(C, q.year, "");
+    }
+    html += C.caseHtml(data, q, { esc: esc, compFor: caseCompFor, cost: caseCost(), highlight: q.toy, compact: compact });
+    if (q.toy && data && data.cases[q.letter] && !(data.cases[q.letter].cars || []).some(function (c) { return c.toy === q.toy || (c.toys || []).indexOf(q.toy) !== -1; })) {
+      html = '<p class="fine">' + esc(q.toy) + " is not on the published case " + esc(q.letter) + " checklist. Showing the case anyway.</p>" + html;
+    }
+    return html;
+  }
+
+  function caseChipsHtml(C, year, on) {
+    return '<div class="chips case-chips" role="group" aria-label="Case letter">' + C.LETTERS.map(function (L) {
+      return '<a class="chip' + (L === on ? " is-on" : "") + '" href="#/case/' + encodeURIComponent(year + " " + L) + '"' + (L === on ? ' aria-current="page"' : "") + ">" + L + "</a>";
+    }).join("") + "</div>";
+  }
+
+  function renderCasePage() {
+    var raw = state.caseQ || "";
+    var head = crumbs([{ label: "Home", href: "#/home" }, { label: "Catalog", href: "#/catalog" }, { label: "Search by case" }]) + "<h1>Search by case</h1>" + caseSearchHtml(raw);
+    var C = window.HuntCases;
+    var q = C ? C.parseQuery(raw) : null;
+    var year = q && q.year ? q.year : 2026;
+    if (!C || !casesData[year]) {
+      ensureCases(year).then(function () { if (state.view === "case") render({ keepScroll: true }); }).catch(function () {
+        var box = document.getElementById("case-body");
+        if (box) box.innerHTML = '<p class="fine is-error">The case list did not load. Check the connection.</p>';
+      });
+      return head + '<div id="case-body"><p class="fine" role="status">Loading the case list…</p></div>';
+    }
+    var data = casesData[year];
+    return head + caseChipsHtml(C, year, q ? q.letter : "") +
+      '<label class="field case-cost"><span>Your cost per car (for the fee check)</span><input id="case-cost" type="number" inputmode="decimal" step="0.01" min="0" placeholder="1.25" value="' + esc(caseCost()) + '"></label>' +
+      '<p class="fine">Fee check = sold × 0.87 − $5, minus your cost, where Hunt has a verified sold comp.</p>' +
+      '<div id="case-body">' + (raw && !q ? '<p class="fine is-error">Hunt could not read a case from "' + esc(raw) + '".</p>' : "") + caseBodyHtml(C, data, q, false) + "</div>";
+  }
+
+  /* Scan box / photo: a case code shows the case right there */
+  function presentCase(raw, q0) {
+    var box = document.getElementById("scan-hits");
+    return ensureCases(q0 && q0.year).then(function (got) {
+      var q = q0 || got.C.parseQuery(raw);
+      if (!q) return false;
+      if (q.year !== 2026) return ensureCases(q.year).then(function (g2) { return paint(g2, q); });
+      return paint(got, q);
+    });
+    function paint(got, q) {
+      stopCamera();
+      hideScanVideo();
+      setScanMessage(q.letter ? "Case " + q.letter + " " + q.year + ": every car Hunt knows in it." : "Pick the case letter from the box.", false);
+      if (box) box.innerHTML = '<div id="scan-case">' + caseBodyHtml(got.C, got.data, q, true) +
+        (q.letter ? '<p><a class="ghost full" href="#/case/' + encodeURIComponent(q.raw || (q.year + " " + q.letter)) + '">Open the full case with the fee check</a></p>' : "") +
+        (q.toy ? '<button class="ghost full" type="button" data-case-car="' + esc(q.toy) + '">Look up just this car (' + esc(q.toy) + ")</button>" : "") +
+        '<div id="scan-lookup"></div></div>';
+      return true;
+    }
+  }
+
+  document.addEventListener("submit", function (event) {
+    if (event.target.id !== "case-form") return;
+    event.preventDefault();
+    var q = document.getElementById("case-q");
+    push({ tab: "catalog", view: "case", caseQ: q ? String(q.value || "").trim() : "" });
+  });
+
+  document.addEventListener("input", function (event) {
+    if (event.target.id !== "case-cost") return;
+    try { localStorage.setItem("hunt-case-cost", String(event.target.value || "")); } catch (err) { /* storage blocked */ }
+  });
+  document.addEventListener("change", function (event) {
+    if (event.target.id === "case-cost" && state.view === "case") render({ keepScroll: true });
+  });
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest("[data-case-car]");
+    if (!btn) return;
+    var toy = btn.getAttribute("data-case-car");
+    ensureScan().then(function () {
+      scanHit = false;
+      var box = document.getElementById("scan-hits");
+      if (box) box.innerHTML = "";
+      presentScan(toy);
+    });
+  });
 
   function renderScanPage() {
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Scan" }]) + "<h1>Scan</h1>" + scanSheetHtml() +
@@ -2468,6 +2597,7 @@ function renderDrops() {
     if (state.view === "coupons") return renderCoupons();
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
     if (state.view === "search") return renderGlobalSearch();
+    if (state.view === "case") return renderCasePage();
     if (state.tab === "catalog" && state.view === "root") return renderBrandCatalog();
     if (state.tab === "scan" && state.view === "root") return renderScanPage();
     if ((state.tab === "stuff" || state.tab === "tracked" || state.tab === "alerts" || state.tab === "account" || state.tab === "inventory" || state.tab === "profit") && state.view === "root") return renderStuff();
@@ -2644,11 +2774,13 @@ function renderDrops() {
       stuffSegment: state.stuffSegment,
       stockSub: state.stockSub,
       query: state.query,
+      caseQ: state.caseQ,
     };
   }
 
   function hashForState() {
     if (state.view === "search") return "#/search/" + encodeURIComponent(state.query || "");
+    if (state.view === "case") return "#/case/" + encodeURIComponent(state.caseQ || "");
     if (state.view === "estimate") return "#/profit";
     if (state.view === "blog") return "#/blog";
     if (state.view === "coupons") return "#/coupons";
@@ -2745,6 +2877,12 @@ function renderDrops() {
     }
     if (head === "show" || head === "show-mode") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "show"; return; }
     if (head === "tracker" || head === "stock") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "tracker"; return; }
+    if (head === "case") {
+      state.tab = "catalog";
+      state.view = "case";
+      state.caseQ = decodePart(parts.slice(1).join("/"));
+      return;
+    }
     if (head === "search") {
       state.tab = "home";
       state.view = "search";
@@ -2814,7 +2952,7 @@ function renderDrops() {
     if (hash.indexOf("#/calendar/") === 0) return "#/calendar";
     if (hash === "#/tracked/bought" || hash === "#/tracked/edit") return "#/tracked";
     if (hash === "#/alerts/setup") return "#/alerts";
-    if (hash === "#/blog" || hash === "#/coupons" || hash.indexOf("#/search/") === 0 || hash.indexOf("#/catalog") === 0 || hash === "#/scan" || hash.indexOf("#/stuff/") === 0 || hash === "#/hw") return "#/home";
+    if (hash === "#/blog" || hash === "#/coupons" || hash.indexOf("#/search/") === 0 || hash.indexOf("#/catalog") === 0 || hash.indexOf("#/case/") === 0 || hash === "#/scan" || hash.indexOf("#/stuff/") === 0 || hash === "#/hw") return "#/home";
     return "#/home";
   }
 
@@ -2916,6 +3054,7 @@ function renderDrops() {
 
   function routeTitle() {
     if (state.view === "search") return "Search";
+    if (state.view === "case") return "Search by case";
     if (state.view === "estimate") return "Profit calculator";
     if (state.view === "blog") return "Blog";
     if (state.view === "coupons") return "Coupons";
@@ -4058,10 +4197,15 @@ function renderDrops() {
     stopCamera();
     hideScanVideo();
     setScanMessage("Reading your photo…", false);
-    Promise.all([ensureScan(), ensureUpc(), ensurePhoto()]).then(function () {
+    Promise.all([ensureScan(), ensureUpc(), ensurePhoto(), ensureCases().catch(function () { return null; })]).then(function () {
       if (!window.HuntStock || !window.HuntStock.photoInto) throw new Error("stock");
       return window.HuntStock.photoInto(box, file, {
         loadScript: loadScript,
+        findCase: function (text) {
+          var found = window.HuntCases ? window.HuntCases.casesIn(text) : [];
+          return found.filter(function (q) { return q.letter; })[0] || null;
+        },
+        presentCase: function (q) { return presentCase(q.raw, q); },
         presentScan: function (code) {
           scanHit = false;
           presentScan(code);
@@ -4304,6 +4448,15 @@ function renderDrops() {
   function lookupTypedCode() {
     var typed = document.getElementById("scan-q");
     var raw = typed ? typed.value : "";
+    if (!scanTarget && CASE_HINT.test(String(raw).trim())) {
+      presentCase(raw).then(function (shown) {
+        if (shown) return;
+        return ensureScan().then(function () { scanHit = false; presentScan(raw); });
+      }).catch(function () {
+        ensureScan().then(function () { scanHit = false; presentScan(raw); });
+      });
+      return;
+    }
     ensureScan().then(function () {
       scanHit = false;
       presentScan(raw);
