@@ -1,5 +1,6 @@
 /* Build Hunt's own barcode / Mattel-code index: data/upc/codes-<shard>.json + manifest.json.
- * Sources: HW catalog chunks (data/hw/idx, toy numbers like JJK58), data/catalog.json, data/market.json, data/drops.json.
+ * Sources: HW catalog chunks (data/hw/idx, toy numbers like JJK58), Monster Trucks 1:64 (data/hw/monster-trucks.json),
+ * data/catalog.json, data/market.json, data/drops.json. Also writes data/upc/assortments.json (shared assortment UPCs).
  * Any upc / barcode / ean / gtin / sku / code / toy / toyNo field is indexed. The scanner loads one shard per scan. */
 import fs from "node:fs";
 import path from "node:path";
@@ -75,6 +76,12 @@ export function buildIndex() {
       codesOf(it).forEach((key) => add(key, [it.n, it.y || "", it.l || "mainline", m ? m[2] : it.i || ""], "hw"));
     });
   });
+  const mt = read("data/hw/monster-trucks.json");
+  (mt.items || []).forEach((it) => {
+    const m = /^assets\/hw\/thumbs\/([0-9a-f]{2})\/(\1[0-9a-f]{18})\.webp$/.exec(it.i || "");
+    const first = Math.min(...(it.years && it.years.length ? it.years : [it.year]));
+    if (it.code) add(it.code, [it.name, first, "Monster Trucks" + (it.series ? " · " + it.series : ""), m ? m[2] : it.i || ""], "hw");
+  });
   const catalog = read("data/catalog.json");
   Object.keys(catalog).forEach((cat) => {
     (Array.isArray(catalog[cat]) ? catalog[cat] : []).forEach((item) => {
@@ -93,6 +100,56 @@ export function buildIndex() {
     codesOf(item).forEach((key) => add(key, ["d:" + (item.id || item.name), item.name || item.title || "", "", "drop", item.photo || item.image || "", laneOf(item.category || item.lane, item.name), "drops"], "drops"));
   });
   return { codes, counts };
+}
+
+/* Mattel lines that print one UPC per assortment (case). Every entry is sourced:
+ * 887961705393 -> FYJ44: owner's card back (Asst. FYJ44) and Best Buy via barcode.report (model FYJ44).
+ * JWL27 / JNP41: Icecat model numbers listed by barcode.report for that same UPC.
+ * C4982 (basic mainline) has no shared UPC we can verify (mainline cards carry their own UPCs), so it only
+ * matches when the assortment code itself is typed or a web match names it. */
+export const ASSORT_UPCS = { "887961705393": "FYJ44" };
+export const ASSORT_ALIASES = { JWL27: "FYJ44", JNP41: "FYJ44" };
+
+export function buildAssortments() {
+  const mt = read("data/hw/monster-trucks.json");
+  const hash = (i) => {
+    const m = /^assets\/hw\/thumbs\/([0-9a-f]{2})\/(\1[0-9a-f]{18})\.webp$/.exec(i || "");
+    return m ? m[2] : i || "";
+  };
+  const items = (mt.items || []).map((it) => {
+    const years = (it.years && it.years.length ? it.years : [it.year]).slice().sort((a, b) => b - a);
+    return [it.code || "", it.name, Math.min(...years), it.series || "", hash(it.i), years.join(", ")];
+  });
+  const hwYears = fs.readdirSync(path.join(root, "data/hw/idx")).map((f) => parseInt(f, 10)).filter(Boolean).sort((a, b) => b - a).slice(0, 2);
+  return {
+    note: "Assortment UPCs: one barcode for every item in a Mattel case, so the scanner shows a picker and the card-back item code picks the exact item. Item rows = [code, name, first year, series, thumb, years]; an empty code means the source lists none (unknown, never guessed).",
+    upcs: ASSORT_UPCS,
+    aliases: ASSORT_ALIASES,
+    assortments: {
+      FYJ44: {
+        name: "Hot Wheels Monster Trucks 1:64",
+        brand: "Hot Wheels",
+        image: "https://cdn.shopify.com/s/files/1/0600/0141/9429/files/xhhvwxef7dyqgcxjep35_9cb3794a-0780-40c3-968c-7dc3a59342b7.png?v=1780344219&width=480",
+        sourceUrl: "https://shop.mattel.com/products/hot-wheels-monster-trucks-die-cast-trucks-fyj44",
+        example: "JDP89",
+        note: "Every truck in the case shares this barcode, so the barcode can't tell them apart.",
+        attribution: mt.attribution,
+        years: mt.years,
+        items,
+      },
+      C4982: {
+        name: "Hot Wheels basic cars (mainline)",
+        brand: "Hot Wheels",
+        image: "",
+        sourceUrl: "",
+        example: "JHX94",
+        note: "Mainline basic cars ship in assortment C4982. Pick the car, or type its item code.",
+        hwLine: "mainline",
+        hwYears,
+        items: [],
+      },
+    },
+  };
 }
 
 /* Six shards by first character, each about 50 KB gzipped. A scan loads one or two. Keep in sync with lib/upc-lookup.js. */
@@ -126,5 +183,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     shards: Object.keys(shards).sort(),
   };
   fs.writeFileSync(path.join(out, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+  fs.writeFileSync(path.join(out, "assortments.json"), JSON.stringify(buildAssortments()) + "\n");
   console.log(JSON.stringify(manifest));
 }

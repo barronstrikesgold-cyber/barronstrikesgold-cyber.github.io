@@ -1,9 +1,9 @@
 {
   "note": "Hunt's own code index. HW rows = [name, year, line, thumb] where a 20-hex thumb means assets/hw/thumbs/<first 2>/<hash>.webp. Other rows = [id, name, year, section, photo, lane, source]. Keys are uppercased with spaces and dashes removed; retail barcodes are stored as 12-digit UPC-A when they start with 0, Mattel card-back codes as the 5-character toy number.",
-  "keys": 12862,
-  "rows": 14384,
+  "keys": 13104,
+  "rows": 14627,
   "counts": {
-    "hw": 14358,
+    "hw": 14601,
     "catalog": 26,
     "market": 0,
     "drops": 0

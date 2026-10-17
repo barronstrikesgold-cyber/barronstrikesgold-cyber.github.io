@@ -49,3 +49,27 @@ export default {
 ```
 
 The trial is 100 lookups per day per Worker IP. A paid UPCitemdb key would go in a Worker secret (`env.UPCITEMDB_KEY`), never in this repo.
+
+## One barcode for a whole case (Mattel assortments)
+
+Some Mattel lines print one UPC per assortment, shared by every item in the case.
+Hot Wheels Monster Trucks 1:64 basic trucks all carry **887961705393** (Asst. **FYJ44**),
+so the barcode alone cannot say which truck it is.
+
+- `data/upc/assortments.json` maps assortment UPCs and codes to a case list:
+  `887961705393 → FYJ44` (owner's card back, plus Best Buy via barcode.report model FYJ44),
+  aliases `JWL27`, `JNP41` (Icecat model numbers for that same UPC), and `C4982`
+  (mainline basic cars, which reuses the HW year index; no shared mainline UPC is verified,
+  so it only opens when C4982 is typed or a web match names it).
+- Scanning an assortment UPC shows **Which one is it?**: a grid of that case's items
+  with photos, newest year first, and a field to type the item code from the card back
+  (`JDP89`, or `JDP89-0910`). An exact code resolves at once; a name filters the grid.
+  The pick becomes the normal confirm card (Add to tracker / Edit, then add). The saved
+  item keeps the UPC as its code and notes `Item code JDP89 · Asst. FYJ44`. A shared UPC
+  never "learns" one item's name.
+- A 5-character item code typed in the Scan box resolves straight to the item.
+- `data/hw/monster-trucks.json` (244 trucks, 2024–2026) is built from the Hot Wheels Wiki
+  "Monster Trucks" tables by `python3 scripts/build-monster-trucks.py`, then
+  `npm run upc-index`. Only toy numbers printed in the wiki table are kept; a row without
+  one is stored as `null` (shown as "code unknown"). Photos are the wiki's own thumbnails,
+  loaded with no referrer (Fandom refuses a GitHub Pages referrer).

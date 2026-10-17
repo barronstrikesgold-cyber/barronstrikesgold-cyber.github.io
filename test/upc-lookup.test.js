@@ -115,12 +115,36 @@ const fixture = (name) => JSON.parse(read("test/fixtures/upc/" + name + ".json")
   assert(manifest.counts.hw > 10000, "the HW toy-code index covers the catalog");
   manifest.shards.forEach((s) => assert(fs.existsSync(path.join(root, "data/upc/codes-" + s + ".json")), "missing shard " + s));
   ["JJK58", "HKL22", "GRV13", "0194735", "C4982", "L2593", "_x"].forEach((k) => assert(U.shardOf(k) === builder.shardOf(k), "client and builder agree on the shard for " + k));
-  assert(fs.readdirSync(path.join(root, "data/upc")).length === manifest.shards.length + 1, "no stale shard files in data/upc");
+  assert(fs.readdirSync(path.join(root, "data/upc")).length === manifest.shards.length + 2, "no stale shard files in data/upc (shards + manifest + assortments)");
   const index = U.codeIndex((p) => Promise.resolve(JSON.parse(read(p))));
   const civic = await index.find("JHX94");
   assert(civic.some((r) => /Honda Civic Type R/.test(r.name) && r.year === 2026), "Mattel peg code JHX94 matches the catalog");
   const cardBack = await index.find("JHX94-N9C0K");
   assert(cardBack.length === civic.length, "a full card-back code matches like the toy number");
+
+  /* Mattel assortment UPCs: one barcode per case (Monster Trucks 1:64 = FYJ44) */
+  assert(JSON.stringify(builder.buildAssortments()) === JSON.stringify(JSON.parse(read("data/upc/assortments.json"))), "data/upc/assortments.json is stale. Run npm run upc-index");
+  const mtData = JSON.parse(read("data/hw/monster-trucks.json"));
+  assert(mtData.items.length >= 150 && mtData.years.indexOf(2025) !== -1 && mtData.years.indexOf(2026) !== -1, "Monster Trucks 1:64 covers the 2025 and 2026 waves");
+  mtData.items.forEach((it) => assert(it.code === null || /^[A-Z]{3}\d{2}$/.test(it.code), "Monster Truck codes are real 5-character toy numbers or null (unknown): " + it.name));
+  mtData.items.forEach((it) => assert(!it.i || /^https:\/\/static\.wikia\.nocookie\.net\/hotwheels\/images\//.test(it.i), "Monster Truck photos are real Hot Wheels Wiki thumbnails over https: " + it.i));
+  assert(read("index.html").includes('<meta name="referrer" content="no-referrer"'), "wiki thumbnails need the no-referrer policy (Fandom refuses a GitHub Pages referrer)");
+  ["JDP89", "JCD75", "JCD78", "JCF01", "JCD85", "JCF11", "JDP80", "JDP78"].forEach((code) => assert(mtData.items.some((it) => it.code === code), "Monster Trucks list has " + code));
+  const assort = U.assortIndex((p) => Promise.resolve(JSON.parse(read(p))));
+  const fyj = await assort.match("887961705393");
+  assert(fyj && fyj.key === "FYJ44" && /Monster Trucks/.test(fyj.name), "UPC 887961705393 maps to assortment FYJ44");
+  assert((await assort.match("0887961705393")).key === "FYJ44" && (await assort.match("FYJ44")).key === "FYJ44" && (await assort.match("JWL27")).key === "FYJ44", "EAN-13 form, the assortment code, and its aliases map to FYJ44");
+  assert((await assort.match("889698487405")) === null && (await assort.match("JDP89")) === null, "ordinary UPCs and item codes are not assortments");
+  assert((await assort.match("x", { model: "FYJ44", mattelCodes: [] })).key === "FYJ44", "a web match naming FYJ44 opens the picker");
+  const fyjItems = U.sortAssort(await assort.items("FYJ44"));
+  assert(fyjItems.some((it) => it.code === "JDP89" && it.name === "TV Series Batmobile" && /^https:\/\/static\.wikia\.nocookie\.net\//.test(it.thumb)), "the FYJ44 picker lists TV Series Batmobile with a photo");
+  assert(String(fyjItems[0].years).indexOf("2026") !== -1, "the picker lists the newest year first");
+  assert(U.filterAssort(fyjItems, "jdp89-0910").length === 1 && U.filterAssort(fyjItems, "batmobile").length >= 2, "the picker filters by item code (with suffix) or name");
+  const bat = await assort.itemByCode("JDP89-0910");
+  assert(bat && bat.name === "TV Series Batmobile" && bat.assortment === "FYJ44" && /^https:\/\//.test(bat.thumb), "item code JDP89-0910 resolves to TV Series Batmobile with photo");
+  assert((await index.find("JDP89")).some((r) => r.name === "TV Series Batmobile"), "the code index knows Monster Truck item codes");
+  const mainline = await assort.items("C4982");
+  assert(mainline.some((it) => it.code === "JHX94"), "mainline assortment C4982 lists the current mainline from the HW year index");
 
   /* wiring */
   const app = read("app.js");
@@ -138,6 +162,9 @@ const fixture = (name) => JSON.parse(read("test/fixtures/upc/" + name + ".json")
   assert(sw.includes("./lib/upc-lookup.js") && sw.includes("/data/upc/"), "service worker precaches the helper and caches the code index");
   assert(privacy.includes("barcode.report") && privacy.includes("<code>hunt-upc</code>") && privacy.includes("Open Food Facts"), "privacy discloses the third-party barcode lookup");
   assert(!/(api[_-]?key|apikey|user_key|token)\s*[:=]\s*["'][A-Za-z0-9]{12,}/i.test(src) && !/key=[A-Za-z0-9]{12,}/.test(src), "no API key is committed");
+  assert(ui.includes("Which one is it?") && ui.includes("Type the item code from the back of the card") && ui.includes('data-stk="assort-pick"'), "an assortment UPC shows the picker and the item-code field");
+  assert(ui.includes("assortKeyOf(upc.assortJson, item.code)"), "a shared assortment UPC never learns one item's name");
+  assert(sw.includes("./data/upc/assortments.json"), "the assortment list is precached for offline shows");
   assert(!/api\.upcitemdb\.com/.test(src), "UPCitemdb is never called straight from the browser (its CORS blocks this origin)");
 
   console.log("upc-lookup.test.js OK");
