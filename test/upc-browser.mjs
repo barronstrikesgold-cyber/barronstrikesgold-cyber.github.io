@@ -1,6 +1,6 @@
 /* Barcode lookup end to end: local server (or BASE=https://... for live), iPhone WebKit + Chromium.
  * Types real UPCs into the Scan tab (camera denied), Show Mode, and the tracker. Needs network for the web lookup.
- * SHOTS=/path saves screenshots. */
+ * SHOTS=/path saves screenshots. ASSORT_ONLY=1 runs only the assortment (one UPC per case) flows. */
 import { webkit, chromium, devices } from "playwright";
 import http from "node:http";
 import fs from "node:fs";
@@ -61,9 +61,84 @@ async function scanTab(page, code) {
   await page.locator("#scan-form button").click();
 }
 
+async function imgState(loc) {
+  return loc.evaluate((el) => new Promise((r) => {
+    const done = () => r(el.complete && el.naturalWidth > 0 && !/photo-needed/.test(el.src) ? el.src : "fallback:" + el.src);
+    if (el.complete && el.naturalWidth) done(); else { el.addEventListener("load", done, { once: true }); el.addEventListener("error", () => setTimeout(done, 1500), { once: true }); setTimeout(done, 8000); }
+  })).catch(() => null);
+}
+
+async function showTop(page, sel) {
+  await page.locator(sel).first().evaluate((el) => { el.scrollIntoView({ block: "start" }); window.scrollBy(0, -170); });
+}
+
+/* Monster Trucks 1:64: UPC 887961705393 is shared by every truck in assortment FYJ44 */
+async function assortFlows(page, profile) {
+  const UPC = "887961705393";
+  const t0 = Date.now();
+  await scanTab(page, UPC);
+  await page.locator("#scan-lookup .upc-assort .upc-assort-item").first().waitFor({ timeout: 30000 });
+  const pickText = await page.locator("#scan-lookup").innerText();
+  assert(/Which one is it\?/i.test(pickText), "assortment UPC shows Which one is it?");
+  assert(/Type the item code from the back of the card \(e\.g\. JDP89\)/i.test(pickText), "the item-code field is labelled");
+  assert(/FYJ44/.test(pickText), "the picker names assortment FYJ44");
+  const tiles = await page.locator("#scan-lookup .upc-assort-item").count();
+  const firstYear = await page.locator("#scan-lookup .upc-assort-year").first().innerText();
+  await showTop(page, "#scan-lookup .upc-assort");
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: path.join(shots, `${profile}-assort-picker-FYJ44.png`) });
+  await page.locator("#upc-item-code").fill("batmobile");
+  const batTiles = await page.locator("#scan-lookup .upc-assort-item", { hasText: "TV Series Batmobile" }).count();
+  assert(batTiles >= 1, "the FYJ44 picker contains TV Series Batmobile");
+  await showTop(page, "#scan-lookup .upc-assort");
+  await page.waitForTimeout(1000);
+  await page.screenshot({ path: path.join(shots, `${profile}-assort-picker-filter-batmobile.png`) });
+  results.push({ profile, flow: "assort-picker", code: UPC, ms: Date.now() - t0, tiles, firstYear, batmobileTiles: batTiles });
+  /* typing the card-back code resolves the exact truck */
+  await page.locator("#upc-item-code").fill("JDP89-0910");
+  await page.locator("#scan-lookup .upc-picked").waitFor({ timeout: 10000 });
+  const picked = await page.locator("#scan-lookup .upc-picked").innerText();
+  assert(/TV Series Batmobile/.test(picked) && /JDP89/.test(picked) && /FYJ44/.test(picked), "JDP89 resolves to TV Series Batmobile: " + picked.slice(0, 160));
+  const pickedImg = await imgState(page.locator("#scan-lookup .upc-picked .upc-img img"));
+  assert(pickedImg && !/^fallback:/.test(pickedImg), "the resolved card has a photo: " + pickedImg);
+  await showTop(page, "#scan-lookup .upc-picked");
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: path.join(shots, `${profile}-assort-resolved-JDP89-batmobile.png`) });
+  results.push({ profile, flow: "assort-type-code", code: "JDP89-0910", ok: true, image: pickedImg });
+  /* Not this one -> tap the tile -> one-tap add */
+  await page.locator('#scan-lookup button[data-stk="assort-back"]').click();
+  await page.locator("#upc-item-code").fill("batmobile");
+  await page.locator("#scan-lookup .upc-assort-item", { hasText: "JDP89" }).first().click();
+  await page.locator("#scan-lookup .upc-picked").waitFor();
+  await page.locator('#scan-lookup .upc-picked button[data-stk="res-add"]').click();
+  await page.locator(".stk-hero h1").waitFor();
+  const detail = await page.locator("#screen").innerText();
+  assert(/TV Series Batmobile/.test(detail) && detail.includes(UPC) && /JDP89/.test(detail), "the tracker item keeps the truck name, the UPC, and the item code");
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: path.join(shots, `${profile}-assort-tracker-item-batmobile.png`), fullPage: true });
+  results.push({ profile, flow: "assort-tap-add", code: UPC, ok: true, saved: (await page.locator(".stk-hero h1").innerText()).trim() });
+  /* the item code works straight from the Scan box */
+  await scanTab(page, "JDP89-0910");
+  await page.locator("#scan-lookup .upc-picked").waitFor({ timeout: 15000 });
+  const direct = await page.locator("#scan-lookup .upc-picked").innerText();
+  assert(/TV Series Batmobile/.test(direct), "JDP89-0910 in the Scan box resolves to TV Series Batmobile");
+  const directImg = await imgState(page.locator("#scan-lookup .upc-picked .upc-img img"));
+  assert(directImg && !/^fallback:/.test(directImg), "the Scan-box item code card has a photo");
+  await showTop(page, "#scan-lookup");
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: path.join(shots, `${profile}-scan-box-JDP89-0910.png`) });
+  results.push({ profile, flow: "scan-box-item-code", code: "JDP89-0910", ok: true, image: directImg });
+}
+
 async function walk(browser, profile, opts) {
   const s = await boot(browser, opts, profile);
   const { page } = s;
+  if (process.env.ASSORT_ONLY) {
+    await assortFlows(page, profile);
+    assert(s.errors.length === 0, profile + " page errors: " + s.errors.join(" | "));
+    await s.context.close();
+    return;
+  }
   for (const c of CASES) {
     const t0 = Date.now();
     await scanTab(page, c.code);
@@ -137,6 +212,7 @@ async function walk(browser, profile, opts) {
   await page.screenshot({ path: path.join(shots, `${profile}-unknown-code-links.png`) });
   const missText = await page.locator("#scan-lookup").innerText();
   results.push({ profile, flow: "miss-links", code: missCode, links: links.length, prefixBrand: /prefix belongs to ([^.]+)/i.exec(missText) ? /prefix belongs to ([^.]+)/i.exec(missText)[1] : "" });
+  await assortFlows(page, profile);
   assert(s.errors.length === 0, profile + " page errors: " + s.errors.join(" | "));
   await s.context.close();
 }
