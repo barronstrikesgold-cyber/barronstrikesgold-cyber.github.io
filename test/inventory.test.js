@@ -103,4 +103,5 @@ const imported = Inv.importJson({ version: 2, items: [], tombstones: [] }, { ite
 assert(imported.ok && imported.state.items[0].cost === 3, "import json by id");
 assert(imported.state.items[0].photoMatched === false, "import cannot attach a fake photo");
 
+assert(Inv.toCsv([{ id: "x", name: "=1+1", notes: "+cmd" }]).indexOf("'=1+1") !== -1, "inventory CSV guards formula text");
 console.log("inventory.test.js OK");

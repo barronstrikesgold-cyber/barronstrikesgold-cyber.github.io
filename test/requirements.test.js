@@ -204,6 +204,12 @@ const sections = [
       } catch (err) { return false; }
     })(),
   },
+  {
+    name: "Privacy and compliance",
+    doc: /Privacy and compliance:[\s\S]*Export my data[\s\S]*hunt-stock[\s\S]*Global Privacy Control[\s\S]*13 and older[\s\S]*Paid links[\s\S]*never invent/,
+    app: read("app.js").includes("affiliate-note") && read("app.js").includes("indexedDB: databases") && read("lib/stock-ui.js").includes("exportData: function") && html.includes("13 and older") && html.includes("not affiliated"),
+    data: read("privacy.html").includes("who-your-browser-talks-to") && read("terms.html").includes("<h2>Paid plans</h2>") && fs.existsSync(path.join(root, "test/full-audit.mjs")),
+  },
 ];
 
 sections.forEach(function (row) {

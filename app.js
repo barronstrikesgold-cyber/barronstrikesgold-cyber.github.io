@@ -2512,7 +2512,7 @@ function renderDrops() {
       '<div class="store-list">' + stores.map(storeButton).join("") + "</div>" +
       '<section class="tool"><p class="kicker">Data freshness</p><p>' + esc(fresh || "Not checked yet") + "</p><p>" +
       (checked ? "Last refresh · " + esc(formatWhen(checked)) : "No refresh yet") + "</p></section>" +
-      '<section class="tool" id="plans"><p class="kicker">Plans</p><p>Free on this website. Pro checkout uses Stripe on the web. An iOS app comes later.</p></section>' +
+      '<section class="tool" id="plans"><p class="kicker">Plans</p><p>Hunt is free. There is no paid plan yet, and Hunt takes no payment and stores no card.</p><p class="fine">If Pro is offered later, the price, how often it renews, and how to cancel will be shown before you pay, checkout will use Stripe on the web, and you will be able to cancel online in the same number of steps it took to sign up.</p></section>' +
       '<button class="ghost" type="button" data-action="open-blog">Blog</button>' +
       '<button class="ghost" type="button" data-action="open-coupons">Coupons</button>' +
       '<button class="ghost" type="button" data-action="open-estimate">Profit calculator</button>' +
@@ -2631,6 +2631,33 @@ function renderDrops() {
     live.classList.toggle("is-fresh", state.dataPhase === "fresh");
     live.classList.toggle("is-checking", state.dataPhase === "checking");
     live.classList.toggle("is-error", state.dataPhase === "error");
+  }
+
+  /* FTC 16 CFR 255 / Amazon Associates: a clear disclosure next to paid links, not only in the footer. */
+  var AFF_NOTE = "Paid links: as an Amazon Associate I earn from qualifying purchases. It does not change the price you pay or Hunt's verdict.";
+  var affQueued = false;
+  function syncAffiliateNote() {
+    affQueued = false;
+    if (!screen) return;
+    var paid = screen.querySelector('a[href*="tag=hempsply02-20"]');
+    var note = screen.querySelector(".affiliate-note");
+    if (paid && !note) {
+      note = document.createElement("p");
+      note.className = "fine affiliate-note";
+      note.textContent = AFF_NOTE;
+      screen.appendChild(note);
+    } else if (!paid && note) {
+      note.remove();
+    } else if (paid && note && note !== screen.lastElementChild) {
+      screen.appendChild(note);
+    }
+  }
+  if (screen && window.MutationObserver) {
+    new MutationObserver(function () {
+      if (affQueued) return;
+      affQueued = true;
+      (window.requestAnimationFrame || setTimeout)(syncAffiliateNote);
+    }).observe(screen, { childList: true, subtree: true });
   }
 
   function render(opts) {
@@ -3444,12 +3471,21 @@ function renderDrops() {
     });
     var stamp = "";
     try { stamp = new Date().toISOString().slice(0, 10); } catch (err) { stamp = "export"; }
-    download("hunt-export-" + stamp + ".json", JSON.stringify({
-      exportedAt: new Date().toISOString(),
-      device: true,
-      keys: keys,
-    }, null, 2), "application/json");
-    state.note = "Export downloaded.";
+    function save(databases) {
+      download("hunt-export-" + stamp + ".json", JSON.stringify({
+        exportedAt: new Date().toISOString(),
+        device: true,
+        operator: "Broken Beaker Labs LC",
+        note: "Everything Hunt stores in this browser: localStorage keys plus the IndexedDB databases hunt-stock (inventory tracker, Show Mode sales, item photos) and hunt-upc (learned catalog). Nothing is held on a server.",
+        keys: keys,
+        indexedDB: databases || {},
+      }, null, 2), "application/json");
+      state.note = "Export downloaded.";
+      render({ keepScroll: true });
+    }
+    var stock = window.HuntStock;
+    if (stock && stock.exportData) stock.exportData().then(save, function () { save({}); });
+    else save({});
   }
 
   function deleteDeviceData() {

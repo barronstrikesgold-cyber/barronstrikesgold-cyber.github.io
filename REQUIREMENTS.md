@@ -32,6 +32,8 @@ Search by case: Catalog (Search by case, #/case/...) and the Scan box find Hot W
 
 Show Mode is the pricing agent for a vendor table. Search or scan an item and it shows the market value from Hunt's own price data with its source and date, the eBay net (sold × 0.87 − $5), a round show ticket price under market, a floor that never drops below cost plus a margin, and lot pricing for commons. One tap records Sold at show, takes it out of qty, and logs cash or card. A daily show summary totals sales and profit. Show Mode works offline. With no comp it says No verified comp and never invents a price.
 
+Privacy and compliance: Hunt has no account, sign-in, server copy, payment, analytics, ads, or cookies of its own, and the legal pages say exactly that and list every outside host the browser contacts (GitHub Pages hosting, product photo hosts, barcode and card databases, jsDelivr). Export my data downloads every hunt-/reseller- localStorage key plus the IndexedDB databases hunt-stock and hunt-upc; Delete my data on this device clears all of them after a confirm. Global Privacy Control is honored (Hunt does not sell or share). The footer of every screen states the Amazon Associates line, ages 13 and older, and that Hunt is not affiliated with Mattel, Pokémon, or other mark owners; any screen that shows a tagged Amazon link also shows a "Paid links" disclosure next to it, and tagged links carry rel="sponsored". There is no paid plan; if Pro ships, the price, auto-renewal, and an online cancel as easy as sign-up are shown before payment, and in-app account deletion ships with any account. Contact email, postal address, and governing law stay as TODO placeholders until the owner supplies them; never invent them. The full-audit check (test/full-audit.mjs) covers every route on iPhone WebKit, Android Chromium, and desktop with axe-core WCAG 2.2 AA.
+
 ## Required sections
 
 These sections have to stay in the app and in the data.
@@ -54,3 +56,4 @@ These sections have to stay in the app and in the data.
 - Photo identification
 - Learned catalog
 - Search by case
+- Privacy and compliance

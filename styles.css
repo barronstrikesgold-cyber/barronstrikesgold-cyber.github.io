@@ -9,6 +9,7 @@ html, body { min-height: 100%; }
   --muted: #a7a29a;
   --line: rgba(255, 243, 230, 0.12);
   --flame: #ff4d00;
+  --flame-text: #ff4d00;
   --drops-kicker: #ff4d00;
   --flame-deep: #e10600;
   --on-flame: #070708;
@@ -40,6 +41,7 @@ html, body { min-height: 100%; }
   --muted: #4e4942;
   --line: rgba(26, 23, 20, 0.12);
   --gold: #7a5600;
+  --flame-text: #b33a00;
   --drops-kicker: #c2410c;
   --pass: #a32018;
   --pass-bg: rgba(163, 32, 24, 0.1);
@@ -63,6 +65,7 @@ html, body { min-height: 100%; }
     --muted: #4e4942;
     --line: rgba(26, 23, 20, 0.12);
     --gold: #7a5600;
+    --flame-text: #b33a00;
     --drops-kicker: #c2410c;
     --pass: #a32018;
     --pass-bg: rgba(163, 32, 24, 0.1);
@@ -395,7 +398,7 @@ h2 {
   border-radius: 999px;
   border: 1px solid var(--line);
   background: #000;
-  color: var(--gold);
+  color: #f5c518;
   font-weight: 800;
   text-decoration: none;
 }
@@ -423,7 +426,7 @@ h2 {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--flame);
+  color: var(--flame-text);
 }
 
 .digest { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--ink); }
@@ -474,7 +477,7 @@ h2 {
   display: grid;
   place-items: center;
   background: #000;
-  color: var(--gold);
+  color: #f5c518;
   font-weight: 800;
   letter-spacing: -0.04em;
   font-size: 1.05rem;
@@ -495,6 +498,7 @@ h2 {
   margin-top: 2px;
   overflow-wrap: anywhere;
 }
+.store-pick .mono, .lane-card .mono { color: #f5c518; }
 .peg-tell {
   display: block;
   color: var(--ink);
@@ -678,6 +682,8 @@ h2 {
 .decision-lot { background: #16304a; color: #d6e8ff; }
 .decision-pass { background: #2a1514; color: #ffd0cb; }
 .decision .verdict { min-height: 28px; }
+/* WCAG 1.4.3: decision panels are always dark, so their verdict chip keeps the dark-theme colors in light mode too. */
+.decision-pass .verdict-pass { background: rgba(255, 59, 48, 0.14); color: #ff8a80; }
 
 .status {
   display: inline-flex;
@@ -693,6 +699,12 @@ h2 {
   text-transform: uppercase;
 }
 .status-sth { background: var(--gold); color: #1a1204; }
+:root[data-theme="light"] .status:not(.status-verify):not(.status-sth) { background: var(--ghost); }
+:root[data-theme="light"] .status-sth { color: #ffffff; background: var(--gold); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .status:not(.status-verify):not(.status-sth) { background: var(--ghost); }
+  :root:not([data-theme="dark"]) .status-sth { color: #ffffff; background: var(--gold); }
+}
 .status-verify { background: #243044; color: #9ec1ff; }
 
 .call {
@@ -917,7 +929,7 @@ h2 {
   text-align: center;
 }
 .tabbar button svg { width: 22px; height: 22px; }
-.tabbar button.is-on { color: var(--flame); background: rgba(255, 77, 0, 0.1); }
+.tabbar button.is-on { color: var(--flame-text); background: rgba(255, 77, 0, 0.1); }
 
 dialog:not([open]) { display: none !important; }
 .sheet, .lightbox {
@@ -1323,7 +1335,7 @@ dialog:not([open]) { display: none !important; }
   .seg button.is-on:hover { background: var(--card); color: var(--ink); }
   .btn-primary:hover, .solid:hover, .scan:hover { filter: brightness(1.06); }
   .tabbar button:hover { color: var(--ink); background: var(--hover); }
-  .tabbar button.is-on:hover { color: var(--flame); background: rgba(255, 77, 0, 0.12); }
+  .tabbar button.is-on:hover { color: var(--flame-text); background: rgba(255, 77, 0, 0.12); }
 }
 
 /* ---------- Inventory tracker + Show Mode ---------- */
