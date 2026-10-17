@@ -173,6 +173,24 @@ const sections = [
       } catch (err) { return false; }
     })(),
   },
+  {
+    name: "Photo identification",
+    doc: /Photo identification:[\s\S]*Identify from photo[\s\S]*Tesseract\.js[\s\S]*off by default/,
+    app: read("app.js").includes("Identify from photo") && read("app.js").includes('capture="environment"') && read("lib/stock-ui.js").includes("photoInto") && read("lib/photo-id.js").includes("tesseract.js@5") && read("privacy.html").includes("hunt-vision-proxy"),
+    data: read("docs/photo-id.md").includes("Cloudflare Worker") && read("lib/photo-id.js").includes("hempsply02-20"),
+  },
+  {
+    name: "Learned catalog",
+    doc: /Learned catalog:[\s\S]*IndexedDB hunt-upc[\s\S]*catalog-add[\s\S]*source URL and a photo/,
+    app: read("lib/stock-ui.js").includes("learnedSearch") && read("lib/stock-ui.js").includes("labels=catalog-add") && read("app.js").includes("search-learned") && read("lib/upc-lookup.js").includes("learnedAll"),
+    data: (function () {
+      try {
+        var l = JSON.parse(read("data/catalog-learned.json"));
+        var wf = read(".github/workflows/catalog-intake.yml");
+        return Array.isArray(l.items) && l.items.every(function (i) { return /^https:/.test(i.sourceUrl) && /^https:/.test(i.imageUrl); }) && /schedule:/.test(wf) && read("scripts/catalog-intake.mjs").includes("verifyEntry");
+      } catch (err) { return false; }
+    })(),
+  },
 ];
 
 sections.forEach(function (row) {

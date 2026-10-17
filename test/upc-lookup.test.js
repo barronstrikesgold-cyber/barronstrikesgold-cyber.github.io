@@ -163,7 +163,7 @@ const fixture = (name) => JSON.parse(read("test/fixtures/upc/" + name + ".json")
   assert(privacy.includes("barcode.report") && privacy.includes("<code>hunt-upc</code>") && privacy.includes("Open Food Facts"), "privacy discloses the third-party barcode lookup");
   assert(!/(api[_-]?key|apikey|user_key|token)\s*[:=]\s*["'][A-Za-z0-9]{12,}/i.test(src) && !/key=[A-Za-z0-9]{12,}/.test(src), "no API key is committed");
   assert(ui.includes("Which one is it?") && ui.includes("Type the item code from the back of the card") && ui.includes('data-stk="assort-pick"'), "an assortment UPC shows the picker and the item-code field");
-  assert(ui.includes("assortKeyOf(upc.assortJson, item.code)"), "a shared assortment UPC never learns one item's name");
+  assert(ui.includes("assortKeyOf(upc.assortJson, code)") && ui.includes("if (g && !shared) keys.push(g)"), "a shared assortment UPC never learns one item's name");
   assert(sw.includes("./data/upc/assortments.json"), "the assortment list is precached for offline shows");
   assert(!/api\.upcitemdb\.com/.test(src), "UPCitemdb is never called straight from the browser (its CORS blocks this origin)");
 
