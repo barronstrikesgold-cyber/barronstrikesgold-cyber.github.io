@@ -36,7 +36,7 @@ if (!base.endsWith("/")) base += "/";
 const origin = new URL(base).origin;
 
 const ROUTES = [
-  "#/home", "#/calendar", "#/drops", "#/catalog", "#/catalog/hot-wheels", "#/hw", "#/case/2026%20N", "#/scan",
+  "#/home", "#/calendar", "#/drops", "#/catalog", "#/catalog/hot-wheels", "#/hw", "#/case/2026%20N", "#/scan", "#/lot",
   "#/search/mew", "#/stores", "#/blog", "#/coupons", "#/profit", "#/stuff/watchlist", "#/inventory",
   "#/stuff/tracker", "#/stuff/show", "#/stuff/profit", "#/alerts", "#/alerts/setup", "#/stuff/settings", "#/item/cuda",
 ];
