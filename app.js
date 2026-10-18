@@ -1327,8 +1327,30 @@ function amazonBuyRow(item, verdict, already) {
     });
   });
 
+  /* ---------- lot offer (lib/lot-ui.js, loaded on first visit) ---------- */
+  var lotScript = null;
+  function ensureLot() {
+    if (window.HuntLot) return Promise.resolve(window.HuntLot);
+    if (!lotScript) {
+      lotScript = loadScript("lib/lot-ui.js").then(function () {
+        if (!window.HuntLot) throw new Error("lot");
+        return window.HuntLot;
+      }).catch(function (err) { lotScript = null; throw err; });
+    }
+    return lotScript;
+  }
+  function renderLotPage() {
+    if (window.HuntStock && window.HuntStock.ensure) window.HuntStock.ensure();
+    if (window.HuntLot) return window.HuntLot.render();
+    ensureLot().then(function () { if (state.view === "lot") render({ keepScroll: true }); }).catch(function () {
+      if (state.view === "lot") screen.innerHTML = stateCard("error", "Lot offer did not load", "Check the connection and try again.");
+    });
+    return "<h1>Lot offer</h1>" + '<div class="skeleton-list" aria-busy="true"><div class="skeleton-card"></div></div>';
+  }
+
   function renderScanPage() {
     return crumbs([{ label: "Home", href: "#/home" }, { label: "Scan" }]) + "<h1>Scan</h1>" + scanSheetHtml() +
+      '<p class="lot-entry"><a class="ghost full" href="#/lot">Price a table or lot from one photo</a></p>' +
       '<p class="fine stk-scan-links"><a href="#/stuff/tracker">Add to the inventory tracker</a> · <a href="#/stuff/show">Selling at a show? Open Show Mode</a></p>';
   }
 
@@ -2598,6 +2620,7 @@ function renderDrops() {
     if (state.view === "archive" || (state.tab === "archive" && state.view === "root")) return renderArchive();
     if (state.view === "search") return renderGlobalSearch();
     if (state.view === "case") return renderCasePage();
+    if (state.view === "lot") return renderLotPage();
     if (state.tab === "catalog" && state.view === "root") return renderBrandCatalog();
     if (state.tab === "scan" && state.view === "root") return renderScanPage();
     if ((state.tab === "stuff" || state.tab === "tracked" || state.tab === "alerts" || state.tab === "account" || state.tab === "inventory" || state.tab === "profit") && state.view === "root") return renderStuff();
@@ -2808,6 +2831,7 @@ function renderDrops() {
   function hashForState() {
     if (state.view === "search") return "#/search/" + encodeURIComponent(state.query || "");
     if (state.view === "case") return "#/case/" + encodeURIComponent(state.caseQ || "");
+    if (state.view === "lot") return "#/lot";
     if (state.view === "estimate") return "#/profit";
     if (state.view === "blog") return "#/blog";
     if (state.view === "coupons") return "#/coupons";
@@ -2904,6 +2928,11 @@ function renderDrops() {
     }
     if (head === "show" || head === "show-mode") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "show"; return; }
     if (head === "tracker" || head === "stock") { state.tab = "stuff"; state.view = "root"; state.stuffSegment = "tracker"; return; }
+    if (head === "lot") {
+      state.tab = "scan";
+      state.view = "lot";
+      return;
+    }
     if (head === "case") {
       state.tab = "catalog";
       state.view = "case";
@@ -2979,7 +3008,7 @@ function renderDrops() {
     if (hash.indexOf("#/calendar/") === 0) return "#/calendar";
     if (hash === "#/tracked/bought" || hash === "#/tracked/edit") return "#/tracked";
     if (hash === "#/alerts/setup") return "#/alerts";
-    if (hash === "#/blog" || hash === "#/coupons" || hash.indexOf("#/search/") === 0 || hash.indexOf("#/catalog") === 0 || hash.indexOf("#/case/") === 0 || hash === "#/scan" || hash.indexOf("#/stuff/") === 0 || hash === "#/hw") return "#/home";
+    if (hash === "#/blog" || hash === "#/coupons" || hash.indexOf("#/search/") === 0 || hash.indexOf("#/catalog") === 0 || hash.indexOf("#/case/") === 0 || hash === "#/lot" || hash === "#/scan" || hash.indexOf("#/stuff/") === 0 || hash === "#/hw") return "#/home";
     return "#/home";
   }
 
@@ -3082,6 +3111,7 @@ function renderDrops() {
   function routeTitle() {
     if (state.view === "search") return "Search";
     if (state.view === "case") return "Search by case";
+    if (state.view === "lot") return "Lot offer";
     if (state.view === "estimate") return "Profit calculator";
     if (state.view === "blog") return "Blog";
     if (state.view === "coupons") return "Coupons";
@@ -3502,6 +3532,7 @@ function renderDrops() {
     });
     try { localStorage.removeItem("hunt-stock-v1"); } catch (err) { /* storage blocked */ }
     if (window.HuntStock && window.HuntStock.wipe) window.HuntStock.wipe();
+    if (window.HuntLot && window.HuntLot.wipe) window.HuntLot.wipe();
     invState = { version: 2, items: [], tombstones: seedIds, migratedBought: true };
     try { Inv.write(localStorage, invState); } catch (err) { /* leave storage empty if the write fails */ }
     try { document.documentElement.removeAttribute("data-theme"); } catch (err) { /* theme can stay */ }
@@ -4208,7 +4239,19 @@ function renderDrops() {
       '<p class="fine">Off by default. If you run your own vision proxy (see docs/photo-id.md), Hunt sends a small copy of the photo there and adds its guesses. Your API key stays on the proxy, never in Hunt.</p>' +
       '<label class="field"><span>Vision proxy URL (https)</span><input id="vision-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-worker.workers.dev/" value="' + esc(proxy) + '"></label>' +
       '<div class="stk-actions"><button class="ghost" type="button" data-photo="vision-save">Save</button><button class="ghost" type="button" data-photo="vision-clear">Turn off</button></div>' +
-      '<p id="vision-msg" class="fine" role="status"></p></details></div>';
+      '<p id="vision-msg" class="fine" role="status"></p></details>' +
+      valueProxyHtml() + "</div>";
+  }
+
+  /* Optional value proxy (off by default): eBay sold, PriceCharting, and PSA pop through the owner's own Worker. */
+  function valueProxyHtml() {
+    var v = "";
+    try { v = localStorage.getItem("hunt-value-proxy") || ""; } catch (err) { v = ""; }
+    return '<details class="value-proxy"><summary>Optional: value proxy for sold comps and pop (' + (v ? "on" : "off") + ")</summary>" +
+      '<p class="fine">Off by default. Item cards use Hunt\'s published comps and price history for free. If you run your own proxy (docs/valuation.md), Refresh value also asks it for eBay sold comps, PriceCharting values, and PSA pop. Hunt sends only the item name, code, lane, and PSA spec ID. API keys stay on your proxy. Turning on paid APIs is your call.</p>' +
+      '<label class="field"><span>Value proxy URL (https)</span><input id="value-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-worker.workers.dev" value="' + esc(v) + '"></label>' +
+      '<div class="stk-actions"><button class="ghost" type="button" data-photo="value-save">Save</button><button class="ghost" type="button" data-photo="value-clear">Turn off</button></div>' +
+      '<p id="value-msg" class="fine" role="status"></p></details>';
   }
 
   var photoScript = null;
@@ -4269,6 +4312,21 @@ function renderDrops() {
       localStorage.removeItem("hunt-vision-proxy");
       if (input) input.value = "";
       if (msg) msg.textContent = "AI photo match is off. Photos stay on this phone.";
+      return;
+    }
+    if (act === "value-clear" || act === "value-save") {
+      var vin = document.getElementById("value-url");
+      var vmsg = document.getElementById("value-msg");
+      if (act === "value-clear") {
+        try { localStorage.removeItem("hunt-value-proxy"); } catch (err) { /* storage blocked */ }
+        if (vin) vin.value = "";
+        if (vmsg) vmsg.textContent = "Value proxy is off. Item cards use Hunt's free comps only.";
+        return;
+      }
+      var vu = vin ? String(vin.value || "").trim() : "";
+      if (!/^https:\/\/[^\s]+$/i.test(vu)) { if (vmsg) vmsg.textContent = "Use an https:// address, or tap Turn off."; return; }
+      try { localStorage.setItem("hunt-value-proxy", vu); } catch (err) { /* storage blocked */ }
+      if (vmsg) vmsg.textContent = "Saved. Refresh value on an item card to ask your proxy.";
       return;
     }
     if (act === "vision-save") {
@@ -4674,6 +4732,7 @@ function renderDrops() {
     scanFor: scanForStock,
     loadUpc: function () { return ensureUpc(); },
     loadPhoto: function () { return ensurePhoto(); },
+    loadScript: function (src) { return loadScript(src); },
     closeSheet: function () { if (sheet && (sheet.open || sheet.innerHTML)) closeSheet(); },
     data: function () { return { market: market, catalog: allCatalog() }; },
     bookItems: function () { return invState ? Inv.visible(invState) : []; },
