@@ -1,7 +1,7 @@
 {
   "audience": "public",
   "note": "Public promotions from official store and brand pages, and from affiliate feeds when a feed URL is configured. A code is stored only when that source prints it. Leaked and private codes are not stored. Expired offers are removed on each check.",
-  "updatedAt": "2026-10-18T15:13:27.546Z",
+  "updatedAt": "2026-10-18T19:57:19.501Z",
   "checked": [
     {
       "id": "walmart",
@@ -287,16 +287,16 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
       "id": "amazon-2",
       "sourceId": "amazon",
       "store": "Amazon",
-      "label": "Amazon · 31% off",
-      "offer": "31% off",
-      "discount": "31% off",
+      "label": "Amazon · 20% off",
+      "offer": "20% off",
+      "discount": "20% off",
       "code": "",
       "minimum": "",
       "exclusions": "",
@@ -308,7 +308,7 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -329,11 +329,32 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
       "id": "amazon-4",
+      "sourceId": "amazon",
+      "store": "Amazon",
+      "label": "Amazon · 11% off",
+      "offer": "11% off",
+      "discount": "11% off",
+      "code": "",
+      "minimum": "",
+      "exclusions": "",
+      "eligible": "",
+      "starts": "",
+      "expires": "2026-10-20",
+      "expiryStated": false,
+      "stacking": "",
+      "channel": "",
+      "sourceUrl": "https://www.amazon.com/deals",
+      "sourceKind": "official",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
+      "active": true
+    },
+    {
+      "id": "amazon-5",
       "sourceId": "amazon",
       "store": "Amazon",
       "label": "Amazon · 16% off",
@@ -350,11 +371,11 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
-      "id": "amazon-5",
+      "id": "amazon-6",
       "sourceId": "amazon",
       "store": "Amazon",
       "label": "Amazon · 15% off",
@@ -371,37 +392,16 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
-      "active": true
-    },
-    {
-      "id": "amazon-6",
-      "sourceId": "amazon",
-      "store": "Amazon",
-      "label": "Amazon · 20% off",
-      "offer": "20% off",
-      "discount": "20% off",
-      "code": "",
-      "minimum": "",
-      "exclusions": "",
-      "eligible": "",
-      "starts": "",
-      "expires": "2026-10-20",
-      "expiryStated": false,
-      "stacking": "",
-      "channel": "",
-      "sourceUrl": "https://www.amazon.com/deals",
-      "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
       "id": "amazon-7",
       "sourceId": "amazon",
       "store": "Amazon",
-      "label": "Amazon · 26% off",
-      "offer": "26% off",
-      "discount": "26% off",
+      "label": "Amazon · 31% off",
+      "offer": "31% off",
+      "discount": "31% off",
       "code": "",
       "minimum": "",
       "exclusions": "",
@@ -413,7 +413,7 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -434,7 +434,7 @@
       "channel": "",
       "sourceUrl": "https://www.amazon.com/deals",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -455,7 +455,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -476,7 +476,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -497,7 +497,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -518,7 +518,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -539,7 +539,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -560,7 +560,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -581,7 +581,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -602,7 +602,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -623,7 +623,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -644,7 +644,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -665,7 +665,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -686,7 +686,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -707,32 +707,11 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
       "id": "footlocker-6",
-      "sourceId": "footlocker",
-      "store": "Foot Locker",
-      "label": "Foot Locker · 50% off",
-      "offer": "50% off",
-      "discount": "50% off",
-      "code": "",
-      "minimum": "",
-      "exclusions": "",
-      "eligible": "sale",
-      "starts": "",
-      "expires": "2026-10-20",
-      "expiryStated": false,
-      "stacking": "",
-      "channel": "",
-      "sourceUrl": "https://www.footlocker.com/category/sale.html",
-      "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
-      "active": true
-    },
-    {
-      "id": "footlocker-7",
       "sourceId": "footlocker",
       "store": "Foot Locker",
       "label": "Foot Locker · 27% off",
@@ -749,16 +728,16 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
-      "id": "footlocker-8",
+      "id": "footlocker-7",
       "sourceId": "footlocker",
       "store": "Foot Locker",
-      "label": "Foot Locker · 20% off",
-      "offer": "20% off",
-      "discount": "20% off",
+      "label": "Foot Locker · 50% off",
+      "offer": "50% off",
+      "discount": "50% off",
       "code": "",
       "minimum": "",
       "exclusions": "",
@@ -770,7 +749,28 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-8",
+      "sourceId": "footlocker",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 24% off",
+      "offer": "24% off",
+      "discount": "24% off",
+      "code": "",
+      "minimum": "",
+      "exclusions": "",
+      "eligible": "sale",
+      "starts": "",
+      "expires": "2026-10-20",
+      "expiryStated": false,
+      "stacking": "",
+      "channel": "",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "sourceKind": "official",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     }
   ],
@@ -793,7 +793,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -814,7 +814,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     },
     {
@@ -835,7 +835,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-18T15:13:27.546Z",
+      "lastChecked": "2026-10-18T19:57:19.501Z",
       "active": true
     }
   ]
