@@ -58,6 +58,9 @@ When set, Hunt also POSTs a 768 px JPEG plus the OCR text to your proxy and merg
 Request: `POST { "image": "data:image/jpeg;base64,...", "hint": "text Hunt read" }`
 Response: `{ "guesses": [ { "name": "...", "brand": "...", "lane": "pokemon|hot-wheels|lego|funko|sneakers|other", "code": "...", "confidence": 0.0-1.0 } ] }`
 
+Lot offer's **Find cars** button uses the same proxy URL at `/detect`. The combined Worker in `docs/valuation.md` serves
+this photo match, `/detect`, and `/value`; use it instead of the one below if you want all three.
+
 ### Cloudflare Worker template (key stays server-side)
 
 Nothing here is deployed. To use it: Cloudflare dashboard → Workers → Create → paste this → Settings → Variables:
