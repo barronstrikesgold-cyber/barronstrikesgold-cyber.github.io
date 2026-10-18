@@ -205,8 +205,8 @@ async function walk(browser, profile, contextOptions) {
     const view = page.viewportSize();
     if (!bar || !view) throw new Error("tab bar has no box");
     if (desktop) {
-      if (bar.y > 180) throw new Error("desktop tab bar is not in the top nav, y=" + Math.round(bar.y));
-      if (bar.width < view.width * 0.7) throw new Error("desktop tab bar is not a full-width top nav");
+      if (bar.x > 80 || bar.width > 320) throw new Error("desktop nav is not the left sidebar, x=" + Math.round(bar.x) + " w=" + Math.round(bar.width));
+      if (bar.height < view.height * 0.5) throw new Error("desktop sidebar is too short, h=" + Math.round(bar.height));
     } else if (bar.y < view.height * 0.6) {
       throw new Error("mobile tab bar is not at the bottom, y=" + Math.round(bar.y));
     }

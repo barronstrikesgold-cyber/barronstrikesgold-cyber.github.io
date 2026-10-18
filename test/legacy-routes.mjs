@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const shots = "/opt/cursor/artifacts/screenshots/legacy";
 fs.mkdirSync(shots, { recursive: true });
 const iphone = devices["iPhone 13"];
-const liveCache = "reseller-shell-20261012i";
+const liveCache = (fs.readFileSync(path.join(root, "sw.js"), "utf8").match(/var CACHE = "([^"]+)"/) || [])[1];
 const staleCache = "reseller-shell-old-test";
 
 const types = {

@@ -115,9 +115,9 @@ try {
         assert(info.wordmark === "Hunt", `${name} ${width} ${theme} wordmark`);
         assert(info.theme === theme, `${name} ${width} ${theme} data-theme is ${info.theme}`);
         assert(!info.overflow, `${name} ${width} ${theme} horizontal overflow`);
-        const top = info.tabW > info.viewW * 0.8 && info.tabY < 160 && info.tabH < 100;
+        const top = info.tabW <= 320 && info.tabX < info.appX + 80 && info.tabY < 160 && info.tabH > info.viewH * 0.5;
         const bottom = info.tabW > info.viewW * 0.8 && info.tabY > info.viewH * 0.55;
-        if (width >= 1024) assert(top, `${name} ${width} ${theme} top nav (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabX)},${Math.round(info.tabY)})`);
+        if (width >= 1024) assert(top, `${name} ${width} ${theme} sidebar (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabX)},${Math.round(info.tabY)})`);
         else assert(bottom, `${name} ${width} ${theme} bottom tabs (${Math.round(info.tabW)}x${Math.round(info.tabH)} at ${Math.round(info.tabY)})`);
         const expectedCols = width >= 1440 ? 4 : width >= 1100 ? 3 : width >= 700 ? 2 : 1;
         assert(info.columns === expectedCols, `${name} ${width} ${theme} grid columns ${info.columns} expected ${expectedCols}`);
