@@ -250,6 +250,8 @@ REQUIRED_TCG.forEach(function (id) {
   "front end",
   "back end",
   "responsive",
+  "Liquid Glass",
+  "Dynamic Island",
   "card layout",
   "premium",
   "supplier",

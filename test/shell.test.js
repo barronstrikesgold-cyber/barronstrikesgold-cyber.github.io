@@ -89,11 +89,14 @@ assert(/\.drops-strip\s*\{[^}]*background:\s*var\(--card\)/.test(css), "drops ca
 assert(!css.includes("rgba(18, 18, 20, 0.92)"), "drops card does not fade to black");
 assert(css.includes("--drops-kicker: #c2410c"), "light drops label clears the card");
 assert(huntDrops.includes("Updated just now") && huntDrops.includes("Checking…"), "status copy");
-assert(sw.includes("reseller-shell-20261018a"), "service worker cache name is bumped");
-assert(!sw.includes("reseller-shell-20261017y"), "previous shell cache is retired");
+assert(sw.includes("reseller-shell-20261018b"), "service worker cache name is bumped");
+assert(!sw.includes("reseller-shell-20261018a"), "previous shell cache is retired");
 assert(html.includes('id="global-q"'), "global search is in the header");
 assert(css.includes("top: calc(56px + env(safe-area-inset-top))"), "desktop nav sits under the header");
-assert(!css.includes("margin: 0 0 0 232px"), "desktop nav is not a side rail");
+assert(!css.includes("margin: 0 0 0 232px"), "the old fixed side rail offset stays gone");
+assert(css.includes("--sidebar-w") && css.includes("flex-direction: column") && css.includes("margin-left: calc(var(--sidebar-w) + 24px)"), "iPad and desktop use the Liquid Glass sidebar");
+assert(css.includes("prefers-reduced-transparency: reduce") && css.includes("@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px)))"), "glass has solid fallbacks");
+assert(css.includes("html.tabs-min .tabbar") && css.includes("border-radius: 999px"), "phones get a floating capsule tab bar that shrinks on scroll");
 assert(app.includes("data-fashion-brand"), "sneaker and designer drops have brand chips");
 assert(app.includes("id=\"drop-calendar\""), "dated drops render as a calendar");
 assert(app.includes("Authentication: sneakers and designer pieces"), "authentication disclaimer is on fashion drops");

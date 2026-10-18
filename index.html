@@ -33,6 +33,7 @@
     <script defer src="lib/valuation.js"></script>
     <script defer src="lib/stock-ui.js"></script>
     <script defer src="app.js"></script>
+    <script defer src="lib/glass.js"></script>
   </head>
   <body>
     <a class="skip" href="#screen" data-skip>Skip to content</a>
@@ -53,13 +54,14 @@
           </span>
         </a>
         <p class="view-title" id="view-title" hidden></p>
+        <p class="nav-compact" id="nav-compact" aria-hidden="true"></p>
         <label class="global-search">
           <span class="sr-only">Search</span>
           <input id="global-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search deals and brands" />
         </label>
         <div class="top-actions">
           <button type="button" class="icon-btn" id="refresh-btn" data-action="refresh" aria-label="Refresh prices">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
           </button>
         </div>
       </header>
@@ -87,23 +89,23 @@
       </footer>
       <nav class="tabbar" aria-label="Primary" role="tablist">
         <button type="button" role="tab" id="tab-home" data-tab="home" aria-selected="true" aria-current="page" aria-controls="screen" class="is-on">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a2 2 0 0 1 .71-1.53l7-6a2 2 0 0 1 2.58 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" fill="none"/></svg>
           <span>Home</span>
         </button>
         <button type="button" role="tab" id="tab-calendar" data-tab="calendar" aria-selected="false" aria-controls="screen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18" fill="none"/></svg>
           <span>Drops &amp; Calendar</span>
         </button>
         <button type="button" role="tab" id="tab-catalog" data-tab="catalog" aria-selected="false" aria-controls="screen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>
           <span>Catalog</span>
         </button>
         <button type="button" role="tab" id="tab-scan" data-tab="scan" aria-selected="false" aria-controls="screen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10" fill="none"/></svg>
           <span>Scan</span>
         </button>
         <button type="button" role="tab" id="tab-stuff" data-tab="stuff" aria-selected="false" aria-controls="screen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v16l-6-3-6 3z" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           <span>My Stuff</span>
         </button>
       </nav>

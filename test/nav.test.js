@@ -23,8 +23,10 @@ assert(nav.includes(">Scan<"), "scan tab");
 assert(nav.includes(">My Stuff<"), "my stuff tab");
 assert(html.includes('id="global-q"'), "global search");
 assert(css.includes("bottom: 0"), "mobile tab bar stays on the bottom");
-assert(css.includes("top: calc(56px + env(safe-area-inset-top))"), "desktop uses a top nav");
-assert(!css.includes("margin: 0 0 0 232px"), "desktop is not a side rail");
+assert(css.includes("top: calc(56px + env(safe-area-inset-top) + 12px)"), "the iPad/desktop sidebar starts under the header");
+assert(!css.includes("margin: 0 0 0 232px"), "the old fixed side rail offset stays gone");
+assert(css.includes("--sidebar-w"), "iPad and desktop use a sidebar");
+assert(html.includes('id="nav-compact"') && html.includes("lib/glass.js"), "large titles collapse into the bar");
 ["Hot Wheels/Matchbox", "TCG", "Sports", "Sneakers", "Designer", "LEGO", "Funko", "Tech"].forEach((label) => {
   assert(app.includes('"' + label + '"'), "catalog chip " + label);
 });
