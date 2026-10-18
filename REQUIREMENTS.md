@@ -10,7 +10,7 @@ Tiers are Free and Pro. Pro checkout uses Stripe on the web. Affiliate links use
 
 Hunt is a full front end and back end. The front end is this website. The back end is the daily brand and supplier ingestion that refreshes the market file and the auto-updating brand calendar.
 
-The interface stays responsive on every device. It uses a card layout, and it should feel premium and easy to use.
+The interface stays responsive on every device. It uses a card layout, and it should feel premium and easy to use. The look follows Apple's public Liquid Glass design language (iOS 26 / iPadOS 26 Human Interface Guidelines): translucent glass bars with solid fallbacks (no backdrop-filter, or prefers-reduced-transparency), a floating capsule tab bar on phones that shrinks while scrolling, large titles that collapse into the bar, grouped inset lists in Settings, concentric rounded corners, spring motion that stops under prefers-reduced-motion, light, dark, and system themes, and safe areas for the Dynamic Island. On iPad and desktop (1024px and wider) the five tabs become a glass sidebar on the left. No Apple logos, artwork, or SF Symbols files; icons are open-source strokes. Text on glass keeps WCAG 2.2 AA contrast.
 
 Photos load, are centered, and appear on detail pages, with buy links. iPhone scan is part of the hunt. The shell stays on a fast load: the blog and the coupons file are not on the first hunt request.
 
