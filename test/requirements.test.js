@@ -205,6 +205,20 @@ const sections = [
     })(),
   },
   {
+    name: "Item valuation",
+    doc: /Item valuation:[\s\S]*last sale[\s\S]*No pop data[\s\S]*0\.87 − \$5[\s\S]*Projection, not a promise[\s\S]*Not enough data[\s\S]*hunt-value-proxy[\s\S]*owner's yes/,
+    app: read("lib/stock-ui.js").includes("valueHtml(item)") && read("lib/stock-ui.js").includes("value-refresh") && read("lib/valuation.js").includes("Projection, not a promise.") && html.includes("lib/valuation.js"),
+    data: (function () {
+      try { var h = JSON.parse(read("data/market-history.json")); return h && typeof h.series === "object" && Object.keys(h.series).length > 0 && read(".github/workflows/refresh-market.yml").includes("build-market-history.mjs") && fs.existsSync(path.join(root, "docs/valuation.md")); } catch (err) { return false; }
+    })(),
+  },
+  {
+    name: "Lot offer",
+    doc: /Lot offer:[\s\S]*#\/lot[\s\S]*0\.87 − \$5[\s\S]*floor[\s\S]*STH[\s\S]*Verify[\s\S]*CSV[\s\S]*never saved or uploaded/,
+    app: read("app.js").includes("renderLotPage") && read("lib/lot-ui.js").includes("window.HuntLot") && read("lib/valuation.js").includes("function offer") && read("sw.js").includes("./lib/lot-ui.js"),
+    data: read("privacy.html").includes("<code>hunt-lot</code>"),
+  },
+  {
     name: "Privacy and compliance",
     doc: /Privacy and compliance:[\s\S]*Export my data[\s\S]*hunt-stock[\s\S]*Global Privacy Control[\s\S]*13 and older[\s\S]*Paid links[\s\S]*never invent/,
     app: read("app.js").includes("affiliate-note") && read("app.js").includes("indexedDB: databases") && read("lib/stock-ui.js").includes("exportData: function") && html.includes("13 and older") && html.includes("not affiliated"),

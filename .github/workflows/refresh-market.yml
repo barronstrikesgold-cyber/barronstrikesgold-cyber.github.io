@@ -34,13 +34,15 @@ jobs:
         env:
           GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: node scripts/refresh-market.mjs
+      - name: Append the dated comps to the price history
+        run: node scripts/build-market-history.mjs
       - name: Test before commit
         run: npm test
       - name: Commit market data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- data/market.json
+          git add -- data/market.json data/market-history.json
           if git diff --cached --quiet; then
             echo "No market changes"
           else

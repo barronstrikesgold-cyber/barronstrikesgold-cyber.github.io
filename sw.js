@@ -1,4 +1,4 @@
-var CACHE = "reseller-shell-20261017y";
+var CACHE = "reseller-shell-20261018a";
 var SHELL = [
   "./404.html",
   "./app.js",
@@ -69,6 +69,8 @@ var SHELL = [
   "./lib/search.js",
   "./lib/show-pricing.js",
   "./lib/stock-ui.js",
+  "./lib/valuation.js",
+  "./lib/lot-ui.js",
   "./lib/stock.js",
   "./lib/upc-lookup.js",
   "./lib/photo-id.js",
