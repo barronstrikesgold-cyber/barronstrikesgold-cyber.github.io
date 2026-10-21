@@ -1,7 +1,7 @@
 {
   "audience": "public",
   "note": "Public promotions from official store and brand pages, and from affiliate feeds when a feed URL is configured. A code is stored only when that source prints it. Leaked and private codes are not stored. Expired offers are removed on each check.",
-  "updatedAt": "2026-10-21T11:00:13.247Z",
+  "updatedAt": "2026-10-21T16:26:51.755Z",
   "checked": [
     {
       "id": "walmart",
@@ -287,7 +287,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -308,7 +308,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -329,7 +329,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -350,7 +350,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -371,32 +371,11 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
       "id": "footlocker-2",
-      "sourceId": "footlocker",
-      "store": "Foot Locker",
-      "label": "Foot Locker · 17% off",
-      "offer": "17% off",
-      "discount": "17% off",
-      "code": "",
-      "minimum": "",
-      "exclusions": "",
-      "eligible": "sale",
-      "starts": "",
-      "expires": "2026-10-23",
-      "expiryStated": false,
-      "stacking": "",
-      "channel": "",
-      "sourceUrl": "https://www.footlocker.com/category/sale.html",
-      "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
-      "active": true
-    },
-    {
-      "id": "footlocker-3",
       "sourceId": "footlocker",
       "store": "Foot Locker",
       "label": "Foot Locker · 53% off",
@@ -413,11 +392,11 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
-      "id": "footlocker-4",
+      "id": "footlocker-3",
       "sourceId": "footlocker",
       "store": "Foot Locker",
       "label": "Foot Locker · 41% off",
@@ -434,7 +413,28 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-4",
+      "sourceId": "footlocker",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 28% off",
+      "offer": "28% off",
+      "discount": "28% off",
+      "code": "",
+      "minimum": "",
+      "exclusions": "",
+      "eligible": "sale",
+      "starts": "",
+      "expires": "2026-10-23",
+      "expiryStated": false,
+      "stacking": "",
+      "channel": "",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "sourceKind": "official",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -455,7 +455,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
@@ -476,32 +476,11 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     },
     {
       "id": "footlocker-7",
-      "sourceId": "footlocker",
-      "store": "Foot Locker",
-      "label": "Foot Locker · 20% off",
-      "offer": "20% off",
-      "discount": "20% off",
-      "code": "",
-      "minimum": "",
-      "exclusions": "",
-      "eligible": "sale",
-      "starts": "",
-      "expires": "2026-10-23",
-      "expiryStated": false,
-      "stacking": "",
-      "channel": "",
-      "sourceUrl": "https://www.footlocker.com/category/sale.html",
-      "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
-      "active": true
-    },
-    {
-      "id": "footlocker-8",
       "sourceId": "footlocker",
       "store": "Foot Locker",
       "label": "Foot Locker · 24% off",
@@ -518,7 +497,28 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T11:00:13.247Z",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
+      "active": true
+    },
+    {
+      "id": "footlocker-8",
+      "sourceId": "footlocker",
+      "store": "Foot Locker",
+      "label": "Foot Locker · 17% off",
+      "offer": "17% off",
+      "discount": "17% off",
+      "code": "",
+      "minimum": "",
+      "exclusions": "",
+      "eligible": "sale",
+      "starts": "",
+      "expires": "2026-10-23",
+      "expiryStated": false,
+      "stacking": "",
+      "channel": "",
+      "sourceUrl": "https://www.footlocker.com/category/sale.html",
+      "sourceKind": "official",
+      "lastChecked": "2026-10-21T16:26:51.755Z",
       "active": true
     }
   ],
