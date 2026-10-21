@@ -1,7 +1,7 @@
 {
   "audience": "public",
   "note": "Public promotions from official store and brand pages, and from affiliate feeds when a feed URL is configured. A code is stored only when that source prints it. Leaked and private codes are not stored. Expired offers are removed on each check.",
-  "updatedAt": "2026-10-20T21:08:09.892Z",
+  "updatedAt": "2026-10-21T02:54:12.136Z",
   "checked": [
     {
       "id": "walmart",
@@ -281,13 +281,13 @@
       "exclusions": "",
       "eligible": "",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "Cannot be combined with any other promotional offer",
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -302,13 +302,13 @@
       "exclusions": "",
       "eligible": "",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -323,13 +323,13 @@
       "exclusions": "",
       "eligible": "",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -344,13 +344,13 @@
       "exclusions": "",
       "eligible": "",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -365,13 +365,13 @@
       "exclusions": "",
       "eligible": "",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -386,13 +386,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -407,13 +407,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -428,13 +428,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -449,13 +449,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -470,13 +470,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -491,13 +491,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     },
     {
@@ -512,13 +512,13 @@
       "exclusions": "",
       "eligible": "sale",
       "starts": "",
-      "expires": "2026-10-22",
+      "expires": "2026-10-23",
       "expiryStated": false,
       "stacking": "",
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-20T21:08:09.892Z",
+      "lastChecked": "2026-10-21T02:54:12.136Z",
       "active": true
     }
   ],
