@@ -1,7 +1,7 @@
 {
   "audience": "public",
   "note": "Public promotions from official store and brand pages, and from affiliate feeds when a feed URL is configured. A code is stored only when that source prints it. Leaked and private codes are not stored. Expired offers are removed on each check.",
-  "updatedAt": "2026-10-21T02:54:12.136Z",
+  "updatedAt": "2026-10-21T11:00:13.247Z",
   "checked": [
     {
       "id": "walmart",
@@ -287,7 +287,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -308,7 +308,7 @@
       "channel": "",
       "sourceUrl": "https://creations.mattel.com/",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -329,7 +329,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -350,7 +350,7 @@
       "channel": "",
       "sourceUrl": "https://us.puma.com/us/en/sale",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -371,7 +371,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -392,7 +392,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -413,7 +413,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -434,7 +434,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -455,7 +455,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -476,7 +476,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -497,7 +497,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     },
     {
@@ -518,7 +518,7 @@
       "channel": "",
       "sourceUrl": "https://www.footlocker.com/category/sale.html",
       "sourceKind": "official",
-      "lastChecked": "2026-10-21T02:54:12.136Z",
+      "lastChecked": "2026-10-21T11:00:13.247Z",
       "active": true
     }
   ],
